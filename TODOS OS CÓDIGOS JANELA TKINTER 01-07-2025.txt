@@ -1,0 +1,1637 @@
+main
+
+
+
+
+import tkinter as tk
+from tkinter import ttk, Entry, BooleanVar
+from PIL import Image, ImageTk
+import os
+from tkcalendar import DateEntry
+import sqlite3
+import time
+import dados_compartilhados as dc
+#from aba_consulta import montar_aba_consulta
+import pandas as pd
+#import matplotlib.pyplot as plt
+#from models import database, criar_app
+from aba_diagnostico import criar_menu_diagnostico
+from playsound import playsound
+from aba_login import criar_login
+import threading
+
+def ao_logar(nome, perfil):
+    print(f"Usuário logado: {nome} - Perfil: {perfil}")
+    # Aqui você pode controlar permissões ou abrir a interface principal
+    # Ex: abrir_aba_principal(perfil=perfil)
+
+# 🎯 2. Liberar acesso à tela de gerenciamento somente para administradores
+# No seu ao_logar(nome, perfil) do main.py, adicione:
+
+def ao_logar(nome, perfil):
+    janela.deiconify()
+    if perfil == "Administrador":
+        from aba_login import gerenciar_usuarios
+        gerenciar_usuarios(janela)
+
+janela = tk.Tk()
+janela.withdraw()  # Esconde janela até login ser feito
+criar_login(janela, ao_logar_callback=ao_logar)
+janela.mainloop()
+
+
+def mostrar_splash():
+    splash = tk.Toplevel()
+    splash.overrideredirect(True)  # sem bordas
+    largura, altura = 500, 300
+
+    # Centraliza a splash na tela
+    tela_largura = splash.winfo_screenwidth()
+    tela_altura = splash.winfo_screenheight()
+    x = (tela_largura - largura) // 2
+    y = (tela_altura - altura) // 2
+    splash.geometry(f"{largura}x{altura}+{x}+{y}")
+
+    # Carrega o logotipo
+    caminho = os.path.join("imagens", "logo_ipojucao.png")
+    if os.path.exists(caminho):
+        img = Image.open(caminho).resize((largura, altura))
+        img_tk = ImageTk.PhotoImage(img)
+        label_img = tk.Label(splash, image=img_tk)
+        label_img.image = img_tk  # 🔒 mantém na memória
+        label_img.pack()
+
+    # Toca a música de abertura (opcional)
+    def tocar():
+        from playsound import playsound
+        caminho_som = os.path.join("som/bouncy_pet_intro.mp3")
+        if os.path.exists(caminho_som):
+            playsound(caminho_som)
+    threading.Thread(target=tocar, daemon=True).start()
+
+    # Fecha a splash após 3 segundos
+    splash.after(3000, splash.destroy)
+    splash.mainloop()
+
+mostrar_splash()
+
+
+def tocar_musica_abertura():
+    caminho = os.path.join("som", "musica_abertura.mp3")
+    threading.Thread(target=playsound, args=(caminho,), daemon=True).start()
+
+import tkinter as tk
+from tkinter import ttk
+import os
+import threading
+from playsound import playsound
+
+btn_audio = ttk.Button(janela, text="🔈 Som Ativado")
+btn_audio.config(command=lambda: alternar_audio(btn_audio))
+btn_audio.place(x=880, y=10)  # Ajuste coordenadas conforme layout
+
+# Variável global para controle do som
+som_ativo = True
+
+def tocar_som_evento(caminho):
+    if som_ativo and os.path.exists(caminho):
+        threading.Thread(target=playsound, args=(caminho,), daemon=True).start()
+
+def alternar_audio(botao):
+    global som_ativo
+    som_ativo = not som_ativo
+    novo_texto = "🔈 Som Ativado" if som_ativo else "🔇 Som Desativado"
+    botao.config(text=novo_texto)
+
+
+# Combobox para Selecionar Música
+
+trilhas = {
+    "consulta": "som/musica_consulta.mp3",
+    "salvando": "som/salvando.mp3",
+    "abertura": "som/musica_abertura.wav",
+    "fechamento": "som/end_of_day.mp3",
+    "relatorios": "som/relatorio.mp3",
+    "clientes": "clair_de_lune_prelude.mp3"
+}
+
+trilha_selecionada = StringVar()
+trilha_selecionada.set("Alegria leve")
+
+combo_trilha = ttk.Combobox(janela, textvariable=trilha_selecionada, values=list(trilhas.keys()), width=25, state="readonly")
+combo_trilha.place(x=680, y=10)
+
+
+# E sempre que for tocar música de consulta:
+caminho = trilhas.get(trilha_selecionada.get())
+tocar_som_evento(caminho)
+
+
+# Música Fechamento do Programa (Janela)
+
+def tocar_musica_fechar():
+    caminho = os.path.join("sons", "musica_end_of_day.mp3")
+    if os.path.exists(caminho):
+        playsound(caminho)  # tocar música até o fim (bloqueante)
+    else:
+        print("Música de fechamento não encontrada.")
+
+def mostrar_despedida_e_sair():
+    despedida = tk.Label(janela, text="🐾 Até logo! Obrigado por cuidar com carinho.", font=("Segoe UI", 14), fg="#444")
+    despedida.place(relx=0.5, rely=0.4, anchor="center")
+
+    caminho = os.path.join("sons", "musica_end_of_day.mp3")
+    if os.path.exists(caminho):
+        threading.Thread(target=playsound, args=(caminho,), daemon=True).start()
+
+    def fade_out(passo=0):
+        alpha = max(0, 1 - passo / 20)
+        cinza = int(68 * alpha)
+        cor = f"#{cinza:02x}{cinza:02x}{cinza:02x}"
+        despedida.config(fg=cor)
+        if passo < 20:
+            janela.after(50, fade_out, passo + 1)
+        else:
+            janela.quit()
+
+    janela.after(1000, fade_out)  # Espera 1s antes de começar a desaparecer
+
+# def fechar_com_musica():
+#     threading.Thread(target=tocar_musica_fechar).start()
+#     # Aguarda alguns segundos antes de fechar
+#     janela.after(3500, janela.quit)  # ajuste o tempo (em milissegundos) conforme duração da música
+
+botao_fechar = tk.Button(janela, text='Fechar', command=mostrar_despedida_e_sair, borderwidth=2, relief='solid')
+botao_fechar.grid(row=3, column=6, padx=6, pady=10, sticky='nsew', columnspan=4)
+
+
+
+#root = tk.Tk()
+
+# #+++++++++++++++++++++++++++++++++++++++++++
+
+
+import tkinter as tk
+from tkinter import ttk
+import dados_compartilhados as dc
+
+# 🪟 Criando janela principal
+janela = tk.Tk()
+janela.title("Planilha Controle Ipojucão")
+janela.geometry("1024x700")
+janela.rowconfigure(0, weight=1)
+janela.columnconfigure(0, weight=1)
+
+
+# ✅ 1. Mensagem de boas-vindas com fade-in
+# Logo após criar a janela e antes de montar as abas, adicione:
+
+def mostrar_mensagem_boas_vindas():
+    mensagem = tk.Label(janela, text="🐾 Bem-vindo(a) ao Sistema Ipojucão!", font=("Segoe UI", 16), fg="#4CAF50")
+    mensagem.place(relx=0.5, rely=0.1, anchor="center")
+    mensagem.attributes = {"alpha": 0}  # controle manual do alpha
+
+    def animar_fade_in(passo=0):
+        alpha = passo / 20
+        nova_cor = f"#{int(76 * alpha):02x}{int(175 * alpha):02x}{int(80 * alpha):02x}"  # gradiente de verde
+        mensagem.config(fg=nova_cor)
+        if passo < 20:
+            janela.after(40, animar_fade_in, passo + 1)
+        else:
+            janela.after(2500, mensagem.destroy)
+
+    animar_fade_in()
+
+mostrar_mensagem_boas_vindas()
+tocar_musica_abertura()
+
+
+# 📒 Criando o Notebook (abas)
+notebook = ttk.Notebook(janela)
+notebook.grid(row=0, column=0, sticky="nsew")
+
+# 🧠 Inicializando variáveis globais (exemplo mínimo)
+dc.var_porte = tk.StringVar(value="pequeno")
+dc.var_raca = tk.StringVar()
+
+# 🔧 Menu Diagnóstico do Sistema
+from aba_diagnostico import criar_menu_diagnostico
+criar_menu_diagnostico(janela, notebook)
+
+# 🗂 Importando e montando ABAS
+from aba_config import montar_aba_config
+aba_config = ttk.Frame(notebook)
+notebook.add(aba_config, text="⚙️ Configuração")
+montar_aba_config(aba_config)
+
+from aba_cadastro import montar_aba_cadastro
+aba_cadastro = ttk.Frame(notebook)
+notebook.add(aba_cadastro, text="🐶 Cadastro")
+montar_aba_cadastro(aba_cadastro)
+
+from aba_consulta import montar_aba_consulta
+aba_consulta = ttk.Frame(notebook)
+notebook.add(aba_consulta, text="🔍 Consulta")
+montar_aba_consulta(aba_consulta)
+
+from aba_financeiro import montar_aba_financeiro
+aba_financeiro = ttk.Frame(notebook)
+notebook.add(aba_financeiro, text="💰 Financeiro")
+montar_aba_financeiro(aba_financeiro)
+
+from aba_relatorio import montar_aba_relatorio
+aba_relatorio = ttk.Frame(notebook)
+notebook.add(aba_relatorio, text="📊 Relatórios")
+montar_aba_relatorio(aba_relatorio)
+
+# 🟢 Iniciando a aplicação
+
+
+
+
+# #++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+
+
+
+# janela = tk.Tk()
+# janela.title("Planilha Controle Ipojucão")
+# janela.geometry("800x600")
+#
+# notebook = ttk.Notebook(janela)
+# notebook.grid(row=0, column=0, sticky="nsew")
+#
+# criar_menu_diagnostico(janela, notebook)
+#
+#
+#
+def montar_aba_main(aba):
+    # Permitir expansão
+    aba.grid_rowconfigure(0, weight=1)
+    aba.grid_columnconfigure(0, weight=1)
+
+    # Canvas + Scrollbar
+    canvas = tk.Canvas(aba)
+    scrollbar_y = ttk.Scrollbar(aba, orient="vertical", command=canvas.yview)
+    canvas.configure(yscrollcommand=scrollbar_y.set)
+
+    canvas.grid(row=0, column=0, sticky="nsew")
+    scrollbar_y.grid(row=0, column=1, sticky="ns")
+
+    # Frame rolável
+    inner_frame = ttk.Frame(canvas)
+    canvas.create_window((0, 0), window=inner_frame, anchor="nw")
+
+    def ajustar_scroll(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+    inner_frame.bind("<Configure>", ajustar_scroll)
+
+    # === A partir daqui, crie widgets dentro do inner_frame ===
+
+    # Exemplo básico
+    frame_exemplo = ttk.LabelFrame(inner_frame, text="Seção de Exemplo")
+    frame_exemplo.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+    ttk.Label(frame_exemplo, text="Alguma informação importante").grid(row=0, column=0, sticky="w")
+
+    # Repita quantos blocos quiser (outros frames, grids, entradas, etc.)
+
+    # Se quiser ativar algo quando o porte mudar
+    dc.var_porte.trace_add("write", lambda *args: atualizar_exemplo())
+
+def atualizar_exemplo():
+    porte = dc.var_porte.get()
+    print(f"Porte selecionado na aba é: {porte}")
+#
+#
+# from aba_config import montar_aba_config
+#
+# aba_config = ttk.Frame(notebook)
+# notebook.add(aba_config, text="Config")
+# montar_aba_config(aba_config)
+#
+# from aba_relatorio import montar_aba_relatorio
+#
+# aba_relatorio = ttk.Frame(notebook)
+# notebook.add(aba_relatorio, text="Relatórios")
+# montar_aba_relatorio(aba_relatorio)
+#
+# from aba_consulta import montar_aba_consulta
+#
+# aba_consulta = ttk.Frame(notebook)
+# notebook.add(aba_consulta, text="Consulta")
+# montar_aba_consulta(aba_consulta)
+#
+# from aba_cadastro import montar_aba_cadastro
+#
+# aba_cadastro = ttk.Frame(notebook)
+# notebook.add(aba_cadastro, text="Cadastro")
+# montar_aba_cadastro(aba_cadastro)
+#
+# from aba_financeiro import montar_aba_relatorio, montar_aba_financeiro
+#
+# aba_financeiro = ttk.Frame(notebook)
+# notebook.add(aba_financeiro, text="Financeiro")
+# montar_aba_financeiro(aba_financeiro)
+#
+
+
+
+# Agora sim pode criar StringVar!
+# dc.var_porte = tk.StringVar(value="pequeno")
+# dc.var_raca = tk.StringVar()
+
+# from aba_config import montar_aba_config
+# from aba_financeiro import montar_aba_financeiro
+#
+# notebook = ttk.Notebook(root)
+# notebook.pack(fill="both", expand=True)
+#
+# aba_config = ttk.Frame(notebook)
+# aba_financeiro = ttk.Frame(notebook)
+#
+# notebook.add(aba_config, text="Configuração")
+# notebook.add(aba_financeiro, text="Financeiro")
+#
+# montar_aba_config(aba_config)
+# montar_aba_config(aba_financeiro)
+# from aba_config import montar_aba_config
+# montar_aba_financeiro(aba_financeiro)
+#
+# from aba_financeiro import montar_aba_financeiro
+# montar_aba_financeiro(aba_financeiro)
+#
+# from aba_diagnostico import criar_menu_diagnostico  # se você salvar isso num novo arquivo
+#
+# criar_menu_diagnostico(janela, notebook)
+
+
+janela.mainloop()
+
+
+
+
+
+
+
++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+
+
+usuarios.json
+
+
+
+{
+  "admin@ipojucao.com": {
+    "senha": "1234",
+    "nome": "Admin",
+    "perfil": "Administrador"
+  },
+  "luna@ipojucao.com": {
+    "senha": "petpet",
+    "nome": "Luna",
+    "perfil": "Funcionário"
+  }
+}
+
+
+
+++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+
+
+aba_login
+
+
+import json
+import tkinter as tk
+from tkinter import messagebox
+from PIL import Image, ImageTk
+import os
+import threading
+from playsound import playsound
+
+CAMINHO_USUARIOS = "usuarios.json"
+
+def carregar_usuarios():
+    if os.path.exists(CAMINHO_USUARIOS):
+        with open(CAMINHO_USUARIOS, "r", encoding="utf-8") as f:
+            return json.load(f)
+    return {}
+
+def salvar_usuarios(usuarios):
+    with open(CAMINHO_USUARIOS, "w", encoding="utf-8") as f:
+        json.dump(usuarios, f, indent=2)
+
+
+usuarios = carregar_usuarios()
+
+# 🎯 Dicionário de usuários simulando um “banco de dados”
+# usuarios = {
+#     "roquereinaldo@gmail.com": {"senha": "975624asa", "nome": "Reinaldo", "perfil": "Administrador"},
+#     "araujolindi@yahoo.com.br": {"senha": "1234", "nome": "Lindinalva", "perfil": "Administrador"},
+#     "cebous@hotmail.com.br": {"senha": "1234", "nome": "Raphael", "perfil": "Administrador"},
+#     "admin@ipojucao.com": {"senha": "1234", "nome": "Marlene", "perfil": "Administrador"},
+#     "anna_paula@ipojucao.com": {"senha": "1234", "nome": "Anna Paula", "perfil": "Administrador"},
+#     "admin@ipojucao.com": {"senha": "1234", "nome": "Qualquer", "perfil": "Administrador"},
+#     "wander@ipojucao.com": {"senha": "petpet", "nome": "Wander", "perfil": "Funcionário"},
+# }
+
+som_global_ativo = True  # Pode ser controlado por botão global
+
+# ✅ 1. Função  — interface amigável
+# Adicione este código ao seu :
+
+
+def gerenciar_usuarios(janela_pai):
+    janela_gerenciar = tk.Toplevel(janela_pai)
+    janela_gerenciar.title("Gerenciar Usuários")
+    janela_gerenciar.geometry("420x320")
+    janela_gerenciar.resizable(False, False)
+
+    tk.Label(janela_gerenciar, text="Email:").place(x=20, y=20)
+    entrada_email = tk.Entry(janela_gerenciar, width=40)
+    entrada_email.place(x=100, y=20)
+
+    tk.Label(janela_gerenciar, text="Senha:").place(x=20, y=60)
+    entrada_senha = tk.Entry(janela_gerenciar, width=40, show="*")
+    entrada_senha.place(x=100, y=60)
+
+    tk.Label(janela_gerenciar, text="Nome:").place(x=20, y=100)
+    entrada_nome = tk.Entry(janela_gerenciar, width=40)
+    entrada_nome.place(x=100, y=100)
+
+    tk.Label(janela_gerenciar, text="Perfil:").place(x=20, y=140)
+    entrada_perfil = tk.Entry(janela_gerenciar, width=40)
+    entrada_perfil.place(x=100, y=140)
+
+    def adicionar():
+        email = entrada_email.get().strip()
+        senha = entrada_senha.get().strip()
+        nome = entrada_nome.get().strip()
+        perfil = entrada_perfil.get().strip()
+
+        carregar_lista()
+
+        if email and senha and nome and perfil:
+            usuarios[email] = {
+                "senha": senha,
+                "nome": nome,
+                "perfil": perfil
+            }
+            salvar_usuarios(usuarios)
+            tocar_som_sucesso("adicionar")
+            messagebox.showinfo("Usuário Adicionado", f"{nome} foi cadastrado com sucesso!")
+
+            carregar_lista()
+
+        else:
+            messagebox.showwarning("Campos Incompletos", "Preencha todos os campos.")
+
+    def remover():
+        email = entrada_email.get().strip()
+        if email in usuarios:
+            del usuarios[email]
+            salvar_usuarios(usuarios)
+            tocar_som_sucesso("remover")
+            messagebox.showinfo("Usuário Removido", f"{email} foi removido com sucesso!")
+        else:
+            messagebox.showerror("Erro", "Usuário não encontrado.")
+
+    tk.Button(janela_gerenciar, text="➕ Adicionar", command=adicionar).place(x=100, y=200)
+    tk.Button(janela_gerenciar, text="➖ Remover", command=remover).place(x=220, y=200)
+
+    carregar_lista()
+
+
+# 🎯 2. Liberar acesso à tela de gerenciamento somente para administradores
+# No seu ao_logar(nome, perfil) do main.py, adicione:
+
+
+
+def tocar_som_acesso(resultado=True):
+    if som_global_ativo:
+        som = os.path.join("sons", "acesso_concedido.mp3") if resultado else os.path.join("sons", "acesso_negado.mp3")
+        if os.path.exists(som):
+            threading.Thread(target=playsound, args=(som,), daemon=True).start()
+
+def criar_login(janela_principal, ao_logar_callback):
+    janela_login = tk.Toplevel()
+    janela_login.title("Login Ipojucão")
+    janela_login.geometry("800x500")
+    janela_login.resizable(False, False)
+
+    # 🖼️ Imagem de fundo
+    caminho_imagem = os.path.join("imagens", "login_fundo.png")  # nome do seu arquivo de fundo
+    if os.path.exists(caminho_imagem):
+        img = Image.open(caminho_imagem).resize((800, 500))
+        bg = ImageTk.PhotoImage(img)
+        bg_label = tk.Label(janela_login, image=bg)
+        bg_label.image = bg
+        bg_label.place(relwidth=1, relheight=1)
+
+    # 📋 Campos de login
+    tk.Label(janela_login, text="Email:", bg="white").place(x=260, y=180)
+    email_entry = tk.Entry(janela_login, width=30)
+    email_entry.place(x=330, y=180)
+
+    tk.Label(janela_login, text="Senha:", bg="white").place(x=260, y=220)
+    senha_entry = tk.Entry(janela_login, width=30, show="*")
+    senha_entry.place(x=330, y=220)
+
+    def autenticar():
+        email = email_entry.get().strip()
+        senha = senha_entry.get().strip()
+        user = usuarios.get(email)
+
+        if user and user["senha"] == senha:
+            tocar_som_acesso(True)
+            messagebox.showinfo("Bem-vindo", f"Olá, {user['nome']}!\nPerfil: {user['perfil']}")
+            janela_login.destroy()
+            ao_logar_callback(user["nome"], user["perfil"])
+        else:
+            tocar_som_acesso(False)
+            messagebox.showerror("Acesso negado", "Email ou senha inválidos.")
+
+
+    tk.Button(janela_login, text="Entrar", command=autenticar).place(x=370, y=270)
+
+    tk.Button(janela_gerenciar, text="✏️ Alterar senha", command=alterar_senha).place(x=155, y=210)
+
+def ao_logar(nome, perfil):
+    janela.deiconify()
+    if perfil == "Administrador":
+        from aba_login import gerenciar_usuarios
+        gerenciar_usuarios(janela_pai)
+
+    def tocar_som_sucesso(acao):
+        mapa = {
+            "adicionar": "som/usuario_adicionado.mp3",
+            "remover": "som/usuario_removido.mp3"
+        }
+
+        carregar_lista()
+
+        caminho = mapa.get(acao)
+        if som_global_ativo and caminho and os.path.exists(caminho):
+            threading.Thread(target=playsound, args=(caminho,), daemon=True).start()
+
+    def alterar_senha():
+        email = entrada_email.get().strip()
+        nova_senha = entrada_senha.get().strip()
+
+        if email in usuarios:
+            if not nova_senha:
+                messagebox.showwarning("Nova senha em branco", "Digite uma nova senha.")
+                return
+
+            confirmar = messagebox.askyesno("Confirmar alteração",
+                                            f"Tem certeza que deseja alterar a senha de {email}?")
+            if confirmar:
+                usuarios[email]["senha"] = nova_senha
+                salvar_usuarios(usuarios)
+                tocar_som_sucesso("adicionar")  # Reaproveita som
+                messagebox.showinfo("Senha alterada", f"Senha de {email} atualizada com sucesso!")
+        else:
+            messagebox.showerror("Usuário não encontrado", f"{email} não está cadastrado.")
+
+            carregar_lista()
+
+    # (Opcional) Botão para criar novo usuário – só visível após login adm
+    # (Você pode adicionar essa função mais tarde)
+
+
+from tkinter import ttk
+
+tv = ttk.Treeview(janela_gerenciar, columns=("Email", "Nome", "Perfil"), show="headings")
+tv.heading("Email", text="Email")
+tv.heading("Nome", text="Nome")
+tv.heading("Perfil", text="Perfil")
+tv.place(x=20, y=250, width=380, height=100)
+
+def carregar_lista():
+    tv.delete(*tv.get_children())
+    for email, dados in usuarios.items():
+        tv.insert("", "end", values=(email, dados["nome"], dados["perfil"]))
+
+carregar_lista()
+
+
+
+
+
+
++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+
+aba clientes
+
+
+from tkinter import ttk, messagebox
+import tkinter as tk
+from models import salvar_cliente  # Certifique-se de importar a função correta
+
+from aba_clientes import montar_aba_clientes
+
+aba_clientes = ttk.Frame(notebook)
+notebook.add(aba_clientes, text="Clientes")
+montar_aba_clientes(aba_clientes)
+
+def montar_aba_clientes(aba):
+    frame = ttk.LabelFrame(aba, text="Cadastro de Clientes")
+    frame.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+    ttk.Label(frame, text="Nome do Cliente:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
+
+    var_nome = tk.StringVar()
+    entry_nome = ttk.Entry(frame, textvariable=var_nome, width=40)
+    entry_nome.grid(row=0, column=1, padx=5, pady=5, sticky="w")
+
+
+    def tocar_musica_cliente():
+        caminho = os.path.join("som", "clair_de_lune_prelude.mp3")
+        threading.Thread(target=playsound, args=(caminho,), daemon=True).start()
+
+        # preenche campos como nome, idade, etc...
+        tocar_musica_cliente()
+
+
+    def salvar():
+        nome = var_nome.get().strip()
+        if not nome:
+            messagebox.showwarning("Campo obrigatório", "Por favor, insira o nome do cliente.")
+            return
+
+        sucesso = salvar_cliente(nome)
+        if sucesso:
+            messagebox.showinfo("Salvo com sucesso", f"Cliente '{nome}' foi salvo no banco!")
+            var_nome.set("")  # limpa o campo
+        else:
+            messagebox.showerror("Erro", "Erro ao salvar o cliente.")
+
+    btn_salvar = ttk.Button(frame, text="Salvar Cliente", command=salvar)
+    btn_salvar.grid(row=1, column=1, padx=5, pady=10, sticky="e")
+
+
+tree = ttk.Treeview(frame, columns=("id", "nome", "cpf", "email"), show="headings", height=10)
+tree.heading("id", text="ID")
+tree.heading("nome", text="Nome")
+tree.heading("cpf", text="CPF")
+tree.heading("email", text="E-mail")
+
+
+
+
+def listar_clientes():
+    return session.query(Cliente).all()
+
+def atualizar_cliente(id_cliente, novo_nome):
+    cliente = session.query(Cliente).filter_by(id=id_cliente).first()
+    if cliente:
+        cliente.nome = novo_nome
+        try:
+            session.commit()
+            return True
+        except Exception as e:
+            session.rollback()
+            print("Erro ao atualizar:", e)
+    return False
+
+    # 🔎 Campos de busca
+    ttk.Label(frame, text="Buscar por:").grid(row=2, column=0, sticky="w", padx=5, pady=5)
+    campo_busca = ttk.Combobox(frame, values=["ID", "CPF", "E-mail"], state="readonly")
+    campo_busca.set("CPF")
+    campo_busca.grid(row=2, column=1, sticky="w")
+
+    var_busca = tk.StringVar()
+    entry_busca = ttk.Entry(frame, textvariable=var_busca, width=30)
+    entry_busca.grid(row=2, column=2, padx=5, sticky="w")
+
+    def buscar():
+        resultados = buscar_clientes(campo_busca.get(), var_busca.get())
+        tree.delete(*tree.get_children())
+        for c in resultados:
+            tree.insert("", "end", values=(c.id, c.nome, c.cpf, c.email))
+
+    ttk.Button(frame, text="🔍 Buscar", command=buscar).grid(row=2, column=3, padx=5, pady=5)
+
+    # 🗑 Botão excluir
+    def excluir():
+        item = tree.selection()
+        if not item:
+            messagebox.showwarning("Excluir", "Selecione um cliente.")
+            return
+        id_cliente = int(tree.item(item[0], "values")[0])
+        if messagebox.askyesno("Confirmar exclusão", "Deseja mesmo excluir este cliente?"):
+            if excluir_cliente(id_cliente):
+                messagebox.showinfo("Excluído", "Cliente removido.")
+                carregar_clientes()
+            else:
+                messagebox.showerror("Erro", "Não foi possível excluir.")
+
+    ttk.Button(frame, text="🗑 Excluir Selecionado", command=excluir).grid(row=3, column=2, sticky="e", padx=5, pady=5)
+
+
+app = criar_app()
+with app.app_context():
+    database.create_all()
+
+
+
+
+
+
+
++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+aba consulta
+
+
+
+from dados_compartilhados import var_raca, caracteristicas_racas
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+import os
+import time
+import matplotlib
+import pandas as pd
+import matplotlib.pyplot as plt
+
+
+import dados_compartilhados as dc # var_porte, var_raca, dados_pet, imagens_racas, imagens_portes
+def consulta_dados_banho_preco():
+    porte = dc.var_porte.get()
+    preco_banho = dc.dados_pet.get(porte, {}).get("preços", {}).get("Banho", 0)
+    print(f"Banho para porte {porte} custa R$ {preco_banho}")
+
+#info = caracteristicas_racas.get(dc.var_raca.get(), {})
+
+import tkinter as tk
+from tkinter import ttk
+import dados_compartilhados as dc  # Importe o que precisar de forma compartilhada
+
+def montar_aba_consulta(aba):
+    # Permitir expansão
+    aba.grid_rowconfigure(0, weight=1)
+    aba.grid_columnconfigure(0, weight=1)
+
+    # Canvas + Scrollbar
+    canvas = tk.Canvas(aba)
+    scrollbar_y = ttk.Scrollbar(aba, orient="vertical", command=canvas.yview)
+    canvas.configure(yscrollcommand=scrollbar_y.set)
+
+    canvas.grid(row=0, column=0, sticky="nsew")
+    scrollbar_y.grid(row=0, column=1, sticky="ns")
+
+    # Frame rolável
+    inner_frame = ttk.Frame(canvas)
+    canvas.create_window((0, 0), window=inner_frame, anchor="nw")
+
+    def ajustar_scroll(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+    inner_frame.bind("<Configure>", ajustar_scroll)
+
+    # === A partir daqui, crie widgets dentro do inner_frame ===
+
+    # Exemplo básico
+    frame_exemplo = ttk.LabelFrame(inner_frame, text="Seção de Exemplo")
+    frame_exemplo.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+    ttk.Label(frame_exemplo, text="Alguma informação importante").grid(row=0, column=0, sticky="w")
+
+    # Repita quantos blocos quiser (outros frames, grids, entradas, etc.)
+
+    # Se quiser ativar algo quando o porte mudar
+    dc.var_porte.trace_add("write", lambda *args: atualizar_exemplo())
+
+def atualizar_exemplo():
+    porte = dc.var_porte.get()
+    print(f"Porte selecionado na aba é: {porte}")
+
+
+# def montar_aba_consulta(frame_base):
+#     # Cria widgets dentro do frame_base
+#     # === Scrollable frame ===
+#     # Criação do canvas e da scrollbar
+#     canvas = tk.Canvas(inner_frame)
+#     scrollbar_y = ttk.Scrollbar(inner_frame, orient="vertical", command=canvas.yview)
+#     canvas.configure(yscrollcommand=scrollbar_y.set)
+#
+#     # Posicionamento usando .grid()
+#     canvas.grid(row=0, column=0, sticky="nsew")  # Ocupa toda a célula
+#     scrollbar_y.grid(row=0, column=1, sticky="ns")  # Fica ao lado do canvas, altura total
+#
+#     # Frame interno rolável
+#     scrollable_frame = ttk.Frame(canvas)
+#     canvas.create_window((0, 0), window=scrollable_frame, anchor="nw")
+#
+#     # Atualiza o scrollregion automaticamente
+#     scrollable_frame.bind(
+#         "<Configure>",
+#         lambda e: canvas.configure(scrollregion=canvas.bbox("all"))
+#     )
+
+
+# CONSULTA CONSULTA CONSULTA
+
+def criar_frame_consulta(parent):
+    frame_consulta = ttk.LabelFrame(parent, text="Informações Sobre o PET")
+    frame_consulta.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+
+    frame_consulta = ttk.LabelFrame(inner_frame, text="Consultando PET")
+    frame_consulta.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+
+    import dados_compartilhados as dc
+
+    def tocar_musica_consulta_pet():
+        caminho = os.path.join("som", "musica_consulta_pet.mp3")
+        threading.Thread(target=playsound, args=(caminho,), daemon=True).start()
+
+        # preenche campos como nome, idade, etc...
+        tocar_musica_consulta_pet()
+
+    def atualizar_porte_precos():
+        porte = dc.var_porte.get()
+        preco_banho = dc.dados_pet.get(porte, {}).get("preços", {}).get("Banho", 0)
+        print(f"Banho para porte {porte} custa R$ {preco_banho}")
+
+    # nome Pet
+    frame_nome_pet = ttk.LabelFrame(frame_consulta, text="Nome do Pet", anchor='w')
+    frame_nome_pet.grid(row=1, column=0, padx=10, pady=10, sticky='w')
+    entry_nome = tk.Entry(frame_consulta)
+    entry_nome.grid(row=1, column=1, columnspan=4, pady=1, sticky='nsew')
+
+    # idade
+    frame_idadedopetanos = ttk.LabelFrame(frame_consulta, text="Idade Anos")
+    frame_idadedopetanos.grid(row=2, column=0, padx=10, pady=10, sticky='nsew')
+    entry_idadedopetanos = tk.Entry(frame_consulta)
+    entry_idadedopetanos.grid(row=2, column=1, padx=10, pady=10, sticky='nsew')
+
+    frame_idadedopetmeses = ttk.LabelFrame(frame_consulta, text="Meses")
+    frame_idadedopetmeses.grid(row=3, column=0, padx=10, pady=10, sticky='nsew')
+    entry_idadedopetmeses = tk.Entry(frame_consulta)
+    entry_idadedopetmeses.grid(row=3, column=1, padx=10, pady=10, sticky='nsew')
+
+    # Tutor 1
+    frame_tutor1 = ttk.LabelFrame(frame_consulta, text="Tutor 1", anchor='e')
+    frame_tutor1.grid(row=4, column=0, padx=10, pady=10, sticky='nsew')
+    entry_tutor_1 = tk.Entry(frame_consulta)
+    entry_tutor_1.grid(row=4, column=1, padx=10, pady=10, sticky='nsew')
+
+    # telefone1
+    frame_telefone_1 = ttk.LabelFrame(frame_consulta, text="Telefone Tutor 1", anchor='e')
+    frame_telefone_1.grid(row=5, column=0, padx=10, pady=10, sticky='e')
+    entry_telefone_1 = tk.Entry(frame_consulta)
+    entry_telefone_1.grid(row=5, column=1, padx=10, pady=10, sticky='nsew')
+    # email Tutor1
+    frame_email_tutor_1 = ttk.LabelFrame(frame_consulta, text="email Tutor 1", anchor='e')
+    frame_email_tutor_1.grid(row=6, column=0, padx=10, pady=10, sticky='e')
+    entry_email_tutor_1 = tk.Entry(frame_consulta)
+    entry_email_tutor_1.grid(row=6, column=1, padx=10, pady=10, sticky='nsew')
+
+    # tutor 2
+    frame_tutor2 = ttk.LabelFrame(frame_consulta, text="Tutor 2", anchor='e')
+    frame_tutor2.grid(row=7, column=0, padx=10, pady=10, sticky='nsew')
+    # Campo de entrada (Entry)
+    entry_tutor_2 = tk.Entry(frame_consulta)
+    entry_tutor_2.grid(row=7, column=1, padx=10, pady=10, sticky='nsew')
+
+    # telefone 2
+    frame_telefone_2 = ttk.LabelFrame(frame_consulta, text="Telefone Tutor 2", anchor='e')
+    frame_telefone_2.grid(row=8, column=0, padx=10, pady=10, sticky='nsew')
+    # Campo de entrada (Entry)
+    entry_telefone_2 = tk.Entry(frame_consulta)
+    entry_telefone_2.grid(row=8, column=1, padx=10, pady=10, sticky='nsew')
+    frame_telefone_2a = ttk.LabelFrame(frame_consulta, text="Telefone_a", borderwidth=1, relief='solid')
+    entry_telefone_2a = tk.Entry(inner_frame)
+    entry_telefone_2a.grid(row=9, column=0, padx=10, pady=10, sticky='nsew')
+
+    # email Tutor2
+    frame_email_tutor_2 = ttk.LabelFrame(frame_consulta, text="email Tutor 2", anchor='e')
+    frame_email_tutor_2.grid(row=9, column=1, padx=10, pady=10, sticky='e')
+    entry_email_tutor_2 = tk.Entry(frame_consulta)
+    entry_email_tutor_2.grid(row=10, column=0, padx=10, pady=10, sticky='nsew')
+
+    # Criando um Frame para Endereço e Observações
+    logradouro = ttk.LabelFrame(frame_consulta, text="Endereço e Observações")
+    # logradouro.config(height=170)  # Define a altura manualmente
+    logradouro.grid(row=13, column=0, columnspan=5, padx=10, pady=5, sticky="nsew")
+    # frame_logradouro.grid_propagate(False)  # Impede que os widgets internos alterem o tamanho do frame
+
+    # Endereço Logradouro
+    frame_enderecopet = ttk.LabelFrame(frame_consulta, text="Endereço", anchor='e')
+    frame_enderecopet.grid(row=14, column=0, padx=10, pady=10, sticky='nsew')
+    # Campo de entrada (Entry)
+    entry_enderecopet = tk.Entry(frame_consulta)
+    entry_enderecopet.grid(row=14, column=1, padx=10, pady=10, sticky='nsew', columnspan=6)
+    # entry_nome.grid(row=1, column=0, columnspan=4, pady=1, sticky='nsew')
+
+    # endereço Número
+    frame_endereconumero = ttk.LabelFrame(frame_consulta, text="Número", anchor='e')
+    frame_endereconumero.grid(row=15, column=0, padx=10, pady=10, sticky='nsew')
+    # Campo de entrada (Entry)
+    entry_endereconumero = tk.Entry(frame_consulta)
+    entry_endereconumero.grid(row=15, column=1, padx=10, pady=10, sticky='nsew')
+qua
+    # Endereço Complemento
+    ttk.Label(frame_endereco, text="Complemento").grid(row=15, column=2, padx=10, pady=10, sticky='nsew')
+    # Campo de entrada (Entry)
+    entry_enderecocomplemento = ttk.Entry(frame_endereco)
+    entry_enderecocomplemento.grid(row=2, column=1, padx=10, pady=10, sticky='nsew')
+
+    frame_recomendacoes = tttk.LabelFrameFrame(frame_consulta, text="Recomendações", borderwidth=1, relief='solid')
+    frame_recomendacoes.grid(row=20, column=0, columnspan=4, padx=10, pady=5, sticky="w")
+
+    # Observações sobre o PET
+    frame_recomendacoes = ttk.LabelFrame(frame_consulta, text="Recomendações Sobre o pet", borderwidth=1,
+                                         relief='solid')
+    frame_recomendacoes.grid(row=21, column=0, columnspan=5, padx=10, pady=10, sticky='nsew')
+    # Campo de entrada (Entry)
+    campo_observacoes = tk.Text(frame_consulta, width=80, height=12, borderwidth=2, relief='solid')
+    campo_observacoes.grid(row=30, column=0, columnspan=6, padx=10, pady=10)
+# 
+# import tkinter as tk
+# from tkinter import ttk
+# 
+# # Criando a janela principal
+# janela = tk.Tk()
+# janela.title("Cadastro Pet Shop")
+
+# Criando o Notebook
+# notebook = ttk.Notebook(janela)
+# notebook.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+# 
+
+
+
+
+
+++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+
+
+aba_diagnostico
+
+
+import tkinter as tk
+from tkinter import ttk, messagebox, filedialog
+from datetime import datetime
+import sys
+import subprocess
+
+janela = tk.Tk()
+janela.title("Sistema Petshop")
+janela.geometry("800x600")
+
+notebook = ttk.Notebook(janela)
+notebook.grid(row=0, column=0, sticky="nsew")
+
+
+
+def criar_menu_diagnostico(janela_principal, notebook):
+    menubar = tk.Menu(janela_principal)
+    janela_principal.config(menu=menubar)
+
+    menu_ferramentas = tk.Menu(menubar, tearoff=0)
+    menubar.add_cascade(label="Ferramentas", menu=menu_ferramentas)
+
+    def abrir_aba_diagnostico():
+        aba_diag = ttk.Frame(notebook)
+        notebook.add(aba_diag, text="Diagnóstico")
+        montar_painel_diagnostico(aba_diag)
+        notebook.select(aba_diag)
+
+    menu_ferramentas.add_command(label="Diagnóstico do Sistema 🩺", command=abrir_aba_diagnostico)
+
+def montar_painel_diagnostico(parent):
+    frame_diag = ttk.LabelFrame(parent, text="🔧 Diagnóstico do Sistema")
+    frame_diag.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+    text_output = tk.Text(frame_diag, width=80, height=20, state="disabled", bg="#f0f0f0")
+    text_output.grid(row=1, column=0, columnspan=3, padx=10, pady=5)
+
+    pacotes = {
+        "matplotlib": "Visualização de gráficos",
+        "pandas": "Planilhas e tabelas",
+        "PIL": "Manipulação de imagens (Pillow)",
+        "tkcalendar": "Calendário em tkinter",
+        "openpyxl": "Planilhas Excel",
+        "sqlite3": "Banco de dados interno"
+    }
+
+    pacotes_faltando = []
+
+    def testar():
+        nonlocal pacotes_faltando
+        pacotes_faltando = []
+
+        text_output.configure(state="normal")
+        text_output.delete("1.0", tk.END)
+        text_output.insert(tk.END, f"Verificação - {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}\n\n")
+
+        for nome in pacotes:
+            try:
+                if nome == "PIL":
+                    import PIL
+                else:
+                    __import__(nome)
+                text_output.insert(tk.END, f"✅ {nome} - OK ({pacotes[nome]})\n")
+            except ImportError:
+                text_output.insert(tk.END, f"❌ {nome} - NÃO INSTALADO! ({pacotes[nome]})\n")
+                pacotes_faltando.append(nome)
+
+        if pacotes_faltando:
+            text_output.insert(tk.END, "\n📦 Para instalar manualmente:\n")
+            for nome in pacotes_faltando:
+                text_output.insert(tk.END, f"   pip install {nome}\n")
+        else:
+            text_output.insert(tk.END, "\n✅ Tudo pronto, sem pendências!\n")
+
+        text_output.configure(state="disabled")
+
+    def corrigir_automaticamente():
+        if not pacotes_faltando:
+            messagebox.showinfo("AutoCorrigir", "Tudo já está instalado!")
+            return
+
+        for nome in pacotes_faltando:
+            try:
+                subprocess.check_call([sys.executable, "-m", "pip", "install", nome])
+                messagebox.showinfo("AutoCorrigir", f"{nome} instalado com sucesso.")
+            except Exception as e:
+                messagebox.showerror("Erro na instalação", f"Falha ao instalar {nome}:\n{e}")
+
+        testar()  # reexecutar após instalar
+
+    def exportar_log():
+        log = text_output.get("1.0", tk.END)
+        if not log.strip():
+            messagebox.showwarning("Exportação", "Sem conteúdo para exportar.")
+            return
+        caminho = filedialog.asksaveasfilename(defaultextension=".txt", filetypes=[("Arquivo de Texto", "*.txt")])
+        if caminho:
+            with open(caminho, "w", encoding="utf-8") as f:
+                f.write(log)
+            messagebox.showinfo("Exportado", f"Log salvo em:\n{caminho}")
+
+    ttk.Button(frame_diag, text="🔍 Testar", command=testar).grid(row=0, column=0, padx=10, pady=5)
+    ttk.Button(frame_diag, text="🛠 AutoCorrigir", command=corrigir_automaticamente).grid(row=0, column=1, padx=10, pady=5)
+    ttk.Button(frame_diag, text="💾 Exportar Log", command=exportar_log).grid(row=0, column=2, padx=10, pady=5)
+
+
+
+
+
+
+
++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+aba_config
+
+
+
+from dados_compartilhados import var_raca, caracteristicas_racas
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+import os
+import time
+
+import dados_compartilhados as dc # var_porte, var_raca, dados_pet, imagens_racas, imagens_portes
+#from main import inner_frame
+
+
+def usar_dados_banho_preco():
+    porte = dc.var_porte.get()
+    preco_banho = dc.dados_pet.get(porte, {}).get("preços", {}).get("Banho", 0)
+    print(f"Banho para porte {porte} custa R$ {preco_banho}")
+
+info = caracteristicas_racas.get(var_raca.get(), {})
+
+import tkinter as tk
+from tkinter import ttk
+import dados_compartilhados as dc  # Importe o que precisar de forma compartilhada
+
+def montar_aba_config(aba):
+    # Permitir expansão
+    aba.grid_rowconfigure(0, weight=1)
+    aba.grid_columnconfigure(0, weight=1)
+
+    # Canvas + Scrollbar
+    canvas = tk.Canvas(aba)
+    scrollbar_y = ttk.Scrollbar(aba, orient="vertical", command=canvas.yview)
+    canvas.configure(yscrollcommand=scrollbar_y.set)
+
+    canvas.grid(row=0, column=0, sticky="nsew")
+    scrollbar_y.grid(row=0, column=1, sticky="ns")
+
+    # Frame rolável
+    inner_frame = ttk.Frame(canvas)
+    canvas.create_window((0, 0), window=inner_frame, anchor="nw")
+
+    def ajustar_scroll(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+    inner_frame.bind("<Configure>", ajustar_scroll)
+
+    # === A partir daqui, crie widgets dentro do inner_frame ===
+
+    # Exemplo básico
+    frame_exemplo = ttk.LabelFrame(inner_frame, text="Seção de Exemplo")
+    frame_exemplo.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+    ttk.Label(frame_exemplo, text="Alguma informação importante").grid(row=0, column=0, sticky="w")
+
+    # Repita quantos blocos quiser (outros frames, grids, entradas, etc.)
+
+    # Se quiser ativar algo quando o porte mudar
+    dc.var_porte.trace_add("write", lambda *args: atualizar_exemplo())
+
+def atualizar_exemplo():
+    porte = dc.var_porte.get()
+    print(f"Porte selecionado na aba é: {porte}")
+
+base_path = "C:/Users/VEIRANO/PycharmProjects/ModuloTkinter/Planilha Controle Ipojucão/imagensipojucao"
+
+def montar_aba_config(aba_config):
+    # ==== Frame base de layout ====
+    frame_config = ttk.Frame(aba_config)
+    frame_config.grid(pady=10)
+
+
+    # Label de seleção do porte
+    ttk.Label(frame_config, text="Selecione o Porte:").grid(row=0, column=0, padx=10, pady=5, sticky="w")
+    dc.combobox_porte = ttk.Combobox(aba_config, textvariable=dc.var_porte,
+                                     values=list(dc.dados_pet.keys()), state="readonly", width=25)
+    dc.combobox_porte.grid(row=1, column=0, padx=10, pady=5, sticky="w")
+    dc.combobox_porte.bind("<<ComboboxSelected>>", atualizar_lista_racas)
+
+    # Label de seleção da raça
+    ttk.Label(frame_config, text="Selecione a Raça:").grid(row=0, column=1, padx=10, pady=5, sticky="w")
+    dc.combobox_raca = ttk.Combobox(aba_config, textvariable=dc.var_raca,
+                                    values=[], state="readonly", width=30)
+    dc.combobox_raca.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+    dc.combobox_raca.bind("<<ComboboxSelected>>", atualizar_caracteristicas)
+
+    # Label para imagem
+    dc.label_imagem = tk.Label(aba_config, text="Nenhuma imagem disponível", width=200, height=200)
+    dc.label_imagem.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+
+    # Texto com as características da raça
+    dc.texto_caracteristicas = tk.Text(aba_config, height=8, width=60)
+    dc.texto_caracteristicas.grid(row=3, column=0, columnspan=2, padx=10, pady=10)
+
+    # Inicializar com valores padrão
+    atualizar_lista_racas()
+
+
+# ========== Funções internas ==========
+
+def atualizar_lista_racas(event=None):
+    porte = dc.var_porte.get()
+    racas = dc.dados_pet.get(porte, {}).get("raças", [])
+    dc.combobox_raca["values"] = racas
+
+    if racas:
+        dc.var_raca.set(racas[0])
+        atualizar_caracteristicas()
+    else:
+        dc.var_raca.set("")
+        dc.combobox_raca.set("Nenhuma raça")
+        dc.texto_caracteristicas.delete(1.0, tk.END)
+
+    atualizar_imagem_porte(porte)
+a
+
+def atualizar_imagem_porte(porte):
+    nome_arquivo = dc.imagens_portes.get(porte, "")
+    caminho = os.path.join(base_path, nome_arquivo)
+
+    if os.path.exists(caminho):
+        img = Image.open(caminho).resize((200, 200))
+        from utils_imagem import fade_in_imagem  # ou importe de onde salvou
+
+        fade_in_imagem(dc.label_imagem, imagem)
+        #img_tk = ImageTk.PhotoImage(img)
+        # 🔄 Atribuir como imagem padrão antes de raça ser exibida
+        #dc.label_imagem.img_ref = img_tk  # mantém referência genérica
+        #dc.label_imagem.config(image=img_tk, text="")
+
+        # dc.label_imagem.img_ref_porte = img_tk  # 🔒 mantém referência
+        # dc.label_imagem.img_ref_raca = img_tk
+        dc.label_imagem.config(image=img_tk, text="")
+
+        # img_tk = ImageTk.PhotoImage(img)
+        # dc.label_imagem.config(image=img_tk, text="")
+        # dc.label_imagem.image = img_tk
+    else:
+        dc.label_imagem.config(text="Imagem do porte não encontrada", image="")
+        dc.label_imagem.image = None
+
+
+import os
+from PIL import Image, ImageTk
+import dados_compartilhados as dc
+
+def tocar_som_transicao():
+    caminho = os.path.join("sons", "woof.wav")  # substitua pelo nome do seu som
+    threading.Thread(target=playsound, args=(caminho,), daemon=True).start()
+
+
+def atualizar_caracteristicas(event=None):
+    raca = dc.var_raca.get()
+    porte = dc.var_porte.get()
+
+    # 📝 Atualiza descrição
+    descricao = dc.caracteristicas_racas.get(raca, "Sem descrição cadastrada.")
+    dc.texto_caracteristicas.delete("1.0", "end")
+    dc.texto_caracteristicas.insert("1.0", descricao)
+
+    # 🖼️ Caminho da imagem principal
+    caminho_imagem = os.path.join("imagensipojucao", porte, f"{raca}.jpg")
+
+    # 🧯 Fallback se a imagem específica da raça não existir
+    if not os.path.exists(caminho_imagem):
+        caminho_imagem = os.path.join("imagensipojucao", "sem_imagem.jpg")
+
+    if os.path.exists(caminho_imagem):
+        imagem = Image.open(caminho_imagem).resize((200, 200))
+        # img_tk = ImageTk.PhotoImage(imagem)
+        # dc.label_imagem.img_ref = img_tk
+        # dc.label_imagem.config(image=img_tk, text="")
+        from utils_imagem import fade_in_imagem  # ou importe de onde salvou
+
+        fade_in_imagem(dc.label_imagem, imagem)
+        tocar_som_transicao()
+    else:
+        dc.label_imagem.config(image="", text="Imagem não encontrada")
+
+# def atualizar_caracteristicas(event=None):
+#     raca = dc.var_raca.get()
+#     info = dc.caracteristicas_racas.get(raca, {})
+#     imagem_nome = dc.imagens_racas.get(raca, "")
+#     caminho = os.path.join(base_path, imagem_nome)
+#
+#     dc.texto_caracteristicas.delete(1.0, tk.END)
+#     if info:
+#         dc.texto_caracteristicas.insert(tk.END, f"Raça: {raca}\n")
+#         dc.texto_caracteristicas.insert(tk.END, f"Peso: {info.get('peso')}\n")
+#         dc.texto_caracteristicas.insert(tk.END, f"Tamanho: {info.get('tamanho')}\n")
+#         dc.texto_caracteristicas.insert(tk.END, f"Pelos: {info.get('pelos')}\n")
+#         dc.texto_caracteristicas.insert(tk.END, f"Temperamento: {info.get('temperamento')}\n")
+#     else:
+#         dc.texto_caracteristicas.insert(tk.END, "Sem dados disponíveis.")
+#
+#     if os.path.exists(caminho):
+#         img = Image.open(caminho).resize((200, 200))
+#         img_tk = ImageTk.PhotoImage(img)
+#         dc.label_imagem.config(image=img_tk, text="")
+#         dc.label_imagem.image = img_tk
+#     else:
+#         dc.label_imagem.config(text="Imagem da raça não encontrada", image="")
+#         dc.label_imagem.image = None
+
+
+
+
+
+
+
+
+
+
+
+
+
+#aba_config = ttk.Frame(janela)
+# aba_config = ttk.Frame(aba_principal)
+# aba_principal.add(aba_config, text="Configuração")
+#
+#
+# aba_config.grid(padx=10, pady=10)  # Adicionando padding para melhor visualização
+# janela.geometry("1400x600")  # Ajuste o tamanho da janela conforme necessário
+# janela.state('zoomed')  # Abre em tela cheia
+#
+# # Criando um Frame para a barra de rolagem
+# scrollable_frame = ttk.Frame(janela)
+# scrollable_frame.grid(row=0, column=0, sticky="nsew")
+#
+# # Configuração da janela
+# janela.grid_rowconfigure(0, weight=1)
+# janela.grid_columnconfigure(0, weight=1)
+#
+# scrollable_frame.grid_rowconfigure(0, weight=1)
+# scrollable_frame.grid_columnconfigure(0, weight=1)
+#
+# # Criando o Canvas e as Scrollbars
+# canvas = tk.Canvas(scrollable_frame)
+# vertical_scrollbar = ttk.Scrollbar(scrollable_frame, orient="vertical", command=canvas.yview)
+# horizontal_scrollbar = ttk.Scrollbar(scrollable_frame, orient="horizontal", command=canvas.xview)
+#
+# # Criando o Frame dentro do Canvas
+# inner_frame = ttk.Frame(canvas)
+#
+# # Ajustando a rolagem
+# inner_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+#
+# # Criando a janela dentro do Canvas
+# canvas.create_window((0, 0), window=inner_frame, anchor="nw")
+#
+# # Posicionando o Canvas e as Scrollbars
+# canvas.grid(row=0, column=0, sticky="nsew")
+# vertical_scrollbar.grid(row=0, column=1, sticky="ns")
+# horizontal_scrollbar.grid(row=1, column=0, sticky="ew")
+#
+# # Configurando as barras de rolagem
+# canvas.configure(yscrollcommand=vertical_scrollbar.set)
+# canvas.configure(xscrollcommand=horizontal_scrollbar.set)
+#
+# # Garantindo que a rolagem funcione corretamente
+# def ajustar_tamanho_canvas(event):
+#     canvas.configure(scrollregion=canvas.bbox("all"))
+#
+# inner_frame.bind("<Configure>", ajustar_tamanho_canvas)
+#
+# # Adicione alguns widgets ao inner_frame como exemplo
+# for i in range(50):
+#     ttk.Label(inner_frame, text=f"Item {i}").grid(row=i, column=0, sticky="w")
+# # Configurar a largura da coluna do inner_frame para permitir a rolagem horizontal
+# inner_frame.grid_columnconfigure(0, minsize=300)  # Ajuste o tamanho conforme necessário
+#
+# # Definindo o tamanho do Canvas
+# canvas.config(height=700)  # Aumente a altura do Canvas se necessário
+# canvas.config(width=800) # Aumente a largura do Canvas se necessário
+#
+# # Criando as abas (Notebook)
+# aba_config = ttk.Frame(notebook)
+# notebook.add(aba_config, text="Configuração")
+# notebook.grid(row=0, column=0, sticky='nsew')  # Use grid corretamente
+#
+# # Criando aba de configuração
+# aba_config = ttk.Frame(notebook)
+# notebook.add(aba_config, text="Configuração")
+#
+# frame_config = ttk.Frame(aba_config)
+# frame_config.grid(pady=10)
+#
+#
+#
+# # Dicionário para armazenar imagens dos portes
+# imagens_portes = {
+#     "pequeno": "pequeno.jpg",
+#     "médio": "medio.jpg",
+#     "grande": "grande.jpg",
+#     "maior": "maior.jpg"
+# }
+#
+#
+#
+# # ADICIONANDO CARACTERÍSTICAS DO PET
+# # Dicionário de características das raças
+# caracteristicas_racas = {
+#     "Chihuahua": {
+#         "peso": "1 a 3 kg",
+#         "tamanho": "15 a 23 cm",
+#         "pelos": "Curto",
+#         "temperamento": "Dócil",
+#         "imagem": "chihuahua.png"  # Adicione o caminho para a imagem
+#     },
+#     "Labrador": {
+#         "peso": "25 a 36 kg",
+#         "tamanho": "55 a 62 cm",
+#         "pelos": "Curto e grosso",
+#         "temperamento": "Dócil",
+#         "imagem": "labrador.png"
+#     },
+#     "Bulldog": {
+#         "peso": "18 a 25 kg",
+#         "tamanho": "30 a 40 cm",
+#         "pelos": "Curto",
+#         "temperamento": "Agressivo",
+#         "imagem": "bulldog.png"
+#     }
+#     # Adicione mais raças conforme necessário
+# }
+#
+# class App:
+#     def __init__(self, root):
+#         self.root = root
+#         self.root.title("Cadastro PET SHOP")
+#
+#         # Criação do Notebook para as abas
+#         self.notebook = ttk.Notebook(self.root)
+#         self.notebook.grid(row=0, column=0, sticky='nsew')  # Usando grid para o Notebook
+#
+#         # Criação da aba_config
+#         self.aba_config = ttk.Frame(self.notebook)
+#         self.notebook.add(self.aba_config, text='Configuração')
+#
+#         # Combobox de Raça
+#         self.combobox_raca = ttk.Combobox(self.aba_config, values=list(caracteristicas_racas.keys()))
+#         self.combobox_raca.grid(row=0, column=0, padx=10, pady=10)
+#         self.combobox_raca.bind("<<ComboboxSelected>>", self.atualizar_caracteristicas)
+#
+#         # Campo de texto para características
+#         self.texto_caracteristicas = tk.Text(self.aba_config, height=10, width=50)
+#         self.texto_caracteristicas.grid(row=1, column=0, padx=10, pady=10)  # Mudado para row=1, column=0
+#
+#         # Configuração de expansão
+#         self.root.grid_rowconfigure(0, weight=1)
+#         self.root.grid_columnconfigure(0, weight=1)
+#
+#     def atualizar_caracteristicas(self, event):
+#         raca_selecionada = self.combobox_raca.get()
+#         if raca_selecionada in caracteristicas_racas:
+#             info = caracteristicas_racas[raca_selecionada]
+#             self.texto_caracteristicas.delete(1.0, tk.END)  # Limpa o campo de texto
+#             self.texto_caracteristicas.insert(tk.END, f"Peso: {info['peso']}\n")
+#             self.texto_caracteristicas.insert(tk.END, f"Tamanho: {info['tamanho']}\n")
+#             self.texto_caracteristicas.insert(tk.END, f"Pelos: {info['pelos']}\n")
+#             self.texto_caracteristicas.insert(tk.END, f"Temperamento: {info['temperamento']}")
+#
+#
+#
+# # ADICIONANDO CARACTERÍSTICAS DO PET
+#
+#
+#
+#
+#
+#
+#
+# # Funções para atualizar imagens
+# def update_porte_image(event=None):
+#     porte = var_porte.get().strip()
+#     image_path = os.path.join(base_path, imagens_portes.get(porte, ''))
+#     if os.path.exists(image_path):
+#         img = Image.open(image_path).resize((200, 200))
+#         img_tk = ImageTk.PhotoImage(img)
+#         label_imagem.config(image=img_tk)
+#         label_imagem.image = img_tk
+#     else:
+#         label_imagem.config(text="Imagem do porte não encontrada", image="")
+#         label_imagem.image = None
+#
+
+# # Função para atualizar a lista de raças
+# def atualizar_lista_racas(event=None):
+#     porte = var_porte.get().strip()
+#     print(f"Selecionado Porte: {porte}")  # Debug
+#     time.sleep(0.5)  # Pausa para garantir atualização
+#
+#     #racas = dados_pet.get(porte, {}).get("raças", [])
+#     racas = list(dados_pet.get(porte, {}).get("raças", [])) # Capitalize para correspondência
+#     combobox_raca["values"] = racas
+#     combobox_raca.set("Selecione uma raça")
+#     update_porte_image(event)
+#
+#     if racas:
+#         combobox_raca.set(racas[0])  # Define a primeira raça como padrão
+#         update_raca_image()  # Atualiza a imagem da raça assim que uma raça é definida
+#     else:
+#         combobox_raca.set("Nenhuma raça disponível")
+
+# Função para atualizar a imagem da raça
+# def update_raca_image(event=None):
+#     #raca = combobox_raca.get().strip()
+#     raca = var_raca.get().strip()
+#     image_path = os.path.join(base_path, imagens_racas.get(raca, ''))
+#     print(f"Selecionado Raça: {raca}")  # Debug
+#     print(f"Imagem do porte em: {image_path}")  # Debug
+#     time.sleep(0.9)  # Pausa para garantir que a variável foi atualizada
+#
+#     # Verifique se o nome do arquivo não está vazio
+#     if not imagens_racas.get(raca):
+#         print(f"Nome do arquivo não encontrado para a raça: {raca}")  # Debug
+#         time.sleep(0.9)  # Pausa para garantir que a variável foi atualizada
+#         label_imagem.config(text="Imagem da raça não encontrada", image="")
+#         time.sleep(0.5)  # Pausa para garantir que a variável foi atualizada
+#         label_imagem.image = None
+#         return
+#
+#     print(f"Imagem do porte em: {image_path}")  # Debug
+#
+#     if os.path.exists(image_path):
+#         img = Image.open(image_path).resize((200, 200))
+#         img_tk = ImageTk.PhotoImage(img)
+#         label_imagem.config(image=img_tk)
+#         label_imagem.image = img_tk
+#     else:
+#         label_imagem.config(text="Imagem da raça não encontrada", image="")
+#         label_imagem.image = None
+#         #     except Exception as e:
+#         #     print(f"Erro ao carregar imagem da raça: {e}")
+#         # else:
+#         label_imagem.config(text="Imagem não encontrada", image="")
+#         label_imagem.image = None
+#
+#
+# # Criando Combobox para seleção de porte
+# ttk.Label(aba_config, text="Selecione o Porte:").grid(row=0, column=0, padx=10, pady=5)
+# combobox_porte = ttk.Combobox(aba_config, textvariable=var_porte, values=list(dados_pet.keys()), state="readonly")
+# combobox_porte.grid(row=1, column=0, padx=10, pady=5)
+# combobox_porte.bind("<<ComboboxSelected>>", lambda event: [atualizar_lista_racas(event), update_porte_image(event)])
+#
+#
+#
+# # Criando Combobox para seleção de raça
+# ttk.Label(aba_config, text="Selecione a Raça:").grid(row=0, column=1, padx=10, pady=5, sticky="w")
+# combobox_raca = ttk.Combobox(aba_config, textvariable=var_raca, state="readonly")
+# combobox_raca.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
+# combobox_raca.bind("<<ComboboxSelected>>", update_raca_image)
+#
+#
+# # Configurando a coluna para expandir
+# aba_config.grid_columnconfigure(0, weight=1)
+#
+# combobox_raca.bind("<<ComboboxSelected>>", update_raca_image)
+#
+#
+#
+# # Criando Label para exibir imagens
+# label_imagem = tk.Label(aba_config, text="Nenhuma imagem disponível", width=180, height=180)
+# label_imagem.grid(row=2, column=0, columnspan=4, padx=10, pady=10)
+
+
+# Adicionando `trace_add` para ativar automaticamente a atualização da imagem e das raças
+# var_porte.trace_add("write":, lambda *args: atualizar_lista_racas(event=None))
+# var_porte.trace_add("write", lambda *args: update_porte_image(event=None))
+
+
+# # Criando o frame principal para dados cadastrais
+# frame_cadastro = ttk.LabelFrame(inner_frame, text="Dados Cadastrais")
+# frame_cadastro.grid(row=7, column=0, padx=10, pady=10, sticky="nsew")
+
+
+
+
+
+
+
+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+
+
+
+
+
+utils_imagem
+
+
+from PIL import ImageTk, ImageEnhance
+import tkinter as tk
+
+def fade_in_imagem(label, imagem_pil, duracao_ms=300, passos=10):
+    """
+    Aplica efeito fade-in progressivamente no Label com uma imagem PIL.
+    - label: widget onde a imagem será exibida
+    - imagem_pil: imagem PIL já redimensionada
+    """
+    def animar(passo=0):
+        fator = (passo + 1) / passos  # brilho gradual: 0.1 → 1.0
+        enhancer = ImageEnhance.Brightness(imagem_pil)
+        img_fade = enhancer.enhance(fator)
+        img_tk = ImageTk.PhotoImage(img_fade)
+
+        label.img_ref = img_tk  # mantém referência
+        label.config(image=img_tk)
+
+        if passo < passos - 1:
+            label.after(int(duracao_ms / passos), animar, passo + 1)
+
+    animar()
+
+
+
+

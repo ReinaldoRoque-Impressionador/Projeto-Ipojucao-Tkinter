@@ -1,0 +1,880 @@
+# Criando um Frame para serviços
+frame_servicos = ttk.LabelFrame(frame_principal, text="Serviços Disponíveis")
+frame_servicos.grid(row=1, column=0, columnspan=2, padx=10, pady=5, sticky="nsew")
+
+# Criando Checkbuttons para serviços
+variaveis_servicos = {}
+servicos_disponiveis = ["Banho", "Hidratação", "Desembolo", "Remoção de Pelos", "Corte de Unhas",
+                        "Escovação de Dentes", "Tosa Higiênica", "Tosa na Máquina", "Tosa na Tesoura", "Leva e Trás"]
+
+for i, servico in enumerate(servicos_disponiveis):
+    variaveis_servicos[servico] = tk.BooleanVar()
+    check_servico = ttk.Checkbutton(frame_servicos, text=servico, variable=variaveis_servicos[servico])
+    check_servico.grid(row=i, column=0, sticky="w")
+
+# Criando o Frame para abatimentos
+frame_abatimentos = ttk.LabelFrame(frame_principal, text="Abatimentos")
+frame_abatimentos.grid(row=2, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+
+# Variáveis para abatimentos
+var_desconto_fixo = tk.BooleanVar()
+var_desconto_percentual = tk.BooleanVar()
+
+# Checkbuttons para aplicar abatimentos
+check_fixo = ttk.Checkbutton(frame_abatimentos, text="Desconto Fixo (R$)", variable=var_desconto_fixo)
+check_fixo.grid(row=0, column=0, sticky="w")
+
+entry_desconto_fixo = ttk.Entry(frame_abatimentos)
+entry_desconto_fixo.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+check_percentual = ttk.Checkbutton(frame_abatimentos, text="Desconto Percentual (%)", variable=var_desconto_percentual)
+check_percentual.grid(row=1, column=0, sticky="w")
+
+entry_desconto_percentual = ttk.Entry(frame_abatimentos)
+entry_desconto_percentual.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+# Botão para calcular total
+botao_calcular = ttk.Button(frame_abatimentos, text="Calcular Total", command=calcular_total)
+botao_calcular.grid(row=2, column=0, columnspan=2, pady=10)
+
+# Botão para limpar seleções
+botao_limpar = ttk.Button(frame_abatimentos, text="Limpar Seleções", command=limpar_selecoes)
+botao_limpar.grid(row=2, column=2, padx=10)
+
+
+# Label para exibir o resultado do cálculo
+label_resultado = ttk.Label(frame_abatimentos, text="Total com desconto: R$")
+label_resultado.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+
+# Variável para definir se o pagamento foi feito ou está em aberto
+var_status_pagamento = tk.StringVar(value="Nenhuma Opção Marcada")
+
+# Frame para os métodos de pagamento
+frame_pagamento = ttk.LabelFrame(frame_principal, text="Forma de Pagamento")
+frame_pagamento.grid(row=3, column=0, columnspan=2, padx=10, pady=10, sticky="nsew")
+
+# Botões para definir o status do pagamento
+ttk.Label(frame_principal, text="Status do Pagamento:").grid(row=4, column=0, padx=10, pady=5, sticky="w")
+botao_pago = tk.Radiobutton(frame_principal, text="Pago", variable=var_status_pagamento, value="pago")
+botao_pago.grid(row=4, column=1, sticky="w")
+
+botao_em_aberto = tk.Radiobutton(frame_principal, text="Em Aberto", variable=var_status_pagamento, value="Em Aberto")
+botao_em_aberto.grid(row=4, column=2, sticky="w")
+
+
+# Variável para definir o status de pagamento
+var_status_pagamento = tk.StringVar(value="")  # Inicia vazio
+
+# Botões para definir o status do pagamento
+ttk.Label(frame_principal, text="Status do Pagamento:").grid(row=4, column=0, padx=10, pady=5, sticky="w")
+botao_pago = tk.Radiobutton(frame_principal, text="Pago", variable=var_status_pagamento, value="pago", command=atualizar_pagamento)
+botao_pago.grid(row=4, column=1, sticky="w")
+
+botao_em_aberto = tk.Radiobutton(frame_principal, text="Em Aberto", variable=var_status_pagamento, value="em_aberto", command=atualizar_pagamento)
+botao_em_aberto.grid(row=4, column=2, sticky="w")
+
+# Variável para armazenar a forma de pagamento
+var_pagamento = tk.StringVar(value="")  # Inicia vazio
+
+# Frame para os métodos de pagamento
+frame_pagamento = ttk.LabelFrame(frame_principal, text="Forma de Pagamento")
+frame_pagamento.grid(row=5, column=0, columnspan=3, padx=10, pady=10, sticky="nsew")
+
+# Botões de forma de pagamento (inicialmente desabilitados)
+radiobutton_pix = tk.Radiobutton(frame_pagamento, text="PIX", variable=var_pagamento, value="PIX", state="disabled")
+radiobutton_pix.grid(row=0, column=0, sticky="w")
+
+radiobutton_debito = tk.Radiobutton(frame_pagamento, text="Cartão de Débito", variable=var_pagamento, value="Débito", state="disabled")
+radiobutton_debito.grid(row=0, column=1, sticky="w")
+
+radiobutton_credito = tk.Radiobutton(frame_pagamento, text="Cartão de Crédito", variable=var_pagamento, value="Crédito", state="disabled")
+radiobutton_credito.grid(row=1, column=0, sticky="w")
+
+radiobutton_dinheiro = tk.Radiobutton(frame_pagamento, text="Em Espécie (Dinheiro)", variable=var_pagamento, value="Dinheiro", state="disabled")
+radiobutton_dinheiro.grid(row=1, column=1, sticky="w")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Para adaptar o código que você forneceu para funcionar em uma aba dentro de uma interface Tkinter com múltiplas abas, precisaremos fazer algumas modificações para organizar os widgets da aba financeira corretamente.
+
+Vamos criar um exemplo que encapsula toda a lógica que você forneceu e a adapta para funcionar dentro de uma aba financeira. Vou usar ttk.Notebook para gerenciar as abas e manter todo o seu código funcional.
+
+Código Adaptado
+import tkinter as tk
+from tkinter import ttk
+
+# Funções para calcular total, limpar seleções e atualizar pagamento
+def calcular_total():
+    # Você deve implementar esta lógica conforme seus requisitos
+    total = 100  # Exemplo de total, substitua pela lógica real
+    label_resultado.config(text=f"Total com desconto: R$ {total:.2f}")
+
+def limpar_selecoes():
+    for var in variaveis_servicos.values():
+        var.set(False)  # Desmarca todos os Checkbuttons
+    entry_desconto_fixo.delete(0, tk.END)  # Limpa o campo de desconto fixo
+    entry_desconto_percentual.delete(0, tk.END)  # Limpa o campo de desconto percentual
+    label_resultado.config(text="Total com desconto: R$ 0.00")  # Reseta o resultado
+
+def atualizar_pagamento():
+    # Atualize a lógica para refletir o status do pagamento
+    pass  # Implementar conforme necessário
+
+# Inicializa o frame da aba financeira
+def criar_aba_financeiro(parent):
+    frame_financeiro = ttk.Frame(parent)
+
+    # Criando um Frame para serviços
+    frame_servicos = ttk.LabelFrame(frame_financeiro, text="Serviços Disponíveis")
+    frame_servicos.grid(row=0, column=0, padx=10, pady=5, sticky="nsew")
+
+    # Criando Checkbuttons para serviços
+    global variaveis_servicos
+    variaveis_servicos = {}
+    servicos_disponiveis = ["Banho", "Hidratação", "Desembolo", "Remoção de Pelos", 
+                            "Corte de Unhas", "Escovação de Dentes", "Tosa Higiênica", 
+                            "Tosa na Máquina", "Tosa na Tesoura", "Leva e Trás"]
+
+    for i, servico in enumerate(servicos_disponiveis):
+        variaveis_servicos[servico] = tk.BooleanVar()
+        check_servico = ttk.Checkbutton(frame_servicos, text=servico, variable=variaveis_servicos[servico])
+        check_servico.grid(row=i, column=0, sticky="w")
+
+    # Criando o Frame para abatimentos
+    frame_abatimentos = ttk.LabelFrame(frame_financeiro, text="Abatimentos")
+    frame_abatimentos.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+
+    # Variáveis para abatimentos
+    global var_desconto_fixo, var_desconto_percentual, entry_desconto_fixo, entry_desconto_percentual
+    var_desconto_fixo = tk.BooleanVar()
+    var_desconto_percentual = tk.BooleanVar()
+
+    # Checkbuttons para aplicar abatimentos
+    check_fixo = ttk.Checkbutton(frame_abatimentos, text="Desconto Fixo (R$)", variable=var_desconto_fixo)
+    check_fixo.grid(row=0, column=0, sticky="w")
+
+    entry_desconto_fixo = ttk.Entry(frame_abatimentos)
+    entry_desconto_fixo.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+    check_percentual = ttk.Checkbutton(frame_abatimentos, text="Desconto Percentual (%)", variable=var_desconto_percentual)
+    check_percentual.grid(row=1, column=0, sticky="w")
+
+    entry_desconto_percentual = ttk.Entry(frame_abatimentos)
+    entry_desconto_percentual.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+    # Botão para calcular total
+    botao_calcular = ttk.Button(frame_abatimentos, text="Calcular Total", command=calcular_total)
+    botao_calcular.grid(row=2, column=0, columnspan=2, pady=10)
+
+    # Botão para limpar seleções
+    botao_limpar = ttk.Button(frame_abatimentos, text="Limpar Seleções", command=limpar_selecoes)
+    botao_limpar.grid(row=2, column=2, padx=10)
+
+    # Label para exibir o resultado do cálculo
+    global label_resultado
+    label_resultado = ttk.Label(frame_abatimentos, text="Total com desconto: R$")
+    label_resultado.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+
+    # Frame para os métodos de pagamento
+    frame_pagamento = ttk.LabelFrame(frame_financeiro, text="Forma de Pagamento")
+    frame_pagamento.grid(row=2, column=0, padx=10, pady=10, sticky="nsew")
+
+    # Variável para definir se o pagamento foi feito ou está em aberto
+    global var_status_pagamento
+    var_status_pagamento = tk.StringVar(value="Nenhuma Opção Marcada")
+
+    # Botões para definir o status do pagamento
+    ttk.Label(frame_financeiro, text="Status do Pagamento:").grid(row=3, column=0, padx=10, pady=5, sticky="w")
+    botao_pago = tk.Radiobutton(frame_financeiro, text="Pago", variable=var_status_pagamento, value="pago", command=atualizar_pagamento)
+    botao_pago.grid(row=3, column=1, sticky="w")
+
+    botao_em_aberto = tk.Radiobutton(frame_financeiro, text="Em Aberto", variable=var_status_pagamento, value="Em Aberto", command=atualizar_pagamento)
+    botao_em_aberto.grid(row=3, column=2, sticky="w")
+
+    # Variável para armazenar a forma de pagamento
+    global var_pagamento
+    var_pagamento = tk.StringVar(value="")  # Inicia vazio
+
+    # Botões de forma de pagamento (inicialmente desabilitados)
+    radiobutton_pix = tk.Radiobutton(frame_pagamento, text="PIX", variable=var_pagamento, value="PIX", state="disabled")
+    radiobutton_pix.grid(row=0, column=0, sticky="w")
+
+    radiobutton_debito = tk.Radiobutton(frame_pagamento, text="Cartão de Débito", variable=var_pagamento, value="Débito", state="disabled")
+    radiobutton_debito.grid(row=0, column=1, sticky="w")
+
+    radiobutton_credito = tk.Radiobutton(frame_pagamento, text="Cartão de Crédito", variable=var_pagamento, value="Crédito", state="disabled")
+    radiobutton_credito.grid(row=1, column=0, sticky="w")
+
+    radiobutton_dinheiro = tk.Radiobutton(frame_pagamento, text="Em Espécie (Dinheiro)", variable=var_pagamento, value="Dinheiro", state="disabled")
+    radiobutton_dinheiro.grid(row=1, column=1, sticky="w")
+
+    return frame_financeiro
+
+# Função principal para inicializar a janela
+def main():
+    # Inicialização da janela principal
+    root = tk.Tk()
+    root.title("Aplicativo Financeiro")
+
+    # Criação do Notebook para as abas
+    notebook = ttk.Notebook(root)
+    notebook.pack(padx=10, pady=10, expand=True, fill="both")
+
+    # Criar abas
+    aba_financeiro = criar_aba_financeiro(notebook)
+    notebook.add(aba_financeiro, text="Financeiro")
+
+    # Aqui você pode adicionar mais abas, como `aba_servicos`, etc.
+
+    root.mainloop()
+
+if __name__ == "__main__":
+    main()
+Copy
+Explicação das Alterações:
+Aba Financeiro: As funções foram adaptadas para criar um frame financeiro dentro de uma aba em um ttk.Notebook.
+
+Widgets Agrupados: Os widgets estão organizados dentro da função criar_aba_financeiro, que é chamada ao adicionar a aba ao notebook.
+
+Funções de Callback: As funções para calcular total, limpar seleções, e atualizar pagamento foram mantidas, mas você pode personalizá-las de acordo com suas necessidades.
+
+Estrutura: O layout foi ajustado para usar grid, mantendo as propriedades do seu código original. Você pode reorganizar conforme necessário.
+
+Agora, o seu código está estruturado para funcionar em uma aba financeira dentro de um aplicativo Tkinter. Certifique-se de adaptar a lógica de cálculo e manipulação de dados conforme o seu contexto aplicativo!
+
+
+
+
+
+
+frame_cadastramento = tk.LabelFrame(aba_cadastro, text="Dados Cadastrais", borderwidth=3, relief='groove')
+frame_cadastramento.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+# Nome do Pet
+ttk.Label(frame_cadastramento, text="Nome do Pet:").grid(row=0, column=0, padx=10, pady=5, sticky="w")
+entry_nome_pet = ttk.Entry(frame_cadastramento)
+entry_nome_pet.grid(row=0, column=1, padx=10, pady=5, sticky="ew")
+
+# Idade
+ttk.Label(frame_cadastramento, text="Idade (Anos):").grid(row=1, column=0, padx=10, pady=5, sticky="w")
+entry_idade_anos = ttk.Entry(frame_cadastramento)
+entry_idade_anos.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
+
+ttk.Label(frame_cadastramento, text="Idade (Meses):").grid(row=2, column=0, padx=10, pady=5, sticky="w")
+entry_idade_meses = ttk.Entry(frame_cadastramento)
+entry_idade_meses.grid(row=2, column=1, padx=10, pady=5, sticky="ew")
+
+# Criando um Frame para Endereço e Observações
+frame_endereco = tk.LabelFrame(aba_cadastro, text="Endereço e Observações", borderwidth=3, relief='groove')
+frame_endereco.grid(row=0, column=2, columnspan=2, padx=10, pady=10, sticky="nsew")
+
+ttk.Label(frame_endereco, text="Endereço:").grid(row=0, column=0, padx=10, pady=5, sticky="w")
+entry_expande = ttk.Entry(frame_endereco)
+entry_expande.grid(row=0, column=1, columnspan=2, padx=10, pady=5, sticky="ew")
+
+# aumentando o tamanho do entry configurando columnconfigure(1, weight=1)
+frame_endereco.columnconfigure(1, weight=2)
+
+# Configura as colunas do frame_endereco para expansão
+# for col in range(2):
+#     frame_endereco.columnconfigure(col, weight=1)
+
+
+
+ttk.Label(frame_endereco, text="Número:").grid(row=1, column=0, padx=10, pady=5, sticky="w")
+entry_fixo = ttk.Entry(frame_endereco)
+entry_fixo.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+# Endereço Complemento
+ttk.Label(frame_endereco, text="Complemento").grid(row=2, column=0, padx=10, pady=10, sticky='nsew')     # Campo de entrada (Entry)
+entry_enderecocomplemento = ttk.Entry(frame_endereco)
+entry_enderecocomplemento.grid(row=2, column=1, columnspan=2, padx=10, pady=10, sticky='ew')
+
+# EXEMPLO EXPANSÃO OU NÃO DE LINHAS
+
+# Configuração das linhas (impedindo que algumas expandam)
+# frame_exemplo.rowconfigure(0, weight=0)  # Linha fixa
+
+
+
+
+
+
+
+
+Para corrigir a ordem das definições e garantir que o código funcione corretamente em uma aba do Tkinter, faremos algumas modificações. Vou reorganizar o código para que todas as funções sejam definidas antes de serem utilizadas, e garantir que as variáveis e frames necessários estejam definidos no momento apropriado.
+
+Código Corrigido
+Aqui está uma versão reorganizada e corrigida do seu código aba_financeiro:
+
+import tkinter as tk
+from tkinter import ttk
+
+# Inicialização das variáveis globais
+variaveis_servicos = {}
+dados_pet = {}  # Preencha conforme necessário
+combobox_porte = None  # Certifique-se de que isso é inicializado em outro lugar
+
+# Funções
+def atualizar_precos(event=None):
+    porte_selecionado = combobox_porte.get().strip()
+    total = 0
+    precos_selecionados = []
+
+    if porte_selecionado not in dados_pet:
+        label_resultado.config(text="Erro: Nenhum porte válido foi selecionado!")
+        return
+
+    for servico, var in variaveis_servicos.items():
+        if var.get():
+            preco = dados_pet[porte_selecionado]["preços"].get(servico, 0)
+            total += preco
+            precos_selecionados.append(f"{servico}: R$ {preco:.2f}")
+
+    label_resultado.config(text="\n".join(precos_selecionados) + f"\nTotal: R$ {total:.2f}")
+    return total
+
+def calcular_desconto(valor_total):
+    desconto_fixo = float(entry_desconto_fixo.get()) if var_desconto_fixo.get() else 0
+    desconto_percentual = float(entry_desconto_percentual.get()) if var_desconto_percentual.get() else 0
+    valor_com_desconto = valor_total - desconto_fixo
+    valor_com_desconto -= (valor_com_desconto * (desconto_percentual / 100))
+    return valor_com_desconto
+
+def calcular_total():
+    valor_total = atualizar_precos()  # Obter o valor total dos serviços
+    if valor_total is None:  # Se ocorrer erro no cálculo
+        return
+    valor_final = calcular_desconto(valor_total)
+    label_resultado.config(text=f"Total com desconto: R$ {valor_final:.2f}")
+
+def limpar_selecoes():
+    for var in variaveis_servicos.values():
+        var.set(False)  # Desmarca todos os Checkbuttons
+    entry_desconto_fixo.delete(0, tk.END)  # Limpa o campo de desconto fixo
+    entry_desconto_percentual.delete(0, tk.END)  # Limpa o campo de desconto percentual
+    label_resultado.config(text="Total com desconto: R$ 0.00")  # Reseta o resultado
+
+def criar_frame_financeiro(parent):
+    frame_financeiro = ttk.LabelFrame(parent, text="Informações Financeiras")
+    frame_financeiro.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+    frame_condicoes_pagamento = ttk.LabelFrame(frame_financeiro, text="Condições de Pagamento")
+    frame_condicoes_pagamento.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+
+    # Criando o Frame para abatimentos
+    frame_abatimentos = ttk.LabelFrame(frame_financeiro, text="Abatimentos")
+    frame_abatimentos.grid(row=2, column=0, padx=10, pady=10, sticky="nw")
+
+    # Checkbuttons para aplicar abatimentos
+    global var_desconto_fixo, var_desconto_percentual, entry_desconto_fixo, entry_desconto_percentual, label_resultado
+    var_desconto_fixo = tk.BooleanVar()
+    var_desconto_percentual = tk.BooleanVar()
+
+    check_fixo = ttk.Checkbutton(frame_abatimentos, text="Desconto Fixo (R$)", variable=var_desconto_fixo)
+    check_fixo.grid(row=0, column=0, sticky="w")
+
+    entry_desconto_fixo = ttk.Entry(frame_abatimentos)
+    entry_desconto_fixo.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+    check_percentual = ttk.Checkbutton(frame_abatimentos, text="Desconto Percentual (%)", variable=var_desconto_percentual)
+    check_percentual.grid(row=1, column=0, sticky="w")
+
+    entry_desconto_percentual = ttk.Entry(frame_abatimentos)
+    entry_desconto_percentual.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+    # Botão para calcular total
+    botao_calcular = ttk.Button(frame_abatimentos, text="Calcular Total", command=calcular_total)
+    botao_calcular.grid(row=2, column=0, pady=10)
+
+    # Botão para limpar seleções
+    botao_limpar = ttk.Button(frame_abatimentos, text="Limpar Seleções", command=limpar_selecoes)
+    botao_limpar.grid(row=2, column=1, padx=10)
+
+    # Label para exibir o resultado do cálculo
+    label_resultado = ttk.Label(frame_abatimentos, text="Total com desconto: R$")
+    label_resultado.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+
+    return frame_financeiro
+
+# Inicialização da janela principal
+if __name__ == "__main__":
+    root = tk.Tk()
+    aba_financeiro = criar_frame_financeiro(root)
+    root.mainloop()
+Copy
+Principais Correções Feitas:
+Definição de Funções: Todas as funções foram definidas antes de serem chamadas, conforme necessário. Assim, o Python pode reconhecê-las quando são invocadas.
+
+Eliminação de Redundâncias: O código que cria os frames foi limpo para garantir que não haja repetição desnecessária, como múltiplas definições para frame_financeiro.
+
+Uso de Variáveis Global: As variáveis dos check buttons e entradas são definidas como globais e declaradas no início para evitar acessos não definidos.
+
+Combobox: Certifique-se de que o combobox_porte e dados_pet estão definidos em outra parte do seu código, onde você pode atualizá-los com valores válidos, já que não estão definidos neste fragmento.
+
+Estrutura de Frames: A estrutura dos frames está organizada de forma lógica, de modo que todos os componentes associados à aba financeira estejam dentro do contexto correto.
+
+Certifique-se de fazer ajustes adicionais conforme suas necessidades específicas e outros componentes do seu aplicativo, pois algumas partes que dependem de outros contextos não estão incluídas no código fornecido.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+O erro que você está enfrentando, SyntaxError: name 'var_desconto_fixo' is assigned to before global declaration, indica que você está tentando fazer referência a uma variável global (var_desconto_fixo, por exemplo) antes de declará-la como global. Para resolver esse problema e deixar o seu código funcional, precisaremos fazer algumas revisões.
+
+Problemas Encontrados e suas Soluções:
+Ordem das Declarações: As variáveis globais precisam ser declaradas antes de serem usadas ou definidas. Assim, coloque a declaração global acima de qualquer instância da variável.
+
+Estrutura de Framing: Em alguns pontos do seu código, tem cortes de linhas e espaçamentos que podem confundir a leitura. Vou ajustar isso para melhorar a clareza.
+
+Identação: Certifique-se de que a indentação do seu código está correta, pois uma indentação incorreta pode causar erros.
+
+Código Reestruturado e Corrigido
+Aqui está uma versão reestruturada do seu código que deve funcionar corretamente:
+
+import tkinter as tk
+from tkinter import ttk  # Certifique-se de importar o ttk se não estiver importado
+
+# Variáveis globais
+variaveis_servicos = {}
+dados_pet = {}  # Preencha conforme necessário
+combobox_porte = None  # Certifique-se de que isso é inicializado em outro lugar
+
+# Variáveis de configuração para descontos
+var_desconto_fixo = tk.BooleanVar()
+var_desconto_percentual = tk.BooleanVar()
+entry_desconto_fixo = None
+entry_desconto_percentual = None
+label_resultado = None
+
+# Função para calcular e atualizar os preços dos serviços
+def atualizar_precos(event=None):
+    porte_selecionado = combobox_porte.get().strip()
+    total = 0
+    precos_selecionados = []
+
+    if porte_selecionado not in dados_pet:
+        label_resultado.config(text="Erro: Nenhum porte válido foi selecionado!")
+        return
+
+    for servico, var in variaveis_servicos.items():
+        if var.get():
+            preco = dados_pet[porte_selecionado]["preços"].get(servico, 0)
+            total += preco
+            precos_selecionados.append(f"{servico}: R$ {preco:.2f}")
+
+    label_resultado.config(text="\n".join(precos_selecionados) + f"\nTotal: R$ {total:.2f}")
+    return total
+
+# Função para calcular abatimentos
+def calcular_desconto(valor_total):
+    desconto_fixo = float(entry_desconto_fixo.get()) if var_desconto_fixo.get() else 0
+    desconto_percentual = float(entry_desconto_percentual.get()) if var_desconto_percentual.get() else 0
+    valor_com_desconto = valor_total - desconto_fixo
+    valor_com_desconto -= (valor_com_desconto * (desconto_percentual / 100))
+    return valor_com_desconto
+
+# Função para calcular total
+def calcular_total():
+    valor_total = atualizar_precos()  # Obter o valor total dos serviços
+    if valor_total is None:  # Se ocorrer erro no cálculo
+        return
+    valor_final = calcular_desconto(valor_total)
+    label_resultado.config(text=f"Total com desconto: R$ {valor_final:.2f}")
+
+# Função para limpar seleções
+def limpar_selecoes():
+    for var in variaveis_servicos.values():
+        var.set(False)  # Desmarca todos os Checkbuttons
+    entry_desconto_fixo.delete(0, tk.END)  # Limpa o campo de desconto fixo
+    entry_desconto_percentual.delete(0, tk.END)  # Limpa o campo de desconto percentual
+    label_resultado.config(text="Total com desconto: R$ 0.00")  # Reseta o resultado
+
+# Função para criar a aba financeira
+def criar_frame_financeiro(parent):
+    global entry_desconto_fixo, entry_desconto_percentual, label_resultado
+    
+    frame_financeiro = ttk.LabelFrame(parent, text="Informações Financeiras")
+    frame_financeiro.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+    frame_condicoes_pagamento = ttk.LabelFrame(frame_financeiro, text="Condições de Pagamento")
+    frame_condicoes_pagamento.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+
+    # Criando o Frame para abatimentos
+    frame_abatimentos = ttk.LabelFrame(frame_financeiro, text="Abatimentos")
+    frame_abatimentos.grid(row=2, column=0, padx=10, pady=10, sticky="nw")
+
+    # Checkbuttons para aplicar abatimentos
+    check_fixo = ttk.Checkbutton(frame_abatimentos, text="Desconto Fixo (R$)", variable=var_desconto_fixo)
+    check_fixo.grid(row=0, column=0, sticky="w")
+
+    entry_desconto_fixo = ttk.Entry(frame_abatimentos)  # Inicializa a entrada para desconto fixo
+    entry_desconto_fixo.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+    check_percentual = ttk.Checkbutton(frame_abatimentos, text="Desconto Percentual (%)", variable=var_desconto_percentual)
+    check_percentual.grid(row=1, column=0, sticky="w")
+
+    entry_desconto_percentual = ttk.Entry(frame_abatimentos)  # Inicializa a entrada para desconto percentual
+    entry_desconto_percentual.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+    # Botão para calcular total
+    botao_calcular = ttk.Button(frame_abatimentos, text="Calcular Total", command=calcular_total)
+    botao_calcular.grid(row=2, column=0, pady=10)
+
+    # Botão para limpar seleções
+    botao_limpar = ttk.Button(frame_abatimentos, text="Limpar Seleções", command=limpar_selecoes)
+    botao_limpar.grid(row=2, column=1, padx=10)
+
+    # Label para exibir o resultado do cálculo
+    label_resultado = ttk.Label(frame_abatimentos, text="Total com desconto: R$")
+    label_resultado.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+
+    return frame_financeiro
+
+# Inicialização da janela
+if __name__ == "__main__":
+    root = tk.Tk()  # Inicializa a janela principal
+    aba_financeiro = criar_frame_financeiro(root)  # Cria a aba financeira no tkinter
+    root.mainloop()  # Mantém a aplicação em execução
+Copy
+Resumo das Mudanças:
+Declarado como Global: Certifique-se de que todas as variáveis necessárias são declaradas como global, se você pretende usá-las em várias funções.
+
+Estrutura do Código: O código foi reestruturado, organizando as funções de forma que elas sejam definidas antes das chamadas e tornando a leitura mais clara.
+
+Substituição da Combobox: O código assume que a combobox_porte e dados_pet são inicializados em outro lugar, então você deve preencher isso antes de usar.
+
+Correção de Indentação e Espaçamentos: O código foi corrigido com base na indentação adequada e em quebras de linha.
+
+Teste o Código:
+Agora execute o código e verifique se as funcionalidades estão como esperado. Se houver outras partes do seu aplicativo (como outros frames ou elementos de interface), você precisará se certificar de que tudo está alinhado corretamente.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Para garantir que todos os widgets apareçam corretamente na aba_financeiro e para assegurar que a interface do seu aplicativo Tkinter esteja corretamente configurada com múltiplas abas, vamos seguir uma estrutura organizada e implementar o uso do ttk.Notebook para gerenciar as abas.
+
+Vou apresentar um exemplo que utiliza a estrutura do ttk.Notebook para criar uma aba financeira e incluir todos os componentes necessários dentro desta aba.
+
+Exemplo Completo de Código com Abas
+Aqui está um exemplo revisado e mais completo do que você pode fazer:
+
+import tkinter as tk
+from tkinter import ttk
+
+
+# Funções para calcular preços
+def atualizar_precos():
+    porte_selecionado = combobox_porte.get().strip()
+    total = 0
+    precos_selecionados = []
+
+    if porte_selecionado not in dados_pet:  # Certifique-se que dados_pet está preenchido
+        label_resultado.config(text="Erro: Nenhum porte válido foi selecionado!")
+        return
+
+    for servico, var in variaveis_servicos.items():
+        if var.get():
+            preco = dados_pet[porte_selecionado]["preços"].get(servico, 0)
+            total += preco
+            precos_selecionados.append(f"{servico}: R$ {preco:.2f}")
+
+    label_resultado.config(text="\n".join(precos_selecionados) + f"\nTotal: R$ {total:.2f}")
+    return total
+
+
+def calcular_desconto(valor_total):
+    desconto_fixo = float(entry_desconto_fixo.get()) if var_desconto_fixo.get() else 0
+    desconto_percentual = float(entry_desconto_percentual.get()) if var_desconto_percentual.get() else 0
+    valor_com_desconto = valor_total - desconto_fixo
+    valor_com_desconto -= (valor_com_desconto * (desconto_percentual / 100))
+    return valor_com_desconto
+
+
+def calcular_total():
+    valor_total = atualizar_precos()  # Obter o valor total
+    if valor_total is None:  # Se ocorrer erro, não prosseguir
+        return
+    valor_final = calcular_desconto(valor_total)
+    label_resultado.config(text=f"Total com desconto: R$ {valor_final:.2f}")
+
+
+def limpar_selecoes():
+    for var in variaveis_servicos.values():
+        var.set(False)  # Desmarca todos os Checkbuttons
+
+    entry_desconto_fixo.delete(0, tk.END)  # Limpa o campo de desconto fixo
+    entry_desconto_percentual.delete(0, tk.END)  # Limpa o campo de desconto percentual
+    label_resultado.config(text="Total com desconto: R$ 0.00")  # Reseta o resultado
+
+
+# Cria a aba financeira
+def criar_frame_financeiro(notebook):
+    frame_financeiro = ttk.Frame(notebook)
+
+    # Criando o frame que contêm as condições de pagamento
+    frame_condicoes_pagamento = ttk.LabelFrame(frame_financeiro, text="Condições de Pagamento")
+    frame_condicoes_pagamento.pack(fill="both", padx=5, pady=5)
+
+    # Criando o Frame para abatimentos
+    frame_abatimentos = ttk.LabelFrame(frame_financeiro, text="Abatimentos")
+    frame_abatimentos.pack(fill="both", padx=10, pady=10)
+
+    global var_desconto_fixo, var_desconto_percentual, entry_desconto_fixo, entry_desconto_percentual, label_resultado
+    var_desconto_fixo = tk.BooleanVar()
+    var_desconto_percentual = tk.BooleanVar()
+
+    check_fixo = ttk.Checkbutton(frame_abatimentos, text="Desconto Fixo (R$)", variable=var_desconto_fixo)
+    check_fixo.grid(row=0, column=0, sticky="w")
+
+    entry_desconto_fixo = ttk.Entry(frame_abatimentos)  # Inicializa a entrada para desconto fixo
+    entry_desconto_fixo.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+    check_percentual = ttk.Checkbutton(frame_abatimentos, text="Desconto Percentual (%)", variable=var_desconto_percentual)
+    check_percentual.grid(row=1, column=0, sticky="w")
+
+    entry_desconto_percentual = ttk.Entry(frame_abatimentos)  # Inicializa a entrada para desconto percentual
+    entry_desconto_percentual.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+    # Botão para calcular total
+    botao_calcular = ttk.Button(frame_abatimentos, text="Calcular Total", command=calcular_total)
+    botao_calcular.grid(row=2, column=0, pady=10)
+
+    # Botão para limpar seleções
+    botao_limpar = ttk.Button(frame_abatimentos, text="Limpar Seleções", command=limpar_selecoes)
+    botao_limpar.grid(row=2, column=1, padx=10)
+
+    # Label para exibir o resultado do cálculo
+    label_resultado = ttk.Label(frame_abatimentos, text="Total com desconto: R$")
+    label_resultado.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+
+    return frame_financeiro
+
+
+# Inicialização da janela principal e do notebook
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.title("Aplicativo Financeiro")
+
+    # Criação do Notebook para as abas
+    notebook = ttk.Notebook(root)
+    notebook.pack(padx=10, pady=10, expand=True, fill="both")
+
+    # Cria a aba financeira dentro do notebook
+    aba_financeiro = criar_frame_financeiro(notebook)
+    notebook.add(aba_financeiro, text="Financeiro")
+
+    # Criação de uma aba adicional apenas para exemplificação
+    # Se necessário, você pode criar mais abas aqui
+    aba_outro = ttk.Frame(notebook)  # Exemplo de outra aba
+    notebook.add(aba_outro, text="Outro")
+
+    root.mainloop()  # Mantém a janela aberta
+Copy
+Explicação do Código:
+Uso do Notebook: O ttk.Notebook é usado para criar uma interface com abas, onde cada aba pode conter diferentes componentes.
+
+Funções Modularizadas: As funções que calculam o preço e limpam seleções estão separadas e organizadas para facilitar a leitura e a manutenção.
+
+Configuração dos Frames: Todos os widgets potenciais estão sendo diretamente adicionados ao frame da aba financeira sem interações acidentais com janelas independentes.
+
+Início da aplicação: O programa cria uma janela Tk principal e inicializa as abas dentro dela.
+
+Dicas Adicionais:
+Confirmar a Inicialização: Verifique se dados_pet e combobox_porte são inicializados corretamente antes de usar as funções que dependem deles.
+Personalizar Outras Abas: Você pode adicionar quantas abas precisar e organizar os componentes dentro de cada uma delas conforme necessário.
+Certifique-se de que toda a estrutura e lógica do seu aplicativo estejam alinhadas de acordo com este modelo para garantir que os componentes gráficos sejam exibidos corretamente nas abas!
+
+
+
+
+
+
+
+
+# Variáveis globais
+variaveis_servicos = {}
+dados_pet = {}  # Preencha conforme necessário
+combobox_porte = None  # Certifique-se de que isso é inicializado em outro lugar
+
+# Variáveis de configuração para descontos
+var_desconto_fixo = tk.BooleanVar()
+var_desconto_percentual = tk.BooleanVar()
+entry_desconto_fixo = None
+entry_desconto_percentual = None
+label_resultado = None
+
+
+# Funções para calcular preços
+def atualizar_precos():
+    porte_selecionado = combobox_porte.get().strip()
+    total = 0
+    precos_selecionados = []
+
+    if porte_selecionado not in dados_pet:
+        label_resultado.config(text="Erro: Nenhum porte válido foi selecionado!")
+        return
+
+    for servico, var in variaveis_servicos.items():
+        if var.get():
+            preco = dados_pet[porte_selecionado]["preços"].get(servico, 0)
+            total += preco
+            precos_selecionados.append(f"{servico}: R$ {preco:.2f}")
+
+    label_resultado.config(text="\n".join(precos_selecionados) + f"\nTotal: R$ {total:.2f}")
+    return total
+
+
+def calcular_desconto(valor_total):
+    desconto_fixo = float(entry_desconto_fixo.get()) if var_desconto_fixo.get() else 0
+    desconto_percentual = float(entry_desconto_percentual.get()) if var_desconto_percentual.get() else 0
+    valor_com_desconto = valor_total - desconto_fixo
+    valor_com_desconto -= (valor_com_desconto * (desconto_percentual / 100))
+    return valor_com_desconto
+
+
+def calcular_total():
+    valor_total = atualizar_precos()  # Obter o valor total
+    if valor_total is None:
+        return
+    valor_final = calcular_desconto(valor_total)
+    label_resultado.config(text=f"Total com desconto: R$ {valor_final:.2f}")
+
+
+def limpar_selecoes():
+    for var in variaveis_servicos.values():
+        var.set(False)  # Desmarca todos os Checkbuttons
+    entry_desconto_fixo.delete(0, tk.END)  # Limpa o campo de desconto fixo
+    entry_desconto_percentual.delete(0, tk.END)  # Limpa o campo de desconto percentual
+    label_resultado.config(text="Total com desconto: R$ 0.00")  # Reseta o resultado
+
+
+def criar_frame_financeiro(parent):  # O parâmetro 'parent' deve ser o notebook
+    global entry_desconto_fixo, entry_desconto_percentual, label_resultado
+
+    frame_financeiro = ttk.LabelFrame(parent, text="Informações Financeiras")  # 'parent' deve ser o notebook
+    frame_financeiro.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+    # Criando o frame que contém as condições de pagamento
+    frame_condicoes_pagamento = ttk.LabelFrame(frame_financeiro, text="Condições de Pagamento")
+    frame_condicoes_pagamento.pack(fill="both", padx=5, pady=5)
+
+    # Criando o Frame para abatimentos
+    frame_abatimentos = ttk.LabelFrame(frame_financeiro, text="Abatimentos")
+    frame_abatimentos.pack(fill="both", padx=10, pady=10)
+
+    var_desconto_fixo = tk.BooleanVar()
+    var_desconto_percentual = tk.BooleanVar()
+
+    check_fixo = ttk.Checkbutton(frame_abatimentos, text="Desconto Fixo (R$)", variable=var_desconto_fixo)
+    check_fixo.grid(row=0, column=0, sticky="w")
+
+    entry_desconto_fixo = ttk.Entry(frame_abatimentos)
+    entry_desconto_fixo.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+    check_percentual = ttk.Checkbutton(frame_abatimentos, text="Desconto Percentual (%)", variable=var_desconto_percentual)
+    check_percentual.grid(row=1, column=0, sticky="w")
+
+    entry_desconto_percentual = ttk.Entry(frame_abatimentos)
+    entry_desconto_percentual.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+    # Botões para calcular total e limpar seleções
+    botao_calcular = ttk.Button(frame_abatimentos, text="Calcular Total", command=calcular_total)
+    botao_calcular.grid(row=2, column=0, pady=10)
+
+    botao_limpar = ttk.Button(frame_abatimentos, text="Limpar Seleções", command=limpar_selecoes)
+    botao_limpar.grid(row=2, column=1, padx=10)
+
+    # Label para exibir o resultado do cálculo
+    label_resultado = ttk.Label(frame_abatimentos, text="Total com desconto: R$")
+    label_resultado.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+
+    return frame_financeiro
+
+
+# Inicialização da janela principal e do notebook
+if __name__ == "__main__":
+    root = tk.Tk()
+    root.title("Aplicativo Financeiro")
+
+    # Criação do Notebook para as abas
+    notebook = ttk.Notebook(root)
+    notebook.pack(padx=10, pady=10, expand=True, fill="both")
+
+    # Cria a aba financeira dentro do notebook
+    aba_financeiro = criar_frame_financeiro(notebook)
+    notebook.add(aba_financeiro, text="Financeiro")
+
+    # Exemplo de uma aba adicional
+    aba_outro = ttk.Frame(notebook)  # Exemplo de outra aba
+    notebook.add(aba_outro, text="Outro")
+
+    root.mainloop()  # Mantém a janela aberta
+Copy
+O que Mudou:
+Uso Correto do Parâmetro parent: A função criar_frame_financeiro agora corretamente recebe parent, que é o notebook onde a aba será adicionada.
+
+Criação do LabelFrame: A criação do ttk.LabelFrame está agora corretamente referenciando parent.
+
+Estruturas de Widgets: A construção dos frames e widgets dentro da aba financeira foi mantida organizada para evitar confusões.
+
+Incluí um Exemplo de Outra Aba: Um exemplo de outra aba (aba_outro) foi incluído para mostrar como você pode expandir a funcionalidade do aplicativo.
+
+Teste o Código
+Essa versão deve funcionar corretamente e exibir todos os componentes dentro da aba_financeiro. Certifique-se de que seu ambiente esteja corretamente configurado e que você tenha o Tkinter instalado. Se você ainda encontrar erros, por favor, compartilhe qual parte do código ou os passos que você está seguindo, assim poderei ajudar melhor.
+
+def criar_frame_cadastro(parent, text="Dados Cadastrais"):
+    frame_cadastro = ttk.LabelFrame(parent, )
+    frame_cadastro.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,645 @@
+raças
+
+
+
+
+Perfeito, Reinaldo! Se você já centralizou os dados em `aba_config` (como combobox de porte, faixas de preços, lista de serviços, etc.), a **melhor forma** de estruturar seu projeto modular é criar um módulo chamado, por exemplo:
+
+```
+dados_compartilhados.py
+```
+
+Esse arquivo será o “coração de dados” do seu sistema — os outros módulos só **importam dele**. Com isso, você evita variáveis duplicadas e mantém tudo consistente.
+
+---
+
+### 🧬 Exemplo de `dados_compartilhados.py`
+
+```python
+import tkinter as tk
+
+# Lista de serviços oferecidos
+servicos_disponiveis = [
+    "Banho", "Tosa", "Hidratação", "Desembolo", "Higiênica", "Máquina", "Tesoura"
+]
+
+# Dicionário com preços por porte (vindo da aba_config)
+faixas_precos = {
+    "Pequeno":  {"Banho": 40, "Tosa": 50},
+    "Médio":    {"Banho": 60, "Tosa": 70},
+    "Grande":   {"Banho": 80, "Tosa": 90}
+}
+
+# Combobox de porte compartilhado
+porte_valores = ["Pequeno", "Médio", "Grande"]
+combobox_porte = None  # Este será criado na aba_config e atualizado aqui
+
+# Variáveis dos serviços (ligadas aos Checkbuttons)
+variaveis_servicos = {servico: tk.BooleanVar(value=False) for servico in servicos_disponiveis}
+```
+
+---
+
+### ✨ Em `aba_config.py`
+
+Você cria o `combobox_porte` e registra ele no módulo compartilhado:
+
+```python
+from tkinter import ttk
+import dados_compartilhados as dados
+
+def montar_aba_config(aba_config):
+    # Combobox de porte
+    dados.combobox_porte = ttk.Combobox(aba_config, values=dados.porte_valores)
+    dados.combobox_porte.grid(row=0, column=0, padx=10, pady=10)
+```
+
+---
+
+### 🧩 Em `aba_financeiro.py`
+
+Você importa diretamente:
+
+```python
+import dados_compartilhados as dados
+
+def montar_aba_financeiro(aba_financeiro):
+    porte_selecionado = dados.combobox_porte.get()
+    preco_servicos = dados.faixas_precos.get(porte_selecionado, {})
+    for servico, var in dados.variaveis_servicos.items():
+        if var.get():
+            preco = preco_servicos.get(servico, 0)
+            ...
+```
+
+---
+
+### ✅ Vantagens desse modelo:
+- Evita loops de importação (um módulo dependendo do outro circularmente)
+- Variáveis “vivas”: qualquer alteração reflete onde elas forem importadas
+- Total controle sobre seus dados e lógica
+- Super fácil de debugar
+
+---
+
+Se quiser, posso montar todos esses arquivos com base no seu projeto real (já com nomes, checkbuttons e funções prontinhas pra importar). Quer que eu gere um template completo de `dados_compartilhados.py` + amostra de uso em `aba_config` e `aba_financeiro`? 😄📦📊  
+Te entrego como se fosse um mini-framework visual!
+
+
+
+
+
+Tudo sobre o seu:
+Petit Basset Griffon Vendéen
+O cachorro francês de nome comprido e charmoso tem uma aparência fofa, mas para surpresa de muitos, sua carinha peluda esconde um caçador temido pelos pequenos animais como coelhos e aves. Curioso e ativo, o cachorrinho adora estar na companhia de pessoas e vive fazendo convites para brincadeiras. É reconhecido como um cão alegre e brincalhão, e que possui excelentes predicados para ser um parceiro ideal de toda a família.
+
+
+Pelagem
+A pelagem dupla do Petit Basset Griffon Vendéen é formada por pelos ásperos, de comprimento médio, e subpelos grossos e curtos. As sobrancelhas grandes chamam a atenção e servem de marca registrada. Seu “casaco” é branco e pode ser acompanhado de diferentes cores, entre elas: preto, laranja e tons de vermelho.
+
+
+Tamanho
+A altura varia de
+34 a 38 cm
+
+Peso
+O peso varia de
+11 a 18 kg
+
+
+
+
+em meu projeto de uma janela tkinter para cadastro e controle de um PET SHOP, tenho 2 combobox que definem o porte e a raça dos PET´s  os combobox_porte tem as Opções de porte "Pequeno", "Médio", "Grande" e "Maior" sendo que essas opções quando selecionadas pelo usuário, abrem no combobox_raca as Raças de PET de acordo com o Porte (Raças de Porte Pequeno, Raças de Porte Médio, etc) quando selecionada a Raça do Pet na Combobox_raca, é exibido uma imagem relativa ao nome da Raça. essas funcionalidades já foram implantadas e estão funcionando.
+
+
+
+em meu projeto de uma janela tkinter para cadastro e controle de um PET SHOP, tenho 2 combobox que definem o porte e a raça dos PET´s  os combobox_porte tem as Opções de porte "Pequeno", "Médio", "Grande" e "Maior" sendo que essas opções quando selecionadas pelo usuário, abrem no combobox_raca as Raças de PET de acordo com o Porte (Raças de Porte Pequeno, Raças de Porte Médio, etc) quando selecionada a Raça do Pet na Combobox_raca, é exibido uma imagem relativa ao nome da Raça. essas funcionalidades já foram implantadas e estão funcionando.
+Quero implementar campo de texto, que ao ser escolhida a raça no combobox_raca, informe características da Raça, como faixa de Peso e Tamanho, tipo de Pelos ( curtos, longos, grosso, fino etc), temperamento/persolalidade do PET se é Dócil ou Agressivo, etc, para isso gostaria que fosse criado um dicionário, ou outra ferramenta para ser recuperada a informação, ao ser selecionada a Raça no combobox_raca) qual a melhor maneira de fazer isso?
+
+
+
+
+
+Para implementar um campo de texto que exiba características das raças de pets com base na seleção do combobox_raca, você pode usar um dicionário para armazenar as informações de cada raça. Essa é uma abordagem simples e eficaz. Aqui está um exemplo de como você pode fazer isso:
+
+Criação do Dicionário: Crie um dicionário onde as chaves são os nomes das raças e os valores são outro dicionário contendo as características.
+
+Atualização do Campo de Texto: Quando uma raça é selecionada no combobox_raca, você pode recuperar as informações do dicionário e exibi-las em um campo de texto.
+
+Exemplo de Código
+Aqui está um exemplo básico de como implementar isso:
+
+import tkinter as tk
+from tkinter import ttk
+
+# Dicionário de características das raças
+caracteristicas_racas = {
+    "Chihuahua": {
+        "peso": "1 a 3 kg",
+        "tamanho": "15 a 23 cm",
+        "pelos": "Curto",
+        "temperamento": "Dócil"
+    },
+    "Labrador": {
+        "peso": "25 a 36 kg",
+        "tamanho": "55 a 62 cm",
+        "pelos": "Curto e grosso",
+        "temperamento": "Dócil"
+    },
+    "Bulldog": {
+        "peso": "18 a 25 kg",
+        "tamanho": "30 a 40 cm",
+        "pelos": "Curto",
+        "temperamento": "Agressivo"
+    }
+    # Adicione mais raças conforme necessário
+}
+
+def atualizar_caracteristicas(event):
+    raca_selecionada = combobox_raca.get()
+    if raca_selecionada in caracteristicas_racas:
+        info = caracteristicas_racas[raca_selecionada]
+        texto_caracteristicas.delete(1.0, tk.END)  # Limpa o campo de texto
+        texto_caracteristicas.insert(tk.END, f"Peso: {info['peso']}\n")
+        texto_caracteristicas.insert(tk.END, f"Tamanho: {info['tamanho']}\n")
+        texto_caracteristicas.insert(tk.END, f"Pelos: {info['pelos']}\n")
+        texto_caracteristicas.insert(tk.END, f"Temperamento: {info['temperamento']}")
+
+# Configuração da janela
+root = tk.Tk()
+root.title("Cadastro PET SHOP")
+
+# Combobox de Raça
+combobox_raca = ttk.Combobox(root, values=list(caracteristicas_racas.keys()))
+combobox_raca.bind("<<ComboboxSelected>>", atualizar_caracteristicas)
+combobox_raca.pack()
+
+# Campo de texto para características
+texto_caracteristicas = tk.Text(root, height=10, width=50)
+texto_caracteristicas.pack()
+
+root.mainloop()
+Copy
+Explicação:
+Dicionário: caracteristicas_racas contém as raças e suas características.
+Combobox: combobox_raca permite que o usuário selecione uma raça.
+Atualização das Características: A função atualizar_caracteristicas é chamada quando uma raça é selecionada. Ela atualiza o campo de texto com as informações da raça selecionada.
+Você pode expandir o dicionário para incluir mais raças e suas características conforme necessário.
+
+
+
+Você:  o código sugerido está ótimo, gostaria de implementa-lo em minha janela tkinter, mas a janela possue abas, gostaria que essa parte do código fosse implantada na aba_config que vai compartilhar informações com as abas (aba_financeiro, aba_cadastro, aba_relatorio, aba_consulta) como implementar esse código na aba_config, gostaria também que as imagens selecionadas pelos combobox_porte e combobox_raca também fossem exibidas  em labels, nas outras abas quando forem selecionadas, abaixo o código sugerido, por favor faça as alterações para uso na aba_config e não  utilizando .pack, utilizando .grid
+
+Para integrar o código na aba aba_config e exibir as imagens selecionadas pelas combobox_porte e combobox_raca nas outras abas, utilizando o layout .grid, você pode seguir o exemplo abaixo. Aqui, também consideramos que você já possui as abas criadas. Vamos focar na aba de configuração e na exibição de características.
+
+Código Alterado:
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk  # Certifique-se de ter a biblioteca Pillow instalada
+
+# Dicionário de características das raças
+caracteristicas_racas = {
+    "Chihuahua": {
+        "peso": "1 a 3 kg",
+        "tamanho": "15 a 23 cm",
+        "pelos": "Curto",
+        "temperamento": "Dócil",
+        "imagem": "chihuahua.png"  # Adicione o caminho para a imagem
+    },
+    "Labrador": {
+        "peso": "25 a 36 kg",
+        "tamanho": "55 a 62 cm",
+        "pelos": "Curto e grosso",
+        "temperamento": "Dócil",
+        "imagem": "labrador.png"
+    },
+    "Bulldog": {
+        "peso": "18 a 25 kg",
+        "tamanho": "30 a 40 cm",
+        "pelos": "Curto",
+        "temperamento": "Agressivo",
+        "imagem": "bulldog.png"
+    }
+    # Adicione mais raças conforme necessário
+}
+
+class App:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Cadastro PET SHOP")
+
+        self.notebook = ttk.Notebook(self.root)
+        self.aba_config = ttk.Frame(self.notebook)
+        self.aba_financeiro = ttk.Frame(self.notebook)
+        self.aba_cadastro = ttk.Frame(self.notebook)
+        self.aba_relatorio = ttk.Frame(self.notebook)
+        self.aba_consulta = ttk.Frame(self.notebook)
+
+        self.notebook.add(self.aba_config, text='Configuração')
+        self.notebook.add(self.aba_financeiro, text='Financeiro')
+        self.notebook.add(self.aba_cadastro, text='Cadastro')
+        self.notebook.add(self.aba_relatorio, text='Relatório')
+        self.notebook.add(self.aba_consulta, text='Consulta')
+        self.notebook.pack(expand=True, fill='both')
+
+        self.criar_aba_config()
+
+    def criar_aba_config(self):
+        # Combobox de Raça
+        self.combobox_raca = ttk.Combobox(self.aba_config, values=list(caracteristicas_racas.keys()))
+        self.combobox_raca.grid(row=0, column=0, padx=10, pady=10)
+        self.combobox_raca.bind("<<ComboboxSelected>>", self.atualizar_caracteristicas)
+
+        # Campo de texto para características
+        self.texto_caracteristicas = tk.Text(self.aba_config, height=10, width=50)
+        self.texto_caracteristicas.grid(row=1, column=0, padx=10, pady=10)
+
+        # Label para imagem
+        self.label_imagem = tk.Label(self.aba_config)
+        self.label_imagem.grid(row=2, column=0, padx=10, pady=10)
+
+    def atualizar_caracteristicas(self, event):
+        raca_selecionada = self.combobox_raca.get()
+        if raca_selecionada in caracteristicas_racas:
+            info = caracteristicas_racas[raca_selecionada]
+            self.texto_caracteristicas.delete(1.0, tk.END)  # Limpa o campo de texto
+            self.texto_caracteristicas.insert(tk.END, f"Peso: {info['peso']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Tamanho: {info['tamanho']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Pelos: {info['pelos']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Temperamento: {info['temperamento']}")
+
+            # Atualiza a imagem
+            self.atualizar_imagem(info['imagem'])
+
+    def atualizar_imagem(self, imagem_path):
+        img = Image.open(imagem_path)
+        img = img.resize((100, 100), Image.ANTIALIAS)  # Redimensiona a imagem
+        self.img_tk = ImageTk.PhotoImage(img)  # Cria uma imagem compatível com tkinter
+        self.label_imagem.config(image=self.img_tk)  # Atualiza o label com a imagem
+        self.label_imagem.image = self.img_tk  # Manter uma referência à imagem
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = App(root)
+    root.mainloop()
+Copy
+Alterações e Recursos:
+Abas Criadas: A estrutura de abas foi implementada usando ttk.Notebook.
+Layout com .grid: Todos os componentes na aba de configuração usam o método .grid.
+Atualização de Imagem: Ao selecionar uma raça, a imagem correspondente será exibida em um label.
+Dependência da Imagem: Certifique-se de que as imagens referenciadas estejam no mesmo diretório do script ou ajuste o caminho.
+Próximos Passos:
+Implemente o mesmo tipo de funcionalidade nas outras abas, utilizando as informações selecionadas na aba_config.
+Teste o código e ajuste conforme necessário.
+
+
+
+
+O erro "IndentationError: unexpected indent" indica que há um problema com a indentação no seu código. O Python é sensível à indentação, e todos os blocos de código precisam estar alinhados corretamente.
+
+Aqui estão algumas dicas para corrigir esse problema e uma sugestão de como o seu código deve ser estruturado:
+
+Verifique a Indentação: Certifique-se de que você está usando apenas espaços ou apenas tabulações para a indentação, mas não ambos. Aconselho usar 4 espaços para cada nível de indentação, que é a convenção mais comum em Python.
+
+Estrutura do Código: Abaixo está um exemplo simplificado de como o código pode ser organizado. Lembre-se de garantir que o código esteja dentro de uma classe, caso você esteja implementando uma aplicação Tkinter orientada a objetos.
+
+Código Corrigido
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk  # Certifique-se de ter a biblioteca Pillow instalada
+
+# Dicionário de características das raças
+caracteristicas_racas = {
+    "Chihuahua": {
+        "peso": "1 a 3 kg",
+        "tamanho": "15 a 23 cm",
+        "pelos": "Curto",
+        "temperamento": "Dócil",
+        "imagem": "chihuahua.png"  # Adicione o caminho para a imagem
+    },
+    "Labrador": {
+        "peso": "25 a 36 kg",
+        "tamanho": "55 a 62 cm",
+        "pelos": "Curto e grosso",
+        "temperamento": "Dócil",
+        "imagem": "labrador.png"
+    },
+    "Bulldog": {
+        "peso": "18 a 25 kg",
+        "tamanho": "30 a 40 cm",
+        "pelos": "Curto",
+        "temperamento": "Agressivo",
+        "imagem": "bulldog.png"
+    }
+    # Adicione mais raças conforme necessário
+}
+
+class App:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Cadastro PET SHOP")
+        
+        # Criação da aba_config
+        self.aba_config = ttk.Frame(self.root)
+        self.aba_config.pack(expand=True, fill='both')  # Certifique-se de que a aba foi criada
+
+        # Combobox de Raça
+        self.combobox_raca = ttk.Combobox(self.aba_config, values=list(caracteristicas_racas.keys()))
+        self.combobox_raca.grid(row=0, column=0, padx=10, pady=10)
+        self.combobox_raca.bind("<<ComboboxSelected>>", self.atualizar_caracteristicas)
+
+        # Campo de texto para características
+        self.texto_caracteristicas = tk.Text(self.aba_config, height=10, width=50)
+        self.texto_caracteristicas.grid(row=1, column=0, padx=10, pady=10)
+
+    def atualizar_caracteristicas(self, event):
+        raca_selecionada = self.combobox_raca.get()
+        if raca_selecionada in caracteristicas_racas:
+            info = caracteristicas_racas[raca_selecionada]
+            self.texto_caracteristicas.delete(1.0, tk.END)  # Limpa o campo de texto
+            self.texto_caracteristicas.insert(tk.END, f"Peso: {info['peso']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Tamanho: {info['tamanho']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Pelos: {info['pelos']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Temperamento: {info['temperamento']}")
+
+if __name__ == "__main__":
+    root = tk.Tk()
+    app = App(root)
+    root.mainloop()
+Copy
+Notas:
+Certifique-se de que o código de cada bloco, especialmente dentro da classe, esteja bem alinhado. Todos os métodos (__init__, atualizar_caracteristicas) devem estar com a mesma quantidade de espaços de indentação.
+Se você já tem a estrutura de abas implementada, adicione a parte de self.texto_caracteristicas dentro do contexto correto, como mostrado.
+Verifique se você não deixou linhas em branco ou misturou tabulações e espaços, pois isso pode causar o erro de indentação.
+Corrija o código seguindo essas orientações e veja se o problema persiste.
+
+
+
+
+
+Para resolver o problema em que o campo de texto (self.texto_caracteristicas) não está sendo exibido na aba aba_config, precisamos garantir algumas coisas:
+
+A Aba e o Componente estão sendo Adicionados ao Container Correto: Certifique-se de que a aba aba_config está realmente sendo adicionada ao seu Notebook ou container principal, caso contrário, ela não aparecerá.
+
+Verificação das Coordenadas em .grid: A posição da grade (row e column) em que você está colocando o campo de texto deve estar dentro do layout da aba. Certifique-se de que as coordenadas não estão fora do alcance da aba.
+
+Dimensões do Campo de Texto: Verifique se o tamanho do campo de texto e da aba é suficiente para exibir o componente.
+
+Aqui está um exemplo revisado, que considera esses pontos e adiciona o campo de texto corretamente na aba. Neste exemplo, a aba aba_config é parte de um Notebook, e o código para criar a interface é estruturado de maneira que você não precise abrir uma nova janela.
+
+Código Reestruturado
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk  # Certifique-se de ter a biblioteca Pillow instalada
+
+# Dicionário de características das raças
+caracteristicas_racas = {
+    "Chihuahua": {
+        "peso": "1 a 3 kg",
+        "tamanho": "15 a 23 cm",
+        "pelos": "Curto",
+        "temperamento": "Dócil",
+        "imagem": "chihuahua.png"  # Adicione o caminho para a imagem
+    },
+    "Labrador": {
+        "peso": "25 a 36 kg",
+        "tamanho": "55 a 62 cm",
+        "pelos": "Curto e grosso",
+        "temperamento": "Dócil",
+        "imagem": "labrador.png"
+    },
+    "Bulldog": {
+        "peso": "18 a 25 kg",
+        "tamanho": "30 a 40 cm",
+        "pelos": "Curto",
+        "temperamento": "Agressivo",
+        "imagem": "bulldog.png"
+    }
+    # Adicione mais raças conforme necessário
+}
+
+class App:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Cadastro PET SHOP")
+
+        # Criação do Notebook para as abas
+        self.notebook = ttk.Notebook(self.root)
+        self.notebook.pack(expand=True, fill='both')
+
+        # Criação da aba_config
+        self.aba_config = ttk.Frame(self.notebook)
+        self.notebook.add(self.aba_config, text='Configuração')
+
+        # Combobox de Raça
+        self.combobox_raca = ttk.Combobox(self.aba_config, values=list(caracteristicas_racas.keys()))
+        self.combobox_raca.grid(row=0, column=0, padx=10, pady=10)
+        self.combobox_raca.bind("<<ComboboxSelected>>", self.atualizar_caracteristicas)
+
+        # Campo de texto para características
+        self.texto_caracteristicas = tk.Text(self.aba_config, height=10, width=50)
+        self.texto_caracteristicas.grid(row=1, column=0, padx=10, pady=10)
+
+    def atualizar_caracteristicas(self, event):
+        raca_selecionada = self.combobox_raca.get()
+        if raca_selecionada in caracteristicas_racas:
+            info = caracteristicas_racas[raca_selecionada]
+            self.texto_caracteristicas.delete(1.0, tk.END)  # Limpa o campo de texto
+            self.texto_caracteristicas.insert(tk.END, f"Peso: {info['peso']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Tamanho: {info['tamanho']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Pelos: {info['pelos']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Temperamento: {info['temperamento']}")
+
+# Inicie a aplicação
+root = tk.Tk()
+app = App(root)
+root.mainloop()
+Copy
+O que foi feito:
+Estrutura do Notebook: A aba aba_config foi criada e adicionada ao Notebook. Isso assegura que a aba seja exibida corretamente.
+Uso da Grade: O self.texto_caracteristicas está posicionado em (row=1, column=0), o que deve funcionar se a aba foi criada e adicionada corretamente.
+Considerações Finais:
+Teste o Código: Execute o código para verificar se o campo de texto aparece corretamente.
+Verifique as Imagens: Certifique-se de que os caminhos das imagens estão corretos, se você pretende usá-las mais tarde.
+Outras Abas: Se você tiver outras abas, você pode adicionar mais configurações e elementos de forma semelhante à aba de configuração.
+
+
+
+
+
+Se você deseja que o campo de texto seja exibido corretamente e está utilizando exclusivamente o método .grid para o layout, é importante garantir que não haja conflitos entre .pack e .grid, já que ambos não devem ser misturados no mesmo container.
+
+Aqui está o código ajustado para utilizar apenas .grid e garantir que o campo de texto seja exibido corretamente na aba aba_config.
+
+Código Ajustado
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk  # Certifique-se de ter a biblioteca Pillow instalada
+
+# Dicionário de características das raças
+caracteristicas_racas = {
+    "Chihuahua": {
+        "peso": "1 a 3 kg",
+        "tamanho": "15 a 23 cm",
+        "pelos": "Curto",
+        "temperamento": "Dócil",
+        "imagem": "chihuahua.png"  # Adicione o caminho para a imagem
+    },
+    "Labrador": {
+        "peso": "25 a 36 kg",
+        "tamanho": "55 a 62 cm",
+        "pelos": "Curto e grosso",
+        "temperamento": "Dócil",
+        "imagem": "labrador.png"
+    },
+    "Bulldog": {
+        "peso": "18 a 25 kg",
+        "tamanho": "30 a 40 cm",
+        "pelos": "Curto",
+        "temperamento": "Agressivo",
+        "imagem": "bulldog.png"
+    }
+    # Adicione mais raças conforme necessário
+}
+
+class App:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Cadastro PET SHOP")
+
+        # Criação do Notebook para as abas
+        self.notebook = ttk.Notebook(self.root)
+        self.notebook.grid(row=0, column=0, sticky='nsew')  # Usando grid para o Notebook
+
+        # Criação da aba_config
+        self.aba_config = ttk.Frame(self.notebook)
+        self.notebook.add(self.aba_config, text='Configuração')
+
+        # Combobox de Raça
+        self.combobox_raca = ttk.Combobox(self.aba_config, values=list(caracteristicas_racas.keys()))
+        self.combobox_raca.grid(row=0, column=0, padx=10, pady=10)
+        self.combobox_raca.bind("<<ComboboxSelected>>", self.atualizar_caracteristicas)
+
+        # Campo de texto para características
+        self.texto_caracteristicas = tk.Text(self.aba_config, height=10, width=50)
+        self.texto_caracteristicas.grid(row=1, column=0, padx=10, pady=10)  # Mudado para row=1, column=0
+
+    def atualizar_caracteristicas(self, event):
+        raca_selecionada = self.combobox_raca.get()
+        if raca_selecionada in caracteristicas_racas:
+            info = caracteristicas_racas[raca_selecionada]
+            self.texto_caracteristicas.delete(1.0, tk.END)  # Limpa o campo de texto
+            self.texto_caracteristicas.insert(tk.END, f"Peso: {info['peso']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Tamanho: {info['tamanho']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Pelos: {info['pelos']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Temperamento: {info['temperamento']}")
+
+# Inicia a aplicação sem chamar root.mainloop() novamente
+root = tk.Tk()
+app = App(root)
+root.grid_rowconfigure(0, weight=1)  # Permite que o Notebook se expanda
+root.grid_columnconfigure(0, weight=1)  # Permite que o Notebook se expanda
+root.mainloop()
+Copy
+Alterações Feitas:
+Uso Exclusivo de .grid: O Notebook e todos os componentes agora estão organizados com .grid, evitando conflitos com .pack.
+Configuração de Linha e Coluna: O self.texto_caracteristicas foi posicionado na linha 1, coluna 0 para garantir que esteja na mesma coluna que o combobox_raca, sem sobreposição.
+Configuração de Expansão: Adicionei grid_rowconfigure e grid_columnconfigure para que o Notebook se expanda adequadamente dentro da janela principal.
+Dicas Finais:
+Verifique se não há outros elementos na aba aba_config que possam estar interferindo na exibição.
+Ajuste o padx e pady conforme necessário para um layout mais estético.
+Teste o código para confirmar que o campo de texto agora é exibido corretamente.
+
+
+
+
+Para resolver o problema de o campo de texto não ser exibido e evitar a abertura de uma nova janela, precisamos ajustar o código conforme sua estrutura existente. É fundamental garantir que não estamos criando uma nova instância de Tk (root) quando a aplicação já foi iniciada.
+
+Aqui está uma versão revisada que mantém sua estrutura sem abrir novas janelas e garante que o campo de texto seja exibido corretamente. Vou incluir apenas as partes relevantes e assegurar que o código funcione em um único ambiente de janela.
+
+Código Revisado
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk  # Certifique-se de ter a biblioteca Pillow instalada
+
+# Dicionário de características das raças
+caracteristicas_racas = {
+    "Chihuahua": {
+        "peso": "1 a 3 kg",
+        "tamanho": "15 a 23 cm",
+        "pelos": "Curto",
+        "temperamento": "Dócil",
+        "imagem": "chihuahua.png"  # Adicione o caminho para a imagem
+    },
+    "Labrador": {
+        "peso": "25 a 36 kg",
+        "tamanho": "55 a 62 cm",
+        "pelos": "Curto e grosso",
+        "temperamento": "Dócil",
+        "imagem": "labrador.png"
+    },
+    "Bulldog": {
+        "peso": "18 a 25 kg",
+        "tamanho": "30 a 40 cm",
+        "pelos": "Curto",
+        "temperamento": "Agressivo",
+        "imagem": "bulldog.png"
+    }
+    # Adicione mais raças conforme necessário
+}
+
+class App:
+    def __init__(self, root):
+        self.root = root
+        self.root.title("Cadastro PET SHOP")
+
+        # Criação do Notebook para as abas
+        self.notebook = ttk.Notebook(self.root)
+        self.notebook.grid(row=0, column=0, sticky='nsew')  # Usando grid para o Notebook
+
+        # Criação da aba_config
+        self.aba_config = ttk.Frame(self.notebook)
+        self.notebook.add(self.aba_config, text='Configuração')
+
+        # Combobox de Raça
+        self.combobox_raca = ttk.Combobox(self.aba_config, values=list(caracteristicas_racas.keys()))
+        self.combobox_raca.grid(row=0, column=0, padx=10, pady=10)
+        self.combobox_raca.bind("<<ComboboxSelected>>", self.atualizar_caracteristicas)
+
+        # Campo de texto para características
+        self.texto_caracteristicas = tk.Text(self.aba_config, height=10, width=50)
+        self.texto_caracteristicas.grid(row=1, column=0, padx=10, pady=10)  # Mudado para row=1, column=0
+
+        # Configuração de expansão
+        self.root.grid_rowconfigure(0, weight=1)
+        self.root.grid_columnconfigure(0, weight=1)
+
+    def atualizar_caracteristicas(self, event):
+        raca_selecionada = self.combobox_raca.get()
+        if raca_selecionada in caracteristicas_racas:
+            info = caracteristicas_racas[raca_selecionada]
+            self.texto_caracteristicas.delete(1.0, tk.END)  # Limpa o campo de texto
+            self.texto_caracteristicas.insert(tk.END, f"Peso: {info['peso']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Tamanho: {info['tamanho']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Pelos: {info['pelos']}\n")
+            self.texto_caracteristicas.insert(tk.END, f"Temperamento: {info['temperamento']}")
+
+# Usando a instância existente de root
+root = tk.Tk()  # Esta linha deve ser removida se a janela principal já existir
+app = App(root)
+root.mainloop()  # Esta linha deve estar ao final, chamando o loop principal da janela
+Copy
+O que mudar:
+Remover Criação de Novo Tk: Certifique-se de que a linha root = tk.Tk() não esteja presente se você já tiver criado a janela principal em outra parte do seu código. Isso evitará a abertura de uma nova janela.
+
+Verificação da Configuração de .grid: Verifique se grid(row=1, column=0) para o campo de texto está correto e que não existem outros elementos que possam estar interferindo na sua exibição.
+
+Ajustes Visuais: Garanta que o layout da aba aba_config tenha espaço suficiente para exibir o campo de texto. Ajuste padx e pady conforme necessário.
+
+Considerações Finais:
+Teste o código para garantir que o campo de texto apareça na aba aba_config.
+Se você ainda estiver enfrentando problemas, verifique se há outros elementos ou lógicas em seu código que possam estar afetando a exibição do campo de texto.
+Respondeu sua dúvida?
+SIM!
+
+

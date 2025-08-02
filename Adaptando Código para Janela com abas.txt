@@ -1,0 +1,2806 @@
+Para adaptar o seu código para utilizar abas (tabs) com o Tkinter, precisamos estruturar as funcionalidades que você já implementou na aba de configuração e garantir que as imagens sejam exibidas corretamente nas outras abas. A seguir, apresento um código que implementa essa estrutura com as alterações necessárias.
+
+Código Adaptado com Abas
+
+
+
+import os
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+
+# Caminho base para as imagens
+base_path = "C:/Users/VEIRANO/PycharmProjects/ModuloTkinter/Planilha Controle Ipojucão/imagensipojucao"
+
+# Dados centralizados (raças e preços)
+dados_pet = {
+    # ... (mesmo dicionário de dados que você forneceu)
+}
+
+# Funções para atualizar listas e imagens
+def atualizar_lista_racas(event=None):
+    porte = combobox_porte.get().strip()
+    racas = dados_pet.get(porte, {}).get("raças", [])
+    combobox_raca["values"] = racas
+    combobox_raca.set("Selecione uma raça")
+    update_porte_image(event)
+
+def update_porte_image(event=None):
+    porte = combobox_porte.get().strip()
+    if not porte:
+        label_imagem.config(image="", text="Nenhuma imagem disponível")
+        label_imagem.image = None
+        return
+
+    image_path = os.path.join(base_path, f"{porte.lower()}.png").replace("\\", "/")
+    if os.path.exists(image_path):
+        img = Image.open(image_path).resize((200, 200))
+        img_tk = ImageTk.PhotoImage(img)
+        label_imagem.config(image=img_tk, text="")
+        label_imagem.image = img_tk
+    else:
+        label_imagem.config(text="Imagem não encontrada", image="")
+        label_imagem.image = None
+
+def update_raca_image(event=None):
+    raca = combobox_raca.get().strip()
+    if not raca:
+        label_imagem.config(image="", text="Nenhuma imagem disponível")
+        label_imagem.image = None
+        return
+
+    image_path = os.path.join(base_path, imagens_racas.get(raca, '')).replace("\\", "/")
+    if os.path.exists(image_path):
+        img = Image.open(image_path).resize((200, 200))
+        img_tk = ImageTk.PhotoImage(img)
+        label_imagem.config(image=img_tk, text="")
+        label_imagem.image = img_tk
+    else:
+        label_imagem.config(text="Imagem não encontrada", image="")
+        label_imagem.image = None
+
+# Início da aplicação
+janela = tk.Tk()
+janela.title("Cadastro Pet Shop")
+janela.geometry("800x800")
+
+# Criando as abas
+aba_principal = ttk.Notebook(janela)
+
+# Criando aba de configuração
+aba_config = ttk.Frame(aba_principal)
+aba_principal.add(aba_config, text="Configuração")
+
+# Criando aba financeira
+aba_financeiro = ttk.Frame(aba_principal)
+aba_principal.add(aba_financeiro, text="Financeiro")
+
+# Criando aba de serviços
+aba_servicos = ttk.Frame(aba_principal)
+aba_principal.add(aba_servicos, text="Serviços")
+
+# Criando aba de relatórios
+aba_relatórios = ttk.Frame(aba_principal)
+aba_principal.add(aba_relatórios, text="Relatórios")
+
+aba_principal.pack(expand=1, fill="both")
+
+# Frame de configuração
+frame_config = ttk.Frame(aba_config)
+frame_config.pack(pady=10)
+
+# Combobox para selecionar porte
+combobox_porte = ttk.Combobox(frame_config, values=list(dados_pet.keys()))
+combobox_porte.grid(row=0, column=0, padx=10, pady=5)
+combobox_porte.bind("<<ComboboxSelected>>", atualizar_lista_racas)
+
+# Combobox para selecionar raça
+combobox_raca = ttk.Combobox(frame_config)
+combobox_raca.grid(row=0, column=1, padx=10, pady=5)
+combobox_raca.bind("<<ComboboxSelected>>", update_raca_image)
+
+# Label para exibir imagem
+label_imagem = tk.Label(frame_config, text="Nenhuma imagem disponível", width=200, height=200)
+label_imagem.grid(row=1, column=0, columnspan=2, padx=10, pady=10)
+
+# Dicionário para armazenar imagens das raças (já existente)
+imagens_racas = {
+    # ... (mesmo dicionário de imagens que você forneceu)
+}
+
+# Outras funções e lógica para as abas financeiras, serviços e relatórios
+# (Implementar de acordo com suas necessidades)
+
+# Iniciar o loop principal
+janela.mainloop()
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+Para resolver o problema de exibição de imagens nos Combobox em sua aplicação Tkinter, é necessário revisar o fluxo de dados e a lógica que você está usando. Vamos analisar alguns pontos principais do seu código e ajustar o que for necessário para garantir que as imagens sejam exibidas corretamente ao selecionar um porte ou raça.
+
+Principais Pontos a Verificar e Ajustar:
+Caminhos das Imagens: Certifique-se de que os caminhos das imagens estejam corretos. As imagens devem estar no formato correto e no diretório especificado. Além disso, você deve estar usando a extensão correta (por exemplo, .jpg ou .png) nas variáveis imagens_portes e imagens_racas.
+
+Configuração dos Combobox: Assegure-se de que os Combobox estejam configurados para chamar as funções que atualizam as imagens sempre que uma nova opção for selecionada.
+
+Atualização das Imagens: Verifique se as funções update_porte_image e update_raca_image estão sendo chamadas corretamente.
+
+Código Ajustado
+Aqui está uma versão revisada do seu código com foco na exibição das imagens. Eu fiz algumas alterações para garantir que as funções de atualização sejam chamadas corretamente e que as imagens sejam exibidas.
+
+import tkinter as tk
+from tkinter import ttk
+from PIL import Image, ImageTk
+import os
+
+# Iniciando a janela
+janela = tk.Tk()
+janela.title("Cadastro Pet Shop")
+janela.geometry("1400x600")  # Ajuste o tamanho da janela conforme necessário
+janela.state('zoomed')  # Abre em tela cheia
+
+# Criando as abas
+notebook = ttk.Notebook(janela)
+notebook.pack(expand=1, fill="both")
+
+# Criando aba de configuração
+aba_config = ttk.Frame(notebook)
+notebook.add(aba_config, text="Configuração")
+
+# Dicionários para armazenar imagens dos portes e raças
+base_path = "C:/Users/VEIRANO/PycharmProjects/ModuloTkinter/Planilha Controle Ipojucão/imagensipojucao"
+imagens_portes = {
+    "pequeno": "pequeno.jpg",
+    "médio": "medio.jpg",
+    "grande": "grande.jpg",
+    "maior": "maior.jpg"
+}
+
+imagens_racas = {
+    'Schitzu': 'schitzu.jpg',
+    'Lhasa Apso': 'lhasa_apso.jpg',
+    # Adicione outras raças conforme necessário
+}
+
+# Variáveis para os Combobox
+var_porte = tk.StringVar()
+var_raca = tk.StringVar()
+
+# Funções para atualizar imagens
+def update_porte_image(event=None):
+    porte = var_porte.get().strip().lower()
+    image_path = os.path.join(base_path, imagens_portes.get(porte, ''))
+    if os.path.exists(image_path):
+        img = Image.open(image_path).resize((200, 200))
+        img_tk = ImageTk.PhotoImage(img)
+        label_imagem.config(image=img_tk)
+        label_imagem.image = img_tk
+    else:
+        label_imagem.config(text="Imagem do porte não encontrada", image="")
+        label_imagem.image = None
+
+def atualizar_lista_racas(event=None):
+    porte = var_porte.get().strip().lower()
+    racas = list(dados_pet.get(porte, {}).get("raças", []))
+    combobox_raca["values"] = racas
+    combobox_raca.set("Selecione uma raça")
+    update_porte_image(event)
+
+def update_raca_image(event=None):
+    raca = var_raca.get().strip()
+    image_path = os.path.join(base_path, imagens_racas.get(raca, ''))
+    if os.path.exists(image_path):
+        img = Image.open(image_path).resize((200, 200))
+        img_tk = ImageTk.PhotoImage(img)
+        label_imagem.config(image=img_tk)
+        label_imagem.image = img_tk
+    else:
+        label_imagem.config(text="Imagem da raça não encontrada", image="")
+        label_imagem.image = None
+
+# Dados centralizados (raças e preços)
+dados_pet = {
+    "pequeno": {"raças": ['Schitzu', 'Lhasa Apso']},
+    "médio": {"raças": ['Bulldog Frances']},
+    "grande": {"raças": ['Labrador Retriever']},
+    "maior": {"raças": ['Pit Bull']}
+}
+
+# Criando Combobox para seleção de porte
+ttk.Label(aba_config, text="Selecione o Porte:").grid(row=0, column=0, padx=10, pady=5)
+combobox_porte = ttk.Combobox(aba_config, textvariable=var_porte, values=list(dados_pet.keys()), state="readonly")
+combobox_porte.grid(row=0, column=1, padx=10, pady=5)
+combobox_porte.bind("<<ComboboxSelected>>", lambda event: [atualizar_lista_racas(event), update_porte_image(event)])
+
+# Criando Combobox para seleção de raça
+ttk.Label(aba_config, text="Selecione a Raça:").grid(row=1, column=0, padx=10, pady=5)
+combobox_raca = ttk.Combobox(aba_config, textvariable=var_raca, state="readonly")
+combobox_raca.grid(row=1, column=1, padx=10, pady=5)
+combobox_raca.bind("<<ComboboxSelected>>", update_raca_image)
+
+# Criando Label para exibir imagens
+label_imagem = tk.Label(aba_config, text="Nenhuma imagem disponível", width=200, height=200)
+label_imagem.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+
+# Adicionando trace para ativar automaticamente a atualização das raças e imagens
+var_porte.trace_add("write", atualizar_lista_racas)
+
+janela.mainloop()
+
+
+Verificações e Ajustes:
+Formato e Extensão das Imagens: Certifique-se de que as imagens estejam no diretório especificado (base_path) e que os nomes dos arquivos correspondam exatamente aos que você está usando no dicionário imagens_portes e imagens_racas. Verifique também a extensão dos arquivos (por exemplo, .jpg ou .png).
+
+Atualizações de Combobox: O código agora atualiza a lista de raças e as imagens correspondentes ao selecionar um porte e uma raça.
+
+Debugging: Adicionei alguns prints de depuração (comentados no código) que podem ser úteis para verificar se os caminhos das imagens estão corretos.
+
+Teste o Código:
+Execute o código e veja se agora as imagens são exibidas corretamente ao selecionar os Combobox. Se ainda houver problemas, verifique o console para quaisquer mensagens de erro ou faça um teste para imprimir o caminho das imagens.
+
+
+
+
+
+# Criando Combobox para seleção de porte
+ttk.Label(aba_config, text="Selecione o Porte:").grid(row=0, column=0, padx=10, pady=5)
+combobox_porte = ttk.Combobox(aba_config, textvariable=var_porte, values=list(dados_pet.keys()), state="readonly")
+combobox_porte.grid(row=1, column=0, padx=10, pady=5)
+combobox_porte.bind("<<ComboboxSelected>>", lambda event: [atualizar_lista_racas(event), update_porte_image(event)])
+
+# Criando Combobox para seleção de raça
+ttk.Label(aba_config, text="Selecione a Raça:").grid(row=2, column=0, padx=10, pady=5, sticky="w")
+combobox_raca = ttk.Combobox(aba_config, textvariable=var_raca, state="readonly")
+combobox_raca.grid(row=3, column=0, padx=10, pady=5, sticky="ew")
+
+# Configurando a coluna para expandir
+aba_config.grid_columnconfigure(0, weight=1)
+
+combobox_raca.bind("<<ComboboxSelected>>", update_raca_image)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+erros informados
+
+
+
+
+
+Você:  estão ocorrendo erros nestes códigos, favor corrigir.
+
+código:     # Variável para definir se o pagamento foi feito ou está em aberto
+var_status_pagamento = tk.StringVar(value="Nenhuma Opção Marcada")
+var_pagamento = tk.StringVar(value="")  # COMANDO ADICIONADO PARA REPOSICIONAR CAMPOS RADIOBUTTON E IMAGEM COMBOBOX_PORTE
+
+erro informado em var_pagamento = tk.Stringvar(value="")
+
+erro informado no Console da IDE Pycharm: "C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\.venv\Scripts\python.exe" "C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\main.py" 
+Selecionado Porte: 
+Exception in Tkinter callback
+Traceback (most recent call last):
+  File "C:\Users\VEIRANO\AppData\Local\Programs\Python\Python312\Lib\tkinter\__init__.py", line 1967, in __call__
+    return self.func(*args)
+           ^^^^^^^^^^^^^^^^
+
+
+
+erro em outro código.
+código: # Criando Combobox para seleção de porte
+ttk.Label(aba_config, text="Selecione o Porte:").grid(row=0, column=0, padx=10, pady=5)
+combobox_porte = ttk.Combobox(aba_config, textvariable=var_porte, values=list(dados_pet.keys()), state="readonly")
+combobox_porte.grid(row=1, column=0, padx=10, pady=5)
+combobox_porte.bind("<<ComboboxSelected>>", lambda event: [atualizar_lista_racas(event), update_porte_image(event)])
+
+erro informado nesta linha do código:
+ ("<<ComboboxSelected>>", lambda event   . . .
+
+erro informado no código acima, no Console da IDE Pycharm:  
+
+erro: File "C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\main.py", line 462, in <lambda>
+    combobox_porte.bind("<<ComboboxSelected>>", lambda event: [atualizar_lista_racas(event), update_porte_image(event)])
+
+
+outra parte do Código com erro. código: 
+
+# Função para atualizar a lista de raças
+def atualizar_lista_racas(event=None):
+    porte = var_porte.get().strip().lower()
+    print(f"Selecionado Porte: {porte}")  # Debug
+    time.sleep(0.5)  # Pausa para garantir atualização
+
+    #racas = dados_pet.get(porte, {}).get("raças", [])
+    racas = list(dados_pet.get(porte, {}).get("raças", []))
+    combobox_raca["values"] = racas
+    combobox_raca.set("Selecione uma raça")
+    update_porte_image(event)
+
+    if racas:
+        combobox_raca.set(racas[0])  # Define a primeira raça como padrão
+    else:
+        combobox_raca.set("Nenhuma raça disponível")
+
+# Função para atualizar a imagem da raça
+def update_raca_image(event=None):
+    #raca = combobox_raca.get().strip()
+    raca = var_raca.get().strip()
+    image_path = os.path.join(base_path, imagens_racas.get(raca, ''))
+    print(f"Selecionado Raça: {raca}")  # Debug
+
+    time.sleep(0.5)  # Pausa para garantir que a variável foi atualizada
+
+    # if raca in imagens_racas:
+    #     image_path = os.path.join(base_path, imagens_racas.get(raca, '')).replace("\\", "/")
+    #     #image_path = os.path.join(base_path, imagens_racas[raca])
+    #     print(f"Verificando imagem da raça em: {image_path}")  # Debug
+    #     if os.path.exists(image_path):
+    #         try:
+    #             img = Image.open(image_path).resize((200, 200))
+    #             img_tk = ImageTk.PhotoImage(img)
+    #             label_imagem.config(image=img_tk, text="")
+    #             label_imagem.image = img_tk
+
+    if os.path.exists(image_path):
+        img = Image.open(image_path).resize((200, 200))
+        img_tk = ImageTk.PhotoImage(img)
+        label_imagem.config(image=img_tk)
+        label_imagem.image = img_tk
+    else:
+        label_imagem.config(text="Imagem da raça não encontrada", image="")
+        label_imagem.image = None
+        #     except Exception as e:
+        #     print(f"Erro ao carregar imagem da raça: {e}")
+        # else:
+        #     label_imagem.config(text="Imagem não encontrada", image="")
+        #     label_imagem.image = None
+
+
+
+no código acima, erro informado na linha:
+updata_porte_image(event)
+
+erro informado no console da IDE Pycharm:
+
+erro: File "C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\main.py", line 368, in atualizar_lista_racas
+    update_porte_image(event)
+
+
+erro informado no código:
+# Funções para atualizar imagens
+def update_porte_image(event=None):
+    porte = var_porte.get().strip().lower()
+    image_path = os.path.join(base_path, imagens_portes.get(porte, ''))
+    if os.path.exists(image_path):
+        img = Image.open(image_path).resize((200, 200))
+        img_tk = ImageTk.PhotoImage(img)
+        label_imagem.config(image=img_tk)
+        label_imagem.image = img_tk
+    else:
+        label_imagem.config(text="Imagem do porte não encontrada", image="")
+        label_imagem.image = None
+
+
+erro informado no código acima,  na linha: 
+img = image.open(image_path).resize((200, 200))
+
+erro informado no console da IDE Pycharm:
+
+File "C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\main.py", line 349, in update_porte_image
+    img = Image.open(image_path).resize((200, 200))
+          ^^^^^^^^^^^^^^^^^^^^^^
+
+
+
+
+
+
+
+
+correções informadas:
+
+
+Vamos corrigir os erros apresentados em seu código, um a um.
+
+Erro na declaração de var_pagamento: O erro ocorre porque você usou Stringvar em vez de StringVar. O correto é usar tk.StringVar.
+
+var_pagamento = tk.StringVar(value="")  # Correção aqui
+Copy
+Erro ao associar o evento <<ComboboxSelected>>: O erro que você está recebendo não é claro, mas pode estar relacionado à função atualizar_lista_racas ou update_porte_image não estarem definidas antes de serem chamadas no lambda. Verifique se essas funções estão definidas antes da linha que contém combobox_porte.bind.
+
+combobox_porte.bind("<<ComboboxSelected>>", lambda event: [atualizar_lista_racas(event), update_porte_image(event)])
+Copy
+A função deve estar definida antes da ligação do evento.
+
+Erro na função atualizar_lista_racas: O erro pode estar relacionado ao acesso à variável var_porte. Certifique-se de que var_porte foi definida corretamente como uma StringVar antes de ser usada.
+
+porte = var_porte.get().strip().lower()  # Verifique se var_porte está definido
+Copy
+Erro ao chamar update_porte_image: O erro parece ocorrer por conta da função update_porte_image não estar acessando corretamente var_porte ou por image_path estar incorreto.
+
+Certifique-se de que imagens_portes contém os caminhos corretos e que base_path está definido.
+
+Erro ao abrir a imagem: O erro na linha que tenta abrir a imagem geralmente indica que o caminho da imagem está incorreto ou que a imagem não existe.
+
+img = Image.open(image_path).resize((200, 200))  # Verifique se image_path é válido
+Copy
+Adicione uma impressão do caminho para depuração antes de abrir a imagem:
+
+print(f"Imagem do porte em: {image_path}")  # Debug
+Copy
+Aqui está um resumo das correções que você deve implementar:
+
+Corrija Stringvar para StringVar.
+Verifique a definição das variáveis var_porte e var_pagamento.
+Certifique-se de que todas as funções estão definidas antes de serem chamadas.
+Adicione debug prints para verificar caminhos de arquivos.
+Realize essas correções e, se ainda houver erros, forneça a nova mensagem de erro para que eu possa ajudar mais.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Atualize a função para garantir que os valores sejam minúsculos
+def atualizar_lista_racas(event=None):
+    porte = var_porte.get().strip().lower()
+    print(f"Selecionado Porte: {porte}")  # Debug
+    time.sleep(0.5)  # Pausa para garantir atualização
+
+    racas = list(dados_pet.get(porte.capitalize(), {}).get("raças", []))  # Capitalize para correspondência
+    combobox_raca["values"] = racas
+    combobox_raca.set("Selecione uma raça")
+
+    if racas:
+        combobox_raca.set(racas[0])  # Define a primeira raça como padrão
+        update_raca_image()  # Atualiza a imagem da raça assim que uma raça é definida
+    else:
+        combobox_raca.set("Nenhuma raça disponível")
+
+# Remova a duplicação do label de imagem
+label_imagem = tk.Label(aba_config, text="Nenhuma imagem disponível", width=200, height=200)
+label_imagem.grid(row=2, column=0, columnspan=2, padx=10, pady=10)
+
+# Configurando a atualização do combobox_porte
+combobox_porte.bind("<<ComboboxSelected>>", lambda event: [atualizar_lista_racas(event), update_porte_image(event)])
+Copy
+Certifique-se de que os caminhos das imagens estão corretos e que as imagens estão presentes na pasta especificada.
+
+Resumo das Correções:
+Use .capitalize() para corresponder corretamente os nomes dos portes.
+Garanta que as funções que atualizam as listas de raças e imagens estão sendo chamadas nos eventos corretos.
+Mantenha apenas um label de imagem para evitar confusão.
+Se ainda houver problemas após essas alterações, verifique se as imagens estão acessíveis e se não há erros no console do Python que possam ajudar a identificar o que pode estar dando errado.
+
+Respondeu sua dúvida?
+
+
+
+
+
+frame_cadastro = ttk.LabelFrame(inner_frame, text="Dados Cadastrais")
+frame_cadastro.grid(row=7, column=0, padx=10, pady=10, sticky="nsew")
+
+
+
+
+
+
+
+
+
+
+# Criando um Frame para Dados Cadastrais
+frame_tutor = tk.LabelFrame(aba_cadastro, text="Dados dos Tutores", borderwidth=3, relief='groove')
+frame_tutor.grid(row=3, column=0, padx=10, pady=10, sticky="nsew")
+
+
+
+
+
+
+
+
+
+
+Para organizar melhor o layout da sua janela tkinter, você pode seguir algumas práticas que melhoram a clareza e a usabilidade da interface. Aqui está uma sugestão de como reorganizar os frames e seus componentes, com foco em uma estrutura mais limpa e lógica:
+
+import tkinter as tk
+from tkinter import ttk
+from tkcalendar import DateEntry
+
+# Supondo que 'janela' e 'aba_cadastro' já estejam definidos
+
+def cadastrar_item():
+    data = calendario_cadastro.get_date()
+    print(f"Data cadastrada {data}")
+    label_resultado.config(text=f"Data cadastrada {data}")
+
+# Frame para Data do Cadastro
+frame_calendario_cadastro = ttk.LabelFrame(aba_cadastro, text="Calendário de Cadastro")
+frame_calendario_cadastro.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+calendario_cadastro = DateEntry(frame_calendario_cadastro, year=2025, locale='pt_br')
+calendario_cadastro.grid(row=0, column=0, padx=10, pady=10)
+
+# Frame para Dados Cadastrais
+frame_dados_cadastrais = ttk.LabelFrame(aba_cadastro, text="Dados Cadastrais")
+frame_dados_cadastrais.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+
+# Nome do Pet
+ttk.Label(frame_dados_cadastrais, text="Nome do Pet").grid(row=0, column=0, padx=10, pady=5, sticky='w')
+entry_nome = tk.Entry(frame_dados_cadastrais)
+entry_nome.grid(row=0, column=1, padx=10, pady=5, sticky='ew')
+
+# Idade
+ttk.Label(frame_dados_cadastrais, text="Idade (Anos)").grid(row=1, column=0, padx=10, pady=5, sticky='w')
+entry_idade_anos = tk.Entry(frame_dados_cadastrais)
+entry_idade_anos.grid(row=1, column=1, padx=10, pady=5, sticky='ew')
+
+ttk.Label(frame_dados_cadastrais, text="Meses").grid(row=2, column=0, padx=10, pady=5, sticky='w')
+entry_idade_meses = tk.Entry(frame_dados_cadastrais)
+entry_idade_meses.grid(row=2, column=1, padx=10, pady=5, sticky='ew')
+
+# Tutor 1
+frame_tutor1 = ttk.LabelFrame(aba_cadastro, text="Tutor 1")
+frame_tutor1.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
+
+ttk.Label(frame_tutor1, text="Nome do Tutor").grid(row=0, column=0, padx=10, pady=5, sticky='w')
+entry_tutor_1 = tk.Entry(frame_tutor1)
+entry_tutor_1.grid(row=0, column=1, padx=10, pady=5, sticky='ew')
+
+ttk.Label(frame_tutor1, text="Telefone").grid(row=1, column=0, padx=10, pady=5, sticky='w')
+entry_telefone_1 = tk.Entry(frame_tutor1)
+entry_telefone_1.grid(row=1, column=1, padx=10, pady=5, sticky='ew')
+
+ttk.Label(frame_tutor1, text="E-mail").grid(row=2, column=0, padx=10, pady=5, sticky='w')
+entry_email_tutor_1 = tk.Entry(frame_tutor1)
+entry_email_tutor_1.grid(row=2, column=1, padx=10, pady=5, sticky='ew')
+
+# Tutor 2
+frame_tutor2 = ttk.LabelFrame(aba_cadastro, text="Tutor 2")
+frame_tutor2.grid(row=3, column=0, padx=10, pady=10, sticky="ew")
+
+ttk.Label(frame_tutor2, text="Nome do Tutor").grid(row=0, column=0, padx=10, pady=5, sticky='w')
+entry_tutor_2 = tk.Entry(frame_tutor2)
+entry_tutor_2.grid(row=0, column=1, padx=10, pady=5, sticky='ew')
+
+ttk.Label(frame_tutor2, text="Telefone").grid(row=1, column=0, padx=10, pady=5, sticky='w')
+entry_telefone_2 = tk.Entry(frame_tutor2)
+entry_telefone_2.grid(row=1, column=1, padx=10, pady=5, sticky='ew')
+
+ttk.Label(frame_tutor2, text="E-mail").grid(row=2, column=0, padx=10, pady=5, sticky='w')
+entry_email_tutor_2 = tk.Entry(frame_tutor2)
+entry_email_tutor_2.grid(row=2, column=1, padx=10, pady=5, sticky='ew')
+
+# Endereço e Observações
+frame_endereco = ttk.LabelFrame(aba_cadastro, text="Endereço e Observações")
+frame_endereco.grid(row=4, column=0, padx=10, pady=10, sticky="ew")
+
+ttk.Label(frame_endereco, text="Endereço").grid(row=0, column=0, padx=10, pady=5, sticky='w')
+entry_endereco = tk.Entry(frame_endereco)
+entry_endereco.grid(row=0, column=1, padx=10, pady=5, sticky='ew')
+
+ttk.Label(frame_endereco, text="Número").grid(row=1, column=0, padx=10, pady=5, sticky='w')
+entry_numero = tk.Entry(frame_endereco)
+entry_numero.grid(row=1, column=1, padx=10, pady=5, sticky='ew')
+
+ttk.Label(frame_endereco, text="Complemento").grid(row=2, column=0, padx=10, pady=5, sticky='w')
+entry_complemento = tk.Entry(frame_endereco)
+entry_complemento.grid(row=2, column=1, padx=10, pady=5, sticky='ew')
+
+# Recomendações
+ttk.Label(frame_endereco, text="Recomendações").grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+campo_observacoes = tk.Text(frame_endereco, width=80, height=5, borderwidth=2, relief='solid')
+campo_observacoes.grid(row=4, column=0, columnspan=2, padx=10, pady=5)
+
+# Configuração para expandir corretamente
+aba_cadastro.columnconfigure(0, weight=1)
+Copy
+Principais Alterações:
+Estrutura Lógica: Agrupei os componentes em frames relacionados (calendário, dados cadastrais, tutor 1, tutor 2, endereço e observações) para melhorar a organização.
+
+Uso Consistente de Labels e Entrys: Cada campo de entrada tem seu respectivo label, facilitando a identificação.
+
+Grid Responsivo: Usei sticky='ew' para garantir que os campos se estendam conforme a largura da janela, permitindo uma visualização mais adequada.
+
+Limpeza e Simplificação: Removi trechos de código repetitivo e organizei os frames de uma forma mais intuitiva e limpa.
+
+Com essas alterações, o layout ficará mais organizado e amigável para o usuário. Você pode ajustar as configurações de padx, pady, e sticky conforme necessário para atender ao seu design específico.
+
+
+
+Para implementar a barra de rolagem em todas as abas da janela tkinter, você deve replicar a lógica da barra de rolagem em cada aba que você criar. O exemplo abaixo mostra como fazer isso, mantendo a estrutura que você já começou.
+
+Vou mostrar como adicionar uma barra de rolagem em cada aba. Você só precisa copiar e colar o código da barra de rolagem e do canvas dentro de cada aba:
+
+import tkinter as tk
+from tkinter import ttk
+
+# Criando a janela principal
+janela = tk.Tk()
+janela.title("Exemplo de Abas com Rolagem")
+
+# Função para criar uma aba com barra de rolagem
+def criar_aba_com_rolagem(parent, aba_nome):
+    # Criando um Frame para a barra de rolagem
+    scrollable_frame = ttk.Frame(parent)
+    scrollable_frame.grid(row=0, column=0, sticky="nsew")
+
+    # Configuração da aba
+    scrollable_frame.grid_rowconfigure(0, weight=1)
+    scrollable_frame.grid_columnconfigure(0, weight=1)
+
+    # Criando o Canvas e as Scrollbars
+    canvas = tk.Canvas(scrollable_frame)
+    vertical_scrollbar = ttk.Scrollbar(scrollable_frame, orient="vertical", command=canvas.yview)
+    horizontal_scrollbar = ttk.Scrollbar(scrollable_frame, orient="horizontal", command=canvas.xview)
+
+    # Criando o Frame dentro do Canvas
+    inner_frame = ttk.Frame(canvas)
+
+    # Ajustando a rolagem
+    inner_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+    # Criando a janela dentro do Canvas
+    canvas.create_window((0, 0), window=inner_frame, anchor="nw")
+
+    # Posicionando o Canvas e as Scrollbars
+    canvas.grid(row=0, column=0, sticky="nsew")
+    vertical_scrollbar.grid(row=0, column=1, sticky="ns")
+    horizontal_scrollbar.grid(row=1, column=0, sticky="ew")
+
+    # Configurando as barras de rolagem
+    canvas.configure(yscrollcommand=vertical_scrollbar.set)
+    canvas.configure(xscrollcommand=horizontal_scrollbar.set)
+
+    # Garantindo que a rolagem funcione corretamente
+    def ajustar_tamanho_canvas(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+
+    inner_frame.bind("<Configure>", ajustar_tamanho_canvas)
+
+    # Adicione alguns widgets ao inner_frame como exemplo
+    for i in range(50):
+        ttk.Label(inner_frame, text=f"{aba_nome} Item {i}").grid(row=i, column=0, sticky="w")
+
+    # Configurar a largura da coluna do inner_frame para permitir a rolagem horizontal
+    inner_frame.grid_columnconfigure(0, minsize=300)  # Ajuste o tamanho conforme necessário
+
+    # Definindo o tamanho do Canvas
+    canvas.config(height=700)  # Aumente a altura do Canvas se necessário
+    canvas.config(width=800)   # Aumente a largura do Canvas se necessário
+
+# Criando as abas (Notebook)
+notebook = ttk.Notebook(janela)
+notebook.grid(row=0, column=0, sticky='nsew')  # Use grid corretamente
+
+# Criando as abas com rolagem
+aba_config = ttk.Frame(notebook)
+notebook.add(aba_config, text="Configuração")
+criar_aba_com_rolagem(aba_config, "Configuração")
+
+aba_financeiro = ttk.Frame(notebook)
+notebook.add(aba_financeiro, text="Financeiro")
+criar_aba_com_rolagem(aba_financeiro, "Financeiro")
+
+aba_servicos = ttk.Frame(notebook)
+notebook.add(aba_servicos, text="Serviços")
+criar_aba_com_rolagem(aba_servicos, "Serviços")
+
+aba_relatórios = ttk.Frame(notebook)
+notebook.add(aba_relatórios, text="Relatórios")
+criar_aba_com_rolagem(aba_relatórios, "Relatórios")
+
+aba_cadastro = ttk.Frame(notebook)
+notebook.add(aba_cadastro, text="Cadastro")
+criar_aba_com_rolagem(aba_cadastro, "Cadastro")
+
+# Iniciar o loop da janela
+janela.mainloop()
+Copy
+Neste exemplo, criamos uma função criar_aba_com_rolagem que encapsula a lógica da barra de rolagem e a aplicação da rolagem dentro de um Frame. Essa função é chamada para cada aba, permitindo que todas tenham a mesma funcionalidade de rolagem.
+
+
+'Schitzu': 'schitzu.jpg',
+    'Lhasa Apso': 'lhasa_apso.jpg',
+    'Maltês': 'maltes.jpg',
+    'Yorkshire': 'yorkshire.jpg',
+    'Dachshund': 'dachshund.jpg',
+    'Cavalier King Charles Spaniel': 'cavalier_king_charles_spaniel.jpg',  # Nome completo
+    'Biewer Terrier': 'biewer_terrier.jpg',
+    'Buldog Francês': 'bulldog_frances.jpg',
+    'Pug': 'pug.jpg',
+    'Chihuahua': 'chihuahua.jpg',
+    'Cocker Spaniel': 'cocker_spaniel.jpg',
+    'Papillon': 'papillon.jpg',
+    'Spitz Alemão': 'spitz_alemao.jpg',
+    'Pinscher': 'pinscher.jpg',
+    'Poodle': 'poodle.jpg',
+    'Jack Russell Terrier': 'jack_russell_terrier.jpg',
+    'Galgo Italiano': 'galgo_italiano.jpg',
+    'Pequinês': 'pequines.jpg',
+    'Bichon Frise': 'bichon_frise.jpg',
+    'Boston Terrier': 'boston_terrier.jpg',
+    'Fox Paulistinha': 'fox_paulistinha.jpg',
+    'American Pit Bull': 'american_pitbull.jpg',
+    'Australian Cattle Dog': 'australian_cattle.jpg',
+    'Australian Shepherd': 'australian_shepherd.jpg',
+    'Basset Griffon': 'basset_griffon.jpg',
+    'Basset Hound': 'basset_hound.jpg',
+    'Bulldog Campeiro': 'bulldog_campeiro.jpg',
+    'Bulldog': 'bulldog.jpg',
+    'Bulldog Inglês': 'bulldog_ingles.jpg',
+    'Bull Terrier': 'bull_terrier.jpg',
+    'Basset Fulvo': 'basset_fulvo.jpg',
+    'Boxer': 'boxer.jpg',
+    'Clumber Spaniel': 'clumber_spaniel.jpg',
+    'Cocker Americano': 'cocker_americano.jpg',
+    'Cocker Inglês': 'cocker_ingles.jpg',
+    'Flat Coated Retriever': 'flat_coated_retriever.jpg',
+    'Pastor de Shetland': 'pastor_de_shetland.jpg',
+    'Pumi': 'pumi.jpg',
+    'Schnauzer Standard': 'schnauzer_standard.jpg',
+    'Shar Pei': 'shar_pei.jpg',
+    'Spaniel Bretão': 'spaniel_bretao.jpg',
+    'Spaniel Francês': 'spaniel_frances.jpg',
+    'Spitz Japonês': 'spitz_japones.jpg',
+    'Springer Spaniel': 'springer_spaniel.jpg',
+    'Springer Spaniel Inglês': 'springer_spaniel_ingles.jpg',
+    'Terrier Tibetano': 'terrier_tibetano.jpg',
+    'American Bully': 'american_bully.jpg',
+    'SRD Médio': 's_r_d_medio.jpg',
+    'Dogo Argentino': 'dogo_argentino.jpg',
+    'Dálmata': 'dalmatian.jpg',
+    'Weimaraner': 'weimaraner.jpg',
+    'Mastim Tibetano': 'mastim_tibetano.jpg',
+    'Leonberger': 'leonberger.jpg',
+    'Pastor Australiano': 'pastor_australiano.jpg',
+    'Setter Irlandês': 'setter_irlandes.jpg',
+    'Bulmastife': 'bulmastife.jpg',
+    'Mastim Napolitano': 'mastim_napolitano.jpg',
+    'Dogue de Bordeaux': 'dogue_de_bordeaux.jpg',
+    'Cão de Santo Humberto': 'cao_de_santo_humberto.jpg',
+    'Rhodesian Ridgeback': 'rhodesian_ridgeback.jpg',
+    'Boiadeiro da Flandres': 'boiadeiro_da_flandres.jpg',
+    'Bearded Collie': 'bearded_collie.jpg',
+    'Bichon Bolonhês': 'bichon_bolonhes.jpg',
+    'Basenji': 'basenji.jpg',
+    'Boerboel': 'boerboel.jpg',
+    'Pastor do Cáucaso': 'pastor_do_caucaso.jpg',
+    'Veadeiro Pampeano': 'veadeiro_pampeano.jpg',
+    'Buhund Norueguês': 'buhund_noruegues.jpg',
+    'Basset Artesiano Normando': 'basset_artesiano_normando.jpg',
+    'Braco de Auvernia': 'braco_de_auvernia.jpg',
+    'Galgo Inglês': 'galgo_ingles.jpg',
+    'Pastor Belga': 'pastor_belga.jpg',
+    'Mastiff': 'mastiff.jpg',
+    'Bernese': 'bernese.jpg',
+    'Akita': 'akita.jpg',
+    'Bloodhound': 'bloodhound.jpg',
+    'Pit Bull': 'pit_bull.jpg',
+    'Fila Brasileiro': 'fila_brasileiro.jpg',
+    'Chow Chow': 'chow_chow.jpg',
+    'Doberman': 'doberman.jpg',
+    'Chip Dog': 'chip_dog.jpg',
+}
+
+
+
+
+
+AJUSTANDO A BARRA DE ROLAGEM NAS ABAS.
+
+
+Para que a barra de rolagem funcione corretamente na aba como um todo e não apenas em cada Frame, você deve configurar o Canvas e as Scrollbars diretamente na Frame da aba em vez de usar um Frame separado para a barra de rolagem. O Canvas deve ser o contêiner principal da aba, permitindo que ele se mova juntamente com todos os widgets da aba.
+
+Aqui está um exemplo de como fazer isso:
+
+import tkinter as tk
+from tkinter import ttk
+
+# Criando a janela principal
+janela = tk.Tk()
+janela.title("Exemplo de Abas com Rolagem")
+
+# Função para criar uma aba com barra de rolagem
+def criar_aba_com_rolagem(parent, aba_nome):
+    # Criando o Canvas e as Scrollbars
+    canvas = tk.Canvas(parent)
+    vertical_scrollbar = ttk.Scrollbar(parent, orient="vertical", command=canvas.yview)
+    horizontal_scrollbar = ttk.Scrollbar(parent, orient="horizontal", command=canvas.xview)
+
+    # Criando o Frame dentro do Canvas
+    inner_frame = ttk.Frame(canvas)
+
+    # Ajustando a rolagem
+    inner_frame.bind("<Configure>", lambda e: canvas.configure(scrollregion=canvas.bbox("all")))
+
+    # Criando a janela dentro do Canvas
+    canvas.create_window((0, 0), window=inner_frame, anchor="nw")
+
+    # Posicionando o Canvas e as Scrollbars
+    canvas.grid(row=0, column=0, sticky="nsew")
+    vertical_scrollbar.grid(row=0, column=1, sticky="ns")
+    horizontal_scrollbar.grid(row=1, column=0, sticky="ew")
+
+    # Configurando as barras de rolagem
+    canvas.configure(yscrollcommand=vertical_scrollbar.set)
+    canvas.configure(xscrollcommand=horizontal_scrollbar.set)
+
+    # Adicione alguns widgets ao inner_frame como exemplo
+    for i in range(50):
+        ttk.Label(inner_frame, text=f"{aba_nome} Item {i}").grid(row=i, column=0, sticky="w")
+
+    # Configurar a largura da coluna do inner_frame para permitir a rolagem horizontal
+    inner_frame.grid_columnconfigure(0, minsize=300)  # Ajuste o tamanho conforme necessário
+
+    # Definindo o tamanho do Canvas
+    canvas.config(height=700)  # Aumente a altura do Canvas se necessário
+    canvas.config(width=800)   # Aumente a largura do Canvas se necessário
+
+# Criando as abas (Notebook)
+notebook = ttk.Notebook(janela)
+notebook.grid(row=0, column=0, sticky='nsew')  # Use grid corretamente
+
+# Criando as abas com rolagem
+aba_config = ttk.Frame(notebook)
+notebook.add(aba_config, text="Configuração")
+criar_aba_com_rolagem(aba_config, "Configuração")
+
+aba_financeiro = ttk.Frame(notebook)
+notebook.add(aba_financeiro, text="Financeiro")
+criar_aba_com_rolagem(aba_financeiro, "Financeiro")
+
+aba_servicos = ttk.Frame(notebook)
+notebook.add(aba_servicos, text="Serviços")
+criar_aba_com_rolagem(aba_servicos, "Serviços")
+
+aba_relatórios = ttk.Frame(notebook)
+notebook.add(aba_relatórios, text="Relatórios")
+criar_aba_com_rolagem(aba_relatórios, "Relatórios")
+
+aba_cadastro = ttk.Frame(notebook)
+notebook.add(aba_cadastro, text="Cadastro")
+criar_aba_com_rolagem(aba_cadastro, "Cadastro")
+
+# Iniciar o loop da janela
+janela.mainloop()
+Copy
+Alterações Importantes:
+Canvas como contêiner principal: O Canvas é o contêiner que ocupa toda a aba, o que permite que a rolagem funcione para todos os widgets dentro da aba.
+Uso da Frame interna: Um Frame é criado dentro do Canvas, onde você adiciona os widgets que deseja que sejam roláveis.
+Agora, a barra de rolagem deverá rolar todos os conteúdos da aba corretamente.
+
+
+
+
+
+
+
+O erro que você está enfrentando ocorre porque o caminho da imagem está sendo gerado incorretamente. O código está tentando abrir uma imagem com um caminho que não termina com o nome do arquivo, resultando em um erro de "No such file or directory".
+
+Causas Possíveis
+Nome da Raça Inexistente no Dicionário: Quando você seleciona uma raça que não está no dicionário imagens_racas, a função os.path.join está retornando apenas o caminho da pasta, sem o nome do arquivo, o que leva a um erro ao tentar abrir a imagem.
+
+Espaços e Formatação: Certifique-se de que os nomes das raças correspondem exatamente aos que estão no dicionário, incluindo espaços e caracteres especiais.
+
+Soluções
+Verifique os Nomes das Raças: Certifique-se de que todas as raças que você está tentando acessar estão presentes no dicionário imagens_racas.
+
+Debugging Adicional: Você pode adicionar uma verificação para garantir que o nome do arquivo está sendo gerado corretamente antes de tentar abrir a imagem. Modifique a função update_raca_image da seguinte forma:
+
+def update_raca_image(event=None):
+    raca = var_raca.get().strip()
+    image_path = os.path.join(base_path, imagens_racas.get(raca, ''))
+
+    print(f"Selecionado Raça: {raca}")  # Debug
+    print(f"Imagem do porte em: {image_path}")  # Debug
+
+    # Verifique se o nome do arquivo não está vazio
+    if not imagens_racas.get(raca):
+        print(f"Nome do arquivo não encontrado para a raça: {raca}")  # Debug
+        label_imagem.config(text="Imagem da raça não encontrada", image="")
+        label_imagem.image = None
+        return
+
+    if os.path.exists(image_path):
+        img = Image.open(image_path).resize((180, 180))
+        img_tk = ImageTk.PhotoImage(img)
+        label_imagem.config(image=img_tk)
+        label_imagem.image = img_tk
+    else:
+        label_imagem.config(text="Imagem da raça não encontrada", image="")
+        label_imagem.image = None
+Copy
+Checagem do Caminho: Certifique-se de que o caminho base (base_path) e os nomes das imagens estão corretos e que as imagens estão realmente presentes na pasta especificada.
+Teste
+Após realizar as modificações, execute o código novamente e verifique os logs de debug para ver se o nome do arquivo está sendo gerado corretamente e se a imagem existe. Se o problema persistir, você pode compartilhar as saídas de debug para uma análise mais detalhada.
+
+
+
+
+
+
+
+
+
+Para resolver o problema que você está enfrentando, é importante entender como o Python trata caminhos de arquivos e como você está utilizando os dicionários para armazenar os nomes das imagens.
+
+Resumo do Problema
+O erro que você está recebendo indica que o caminho do arquivo não está sendo formado corretamente. A mensagem de erro FileNotFoundError: [Errno 2] No such file or directory sugere que o código está tentando acessar um caminho que não contém o nome do arquivo, resultando em um caminho inválido.
+
+Resposta à sua Pergunta
+Sim, em todos os dicionários, você deve incluir o formato da imagem (.jpg, .png, etc.), se as imagens estiverem nesses formatos. Isso garante que, ao construir o caminho da imagem, ele tenha o nome do arquivo correto.
+
+Soluções
+Inclua as Extensões nas Imagens: Certifique-se de que todos os nomes das imagens nos dicionários têm a extensão correta. Por exemplo, no dicionário imagens_racas, cada entrada deve ter a extensão .jpg.
+
+Verifique a Existência das Imagens: Você pode adicionar um código para verificar se os nomes das imagens correspondem exatamente aos arquivos no sistema, incluindo formatação e extensão. Por exemplo:
+
+# Dicionário para armazenar imagens das raças
+imagens_racas = {
+    'Schitzu': 'schitzu.jpg',
+    'Lhasa Apso': 'lhasa_apso.jpg',
+    'Maltês': 'maltes.jpg',
+    'Yorkshire': 'yorkshire.jpg',
+    'Dachshund': 'dachshund.jpg',
+    'Cavalier King Charles Spaniel': 'cavalier_king_charles_spaniel.jpg',
+    'Biewer Terrier': 'biewer_terrier.jpg',
+    'Buldog Francês': 'bulldog_frances.jpg',
+    'Pug': 'pug.jpg',
+    'Chihuahua': 'chihuahua.jpg',
+    'Cocker Spaniel': 'cocker_spaniel.jpg',
+    'Papillon': 'papillon.jpg',
+    'Spitz Alemão': 'spitz_alemao.jpg',
+    'Pinscher': 'pinscher.jpg',
+    'Poodle': 'poodle.jpg',
+    'Jack Russell Terrier': 'jack_russell_terrier.jpg',
+}
+Copy
+Correção do Caminho de Imagem: No seu código update_raca_image, certifique-se de que o caminho está sendo formado corretamente. Você pode adicionar uma verificação para garantir que o nome do arquivo não está vazio:
+def update_raca_image(event=None):
+    raca = var_raca.get().strip()
+    image_path = os.path.join(base_path, imagens_racas.get(raca, ''))
+
+    print(f"Selecionado Raça: {raca}")  # Debug
+    print(f"Imagem do porte em: {image_path}")  # Debug
+
+    # Verifique se o nome do arquivo não está vazio
+    if not imagens_racas.get(raca):
+        print(f"Nome do arquivo não encontrado para a raça: {raca}")  # Debug
+        label_imagem.config(text="Imagem da raça não encontrada", image="")
+        label_imagem.image = None
+        return
+
+    if os.path.exists(image_path):
+        img = Image.open(image_path).resize((180, 180))
+        img_tk = ImageTk.PhotoImage(img)
+        label_imagem.config(image=img_tk)
+        label_imagem.image = img_tk
+    else:
+        label_imagem.config(text="Imagem da raça não encontrada", image="")
+        label_imagem.image = None
+Copy
+Passos Finais
+Verifique se os arquivos de imagem estão no caminho especificado e se os nomes correspondem exatamente aos que estão nos dicionários.
+Execute o código e verifique os logs de debug para identificar onde o caminho está sendo formado incorretamente.
+Esses passos devem ajudá-lo a resolver o problema com a exibição das imagens no seu aplicativo Tkinter. Se o problema persistir, verifique os detalhes adicionais nos logs de erro para identificar quais raças estão falhando e ajuste conforme necessário.
+
+
+
+
+
+foram feitas as alterações e foram adicionados em todos os dicionários o formato do arquivo (.jpg) nome e formato de arquivo, para teste foi alterado apenas para as raças "pequeno" e "media",  algumas seleções que estavam funcionando a exibição de imagens deixaram de funcionar após a modificação, por exemplo, no dicionário  dados_pet a raça "Schitzu" estava exibindo imagem, após alteração no dicionário dados_pet para a raça "schitzu.jpg" não está mais exibindo a imagem. 
+
+# Dados centralizados (raças e preços)
+dados_pet = {
+    "Pequeno": {
+        "raças": ['schitzu.jpg', 'lhasa_apso.jpg', 'maltes.jpg', 'yorkshire.jpg', 'dachshund.jpg', 'cavalier_king_charles_spaniel.jpg',
+
+
+observação, na IDE Pycharm o nome do dicionário dados_pet está frizado em amarelo
+
+
+código completo: 
+base_path = "C:/Users/VEIRANO/PycharmProjects/ModuloTkinter/Planilha Controle Ipojucão/imagensipojucao"
+
+# Dicionário para armazenar imagens dos portes
+imagens_portes = {
+    "pequeno": "pequeno.jpg",
+    "médio": "medio.jpg",
+    "grande": "grande.jpg",
+    "maior": "maior.jpg"
+}
+
+# Dicionário para armazenar imagens das raças
+imagens_racas = {
+    'Schitzu': 'schitzu.jpg',
+    'Lhasa Apso': 'lhasa_apso.jpg',
+    'Maltês': 'maltes.jpg',
+    'Yorkshire': 'yorkshire.jpg',
+    'Dachshund': 'dachshund.jpg',
+    'Cavalier King Charles Spaniel': 'cavalier_king_charles_spaniel.jpg',  # Nome completo
+    'Biewer Terrier': 'biewer_terrier.jpg',
+    'Buldog Francês': 'bulldog_frances.jpg',
+    'Pug': 'pug.jpg',
+    'Chihuahua': 'chihuahua.jpg',
+    'Cocker Spaniel': 'cocker_spaniel.jpg',
+    'Papillon': 'papillon.jpg',
+    'Spitz Alemão': 'spitz_alemao.jpg',
+    'Pinscher': 'pinscher.jpg',
+    'Poodle': 'poodle.jpg',
+    'Jack Russell Terrier': 'jack_russell_terrier.jpg',
+    'Galgo Italiano': 'galgo_italiano.jpg',
+    'Pequinês': 'pequines.jpg',
+    'Bichon Frise': 'bichon_frise.jpg',
+    'Boston Terrier': 'boston_terrier.jpg',
+    'Fox Paulistinha': 'fox_paulistinha.jpg',
+    'American Pit Bull': 'american_pitbull.jpg',
+    'Australian Cattle Dog': 'australian_cattle.jpg',
+    'Australian Shepherd': 'australian_shepherd.jpg',
+    'Basset Griffon': 'basset_griffon.jpg',
+    'Basset Hound': 'basset_hound.jpg',
+    'Bulldog Campeiro': 'bulldog_campeiro.jpg',
+    'Bulldog': 'bulldog.jpg',
+    'Bulldog Inglês': 'bulldog_ingles.jpg',
+    'Bull Terrier': 'bull_terrier.jpg',
+    'Basset Fulvo': 'basset_fulvo.jpg',
+    'Boxer': 'boxer.jpg',
+    'Clumber Spaniel': 'clumber_spaniel.jpg',
+    'Cocker Americano': 'cocker_americano.jpg',
+    'Cocker Inglês': 'cocker_ingles.jpg',
+    'Flat Coated Retriever': 'flat_coated_retriever.jpg',
+    'Pastor de Shetland': 'pastor_de_shetland.jpg',
+    'Pumi': 'pumi.jpg',
+    'Schnauzer Standard': 'schnauzer_standard.jpg',
+    'Shar Pei': 'shar_pei.jpg',
+    'Spaniel Bretão': 'spaniel_bretao.jpg',
+    'Spaniel Francês': 'spaniel_frances.jpg',
+    'Spitz Japonês': 'spitz_japones.jpg',
+    'Springer Spaniel': 'springer_spaniel.jpg',
+    'Springer Spaniel Inglês': 'springer_spaniel_ingles.jpg',
+    'Terrier Tibetano': 'terrier_tibetano.jpg',
+    'American Bully': 'american_bully.jpg',
+    'SRD Médio': 's_r_d_medio.jpg',
+    'Dogo Argentino': 'dogo_argentino.jpg',
+    'Dálmata': 'dalmatian.jpg',
+    'Weimaraner': 'weimaraner.jpg',
+    'Mastim Tibetano': 'mastim_tibetano.jpg',
+    'Leonberger': 'leonberger.jpg',
+    'Pastor Australiano': 'pastor_australiano.jpg',
+    'Setter Irlandês': 'setter_irlandes.jpg',
+    'Bulmastife': 'bulmastife.jpg',
+    'Mastim Napolitano': 'mastim_napolitano.jpg',
+    'Dogue de Bordeaux': 'dogue_de_bordeaux.jpg',
+    'Cão de Santo Humberto': 'cao_de_santo_humberto.jpg',
+    'Rhodesian Ridgeback': 'rhodesian_ridgeback.jpg',
+    'Boiadeiro da Flandres': 'boiadeiro_da_flandres.jpg',
+    'Bearded Collie': 'bearded_collie.jpg',
+    'Bichon Bolonhês': 'bichon_bolonhes.jpg',
+    'Basenji': 'basenji.jpg',
+    'Boerboel': 'boerboel.jpg',
+    'Pastor do Cáucaso': 'pastor_do_caucaso.jpg',
+    'Veadeiro Pampeano': 'veadeiro_pampeano.jpg',
+    'Buhund Norueguês': 'buhund_noruegues.jpg',
+    'Basset Artesiano Normando': 'basset_artesiano_normando.jpg',
+    'Braco de Auvernia': 'braco_de_auvernia.jpg',
+    'Galgo Inglês': 'galgo_ingles.jpg',
+    'Pastor Belga': 'pastor_belga.jpg',
+    'Mastiff': 'mastiff.jpg',
+    'Bernese': 'bernese.jpg',
+    'Akita': 'akita.jpg',
+    'Bloodhound': 'bloodhound.jpg',
+    'Pit Bull': 'pit_bull.jpg',
+    'Fila Brasileiro': 'fila_brasileiro.jpg',
+    'Chow Chow': 'chow_chow.jpg',
+    'Doberman': 'doberman.jpg',
+    'Chip Dog': 'chip_dog.jpg',
+}
+
+var_porte = tk.StringVar()
+var_raca = tk.StringVar()
+
+# Dados centralizados (raças e preços)
+dados_pet = {
+    "pequeno": {"raças": ['schitzu.jpg', 'lhasa_apso.jpg', 'maltes.jpg', 'yorkshire.jpg', 'dachshund.jpg', 'cavalier_king_charles_spaniel.jpg',
+                  'biewer_terrier.jpg', 'bulldog_frances.jpg', 'pug.jpg', 'chihuahua.jpg', 'cocker_spaniel.jpg', 'papillon.jpg',
+                  'spitz_alemao.jpg', 'pinscher.jpg', 'poodle.jpg', 'jack_russel_terrier.jpg', 'galgo_italiano.jpg', 'pequines.jpg',
+                  'bichon_frise.jpg', 'boston_terrier.jpg', 'fox_paulistinha.jpg']},
+    "médio": {"raças": ['american_bully.jpg', 'australian_cattle.jpg', 'australian_shepherd', 'basset_griffon.jpg', 'basset_hound.jpg',
+                  'bulldog_campeiro.jpg', 'bulldog', 'bulldog_ingles.jpg', 'bull_terrier.jpg', 'basset_fulvo.jpg',
+                  'boxer.jpg', 'clumber_spaniel.jpg', 'cocker_americano.jpg', 'cocker_ingles.jpg', 'flat_coated_retriever.jpg',
+                  'pastor_de_shetland.jpg', 'pumi.jpg', 'schnauzer_standard.jpg', 'shar_pei.jpg', 'spaniel_bretao.jpg', 'spaniel_frances.jpg',
+                  'spitz_japones.jpg', 'spriger_spaniel_ingles.jpg', 'terrier_tibetano.jpg', 'S.R.D.-Médio']},
+    "grande": {"raças": ['Pastor Alemao', 'Dogue Alemao', 'Terra Nova', 'Rottweiler', 'Sao-Bernardo', 'Labrador Retriever',
+                  'Golden Retriever', 'Fila brasileiro', 'Cane corso', 'Border collie', 'Boiadeiro de Berna',
+                  'Akita Inu', 'Mastim Ingles', 'Husky Siberiano', 'Dogo argentino', 'Dalmata', 'Weimaraner',
+                  'Bull terrier', 'Mastim tibetano', 'Leonberger', 'Pastor australiano', 'Setter irlandes',
+                  'Bulmastife', 'Mastim napolitano', 'Dogue de bordeus', 'Bulmastife', 'cao de Santo Humberto',
+                  'Rhodesian ridgeback', 'Boiadeiro da Flandres', 'Bearded collie', 'Bichon bolonhes', 'Basenji',
+                  'Boerboel', 'Pastor do caucaso', 'Veadeiro Pampeano', 'Buhund noruegues',
+                  'Basset artesiano normando', 'Braco de Auvernia', 'Galgo Ingles', 'Pastor Belga', 'Mastiff',
+                  'Bernese', 'Akita', 'Bloodhound']},
+    "maior": {"raças": ['Pit Bull', 'Fila Brasileiro', 'Chow-Chow', 'Doberman', 'Chip-dog', 'American Pit Bul terrier',
+                  'Chow-chow']}
+}
+
+
+#combobox_porte.bind("<<ComboboxSelected>>", lambda event: [atualizar_lista_racas(event), update_porte_image(event)])
+
+
+# Funções para atualizar imagens
+def update_porte_image(event=None):
+    porte = var_porte.get().strip().lower()
+    image_path = os.path.join(base_path, imagens_portes.get(porte, ''))
+    if os.path.exists(image_path):
+        img = Image.open(image_path).resize((180, 180))
+        img_tk = ImageTk.PhotoImage(img)
+        label_imagem.config(image=img_tk)
+        label_imagem.image = img_tk
+    else:
+        label_imagem.config(text="Imagem do porte não encontrada", image="")
+        label_imagem.image = None
+
+
+# Função para atualizar a lista de raças
+def atualizar_lista_racas(event=None):
+    porte = var_porte.get().strip().lower()
+    print(f"Selecionado Porte: {porte}")  # Debug
+    time.sleep(0.5)  # Pausa para garantir atualização
+
+    #racas = dados_pet.get(porte, {}).get("raças", [])
+    racas = list(dados_pet.get(porte.capitalize(), {}).get("raças", [])) # Capitalize para correspondência
+    combobox_raca["values"] = racas
+    combobox_raca.set("Selecione uma raça")
+    update_porte_image(event)
+
+    if racas:
+        combobox_raca.set(racas[0])  # Define a primeira raça como padrão
+        update_raca_image()  # Atualiza a imagem da raça assim que uma raça é definida
+    else:
+        combobox_raca.set("Nenhuma raça disponível")
+
+# Função para atualizar a imagem da raça
+def update_raca_image(event=None):
+    #raca = combobox_raca.get().strip()
+    raca = var_raca.get().strip()
+    image_path = os.path.join(base_path, imagens_racas.get(raca, ''))
+    print(f"Selecionado Raça: {raca}")  # Debug
+    print(f"Imagem do porte em: {image_path}")  # Debug
+    time.sleep(0.5)  # Pausa para garantir que a variável foi atualizada
+
+    # Verifique se o nome do arquivo não está vazio
+    if not imagens_racas.get(raca):
+        print(f"Nome do arquivo não encontrado para a raça: {raca}")  # Debug
+        label_imagem.config(text="Imagem da raça não encontrada", image="")
+        label_imagem.image = None
+        return
+
+    print(f"Imagem do porte em: {image_path}")  # Debug
+
+    if os.path.exists(image_path):
+        img = Image.open(image_path).resize((180, 180))
+        img_tk = ImageTk.PhotoImage(img)
+        label_imagem.config(image=img_tk)
+        label_imagem.image = img_tk
+    else:
+        label_imagem.config(text="Imagem da raça não encontrada", image="")
+        label_imagem.image = None
+        #     except Exception as e:
+        #     print(f"Erro ao carregar imagem da raça: {e}")
+        # else:
+        label_imagem.config(text="Imagem não encontrada", image="")
+        label_imagem.image = None
+
+# Dados centralizados (raças e preços)
+dados_pet = {
+    "Pequeno": {
+        "raças": ['schitzu.jpg', 'lhasa_apso.jpg', 'maltes.jpg', 'yorkshire.jpg', 'dachshund.jpg', 'cavalier_king_charles_spaniel.jpg',
+                  'biewer_terrier.jpg', 'bulldog_frances.jpg', 'pug.jpg', 'chihuahua.jpg', 'cocker_spaniel.jpg', 'papillon.jpg',
+                  'spitz_alemao.jpg', 'pinscher.jpg', 'poodle.jpg', 'jack_russel_terrier.jpg', 'galgo_italiano.jpg', 'pequines.jpg',
+                  'bichon_frise.jpg', 'boston_terrier.jpg', 'fox_paulistinha.jpg'],
+        "preços": {"Banho": 55, "Hidratação": 20, "Desembolo": 20, "Remoção de Pelos": 20, "Corte de Unhas": 15,
+                   "Escovação de Dentes": 15, "Tosa Higiênica": 20, "Tosa na Máquina": 115,
+                   "Tosa na Tesoura": 125, "Leva e Trás": 10},
+    },
+    "Médio": {
+        "raças": ['american_bully.jpg', 'australian_cattle.jpg', 'australian_shepherd', 'basset_griffon.jpg', 'basset_hound.jpg',
+                  'bulldog_campeiro.jpg', 'bulldog', 'bulldog_ingles.jpg', 'bull_terrier.jpg', 'basset_fulvo.jpg',
+                  'boxer.jpg', 'clumber_spaniel.jpg', 'cocker_americano.jpg', 'cocker_ingles.jpg', 'flat_coated_retriever.jpg',
+                  'pastor_de_shetland.jpg', 'pumi.jpg', 'schnauzer_standard.jpg', 'shar_pei.jpg', 'spaniel_bretao.jpg', 'spaniel_frances.jpg',
+                  'spitz_japones.jpg', 'spriger_spaniel_ingles.jpg', 'terrier_tibetano.jpg', 'S.R.D.-Médio'],
+        "preços": {"Banho": 65, "Hidratação": 20, "Desembolo": 20, "Remoção de Pelos": 20, "Corte de Unhas": 15,
+                   "Escovação de Dentes": 15, "Tosa Higiênica": 20, "Tosa na Máquina": 115,
+              "Tosa na Tesoura": 125, "Leva e Trás": 10},
+    },
+    "Grande": {
+        "raças": ['Pastor Alemao', 'Dogue Alemao', 'Terra Nova', 'Rottweiler', 'Sao-Bernardo', 'Labrador Retriever',
+                  'Golden Retriever', 'Fila brasileiro', 'Cane corso', 'Border collie', 'Boiadeiro de Berna',
+                  'Akita Inu', 'Mastim Ingles', 'Husky Siberiano', 'Dogo argentino', 'Dalmata', 'Weimaraner',
+                  'Bull terrier', 'Mastim tibetano', 'Leonberger', 'Pastor australiano', 'Setter irlandes',
+                  'Bulmastife', 'Mastim napolitano', 'Dogue de bordeus', 'Bulmastife', 'cao de Santo Humberto',
+                  'Rhodesian ridgeback', 'Boiadeiro da Flandres', 'Bearded collie', 'Bichon bolonhes', 'Basenji',
+                  'Boerboel', 'Pastor do caucaso', 'Veadeiro Pampeano', 'Buhund noruegues',
+                  'Basset artesiano normando', 'Braco de Auvernia', 'Galgo Ingles', 'Pastor Belga', 'Mastiff',
+                  'Bernese', 'Akita', 'Bloodhound'],
+        "preços": {"Banho": 70, "Hidratação": 20, "Desembolo": 20, "Remoção de Pelos": 20, "Corte de Unhas": 15,
+                   "Escovação de Dentes": 15, "Tosa Higiênica": 20, "Tosa na Máquina": 115,
+                "Tosa na Tesoura": 125, "Leva e Trás": 10},
+    },
+    "Maior": {
+        "raças": ['Pit Bull', 'Fila Brasileiro', 'Chow-Chow', 'Doberman', 'Chip-dog', 'American Pit Bul terrier',
+                  'Chow-chow'],
+        "preços": {"Banho": 120, "Hidratação": 20, "Desembolo": 20, "Remoção de Pelos": 80, "Corte de Unhas": 50,
+               "Escovação de Dentes": 55, "Tosa Higiênica": 75, "Tosa na Máquina": 85,
+               "Tosa na Tesoura": 100, "Leva e Trás": 10},
+    },
+}
+
+# Criando Combobox para seleção de porte
+ttk.Label(aba_config, text="Selecione o Porte:").grid(row=0, column=0, padx=10, pady=5)
+combobox_porte = ttk.Combobox(aba_config, textvariable=var_porte, values=list(dados_pet.keys()), state="readonly")
+combobox_porte.grid(row=1, column=0, padx=10, pady=5)
+combobox_porte.bind("<<ComboboxSelected>>", lambda event: [atualizar_lista_racas(event), update_porte_image(event)])
+
+
+
+# Criando Combobox para seleção de raça
+ttk.Label(aba_config, text="Selecione a Raça:").grid(row=0, column=1, padx=10, pady=5, sticky="w")
+combobox_raca = ttk.Combobox(aba_config, textvariable=var_raca, state="readonly")
+combobox_raca.grid(row=1, column=1, padx=10, pady=5, sticky="ew")
+combobox_raca.bind("<<ComboboxSelected>>", update_raca_image)
+
+
+# Configurando a coluna para expandir
+aba_config.grid_columnconfigure(0, weight=1)
+
+combobox_raca.bind("<<ComboboxSelected>>", update_raca_image)
+
+
+
+# Criando Label para exibir imagens
+label_imagem = tk.Label(aba_config, text="Nenhuma imagem disponível", width=500, height=500)
+label_imagem.grid(row=2, column=0, columnspan=4, padx=10, pady=10)
+
+
+# Adicionando `trace_add` para ativar automaticamente a atualização da imagem e das raças
+var_porte.trace_add("write", lambda *args: atualizar_lista_racas(event=None))
+var_porte.trace_add("write", lambda *args: update_porte_image(event=None))
+
+
+erros reportados no console da IDE Pycharm: "C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\.venv\Scripts\python.exe" "C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\main.py" 
+Selecionado Porte: pequeno
+Selecionado Raça: schitzu.jpg
+Imagem do porte em: C:/Users/VEIRANO/PycharmProjects/ModuloTkinter/Planilha Controle Ipojucão/imagensipojucao\
+Nome do arquivo não encontrado para a raça: schitzu.jpg
+Selecionado Porte: pequeno
+Selecionado Raça: schitzu.jpg
+Imagem do porte em: C:/Users/VEIRANO/PycharmProjects/ModuloTkinter/Planilha Controle Ipojucão/imagensipojucao\
+Nome do arquivo não encontrado para a raça: schitzu.jpg
+Selecionado Raça: schitzu.jpg
+Imagem do porte em: C:/Users/VEIRANO/PycharmProjects/ModuloTkinter/Planilha Controle Ipojucão/imagensipojucao\
+Nome do arquivo não encontrado para a raça: schitzu.jpg
+
+
+
+
+
+
+
+
+O problema que você está enfrentando parece estar relacionado ao uso inconsistente dos nomes das raças e suas representações nos dicionários, especialmente quando você está tentando exibir imagens. Vamos abordar algumas questões e propor soluções.
+
+Problemas Identificados
+Inconsistência nos Nomes das Raças: No dicionário dados_pet, você está utilizando os nomes dos arquivos de imagem com a extensão .jpg (como 'schitzu.jpg'), enquanto no dicionário imagens_racas você usa apenas o nome da raça (como 'Schitzu'). A correspondência entre esses dois não será bem-sucedida se não forem idênticos.
+
+Erro no Dicionário dados_pet: O nome da raça "Schitzu" foi alterado para "schitzu.jpg" em dados_pet, o que é incorreto. O correto seria manter apenas o nome da raça para garantir a correspondência correta.
+
+Dicionário dados_pet Frizado em Amarelo: Isso pode indicar que o PyCharm está alertando que a chave dados_pet pode não estar sendo usada corretamente ou que está sendo sobrescrita.
+
+Soluções Propostas
+Uniformizar Nomes: Use apenas os nomes das raças (sem a extensão de arquivo) em todos os dicionários. Por exemplo:
+dados_pet = {
+    "pequeno": {
+        "raças": ['schitzu', 'lhasa_apso', 'maltes', 'yorkshire', 'dachshund', 'cavalier_king_charles_spaniel',
+                  'biewer_terrier', 'bulldog_frances', 'pug', 'chihuahua', 'cocker_spaniel', 'papillon',
+                  'spitz_alemao', 'pinscher', 'poodle', 'jack_russel_terrier', 'galgo_italiano', 'pequines',
+                  'bichon_frise', 'boston_terrier', 'fox_paulistinha'],
+    },
+    "médio": {
+        "raças": ['american_bully', 'australian_cattle', 'australian_shepherd', 'basset_griffon', 'basset_hound',
+                  'bulldog_campeiro', 'bulldog', 'bulldog_ingles', 'bull_terrier', 'basset_fulvo',
+                  'boxer', 'clumber_spaniel', 'cocker_americano', 'cocker_ingles', 'flat_coated_retriever',
+                  'pastor_de_shetland', 'pumi', 'schnauzer_standard', 'shar_pei', 'spaniel_bretao', 'spaniel_frances',
+                  'spitz_japones', 'spriger_spaniel_ingles', 'terrier_tibetano', 'srd_medio'],
+    },
+    # Continue assim para os outros tamanhos
+}
+Copy
+Atualizar o Dicionário imagens_racas: Assegure-se de que os nomes em imagens_racas também correspondam exatamente às entradas em dados_pet. Por exemplo:
+imagens_racas = {
+    'schitzu': 'schitzu.jpg',
+    'lhasa_apso': 'lhasa_apso.jpg',
+    # Adicione todas as outras raças...
+}
+Copy
+Verificar as Funções: A função update_raca_image deve ser capaz de encontrar a imagem com base na seleção correta da raça. Garanta que ao chamar essa função, você esteja usando o nome correto:
+def update_raca_image(event=None):
+    raca = var_raca.get().strip().lower()  # Certifique-se de que isso corresponde ao que está no dicionário
+    image_path = os.path.join(base_path, imagens_racas.get(raca, ''))
+    # O resto da lógica permanece o mesmo...
+Copy
+Passos Finais
+Revise o Código: Após fazer as alterações, revise todas as partes do seu código que referenciam dados_pet e imagens_racas para garantir que estão consistentes.
+
+Testar: Após as alterações, execute o código novamente e verifique se a seleção das raças exibe as imagens corretamente.
+
+Logs de Depuração: Mantenha as mensagens de depuração que você já adicionou para ajudar a rastrear quaisquer problemas que possam surgir. Se ocorrer algum erro, examine as mensagens de depuração para entender o que pode estar dando errado.
+
+Se seguir esses passos não resolver seu problema, por favor, forneça os erros mais recentes do console para uma análise mais detalhada.
+
+
+
+
+
+
+resposta copilot
+
+
+onde está o erro neste código, ao selecionar opções nos combobox_raca, algumas imagens são exibidas, outras não são todas estão com os nomes corretos, em caixa baixa(letra minúscula) o caminho do arquivo está correto e o arquivo está na pasta.
+
+Ótima pergunta, Reinaldo! Seu código está bem estruturado, mas o problema provavelmente está na inconsistência entre os nomes das raças usados no dicionário dados_pet e as chaves do dicionário imagens_racas.
+Aqui vão os pontos principais a ajustar:
+
+🐾 1. Nomes das raças no dados_pet: devem ser iguais às chaves de imagens_racas
+- No dados_pet, você tem raças como 'Schitzu', 'Maltes', 'Yorkshire' (com maiúsculas e sem .jpg) e outras como 'pug.jpg', 'bulldog_frances.jpg' etc.
+- Mas no imagens_racas, você espera chaves sem extensão .jpg e com capitalização específica.
+Recomendo unificar esse padrão, por exemplo:
+- No dados_pet, use sempre os nomes sem extensão e com a mesma capitalização do imagens_racas.
+"raças": ['Schitzu', 'Lhasa Apso', 'Maltês', 'Yorkshire', 'Dachshund', 'Pug', 'Chihuahua']  # e assim por diante
+
+
+
+🧩 2. No imagens_racas, as chaves devem exatamente corresponder às opções exibidas na combobox_raca
+- A combobox_raca usa os valores de dados_pet, e depois você tenta pegar a imagem correspondente com:
+imagens_racas.get(raca)
+
+
+- Portanto, se dados_pet["Pequeno"]["raças"] contém 'pug.jpg', isso nunca baterá com a chave 'Pug' no imagens_racas.
+
+🛠️ Correção recomendada:
+- Padronize os nomes das raças em dados_pet, e use-os como chaves em imagens_racas, por exemplo:
+dados_pet = {
+    "Pequeno": {
+        "raças": ['Pug', 'Chihuahua', 'Schitzu'],
+        ...
+    }
+}
+
+imagens_racas = {
+    "Pug": "pug.jpg",
+    "Chihuahua": "chihuahua.jpg",
+    ...
+}
+
+
+Se quiser, posso refatorar essa parte para você com base no seu código! Quer que eu faça isso agora? 😄🐶
+
+
+
+def update_raca_image(event=None):
+    # Obtém a raça selecionada e formata corretamente
+    raca_original = var_raca.get().strip()
+
+    # Normaliza: primeira letra de cada palavra maiúscula, outras minúsculas
+    raca_formatada = ' '.join([palavra.capitalize() for palavra in raca_original.split()])
+
+    # Faz a busca no dicionário de imagens com a raça formatada
+    nome_arquivo = imagens_racas.get(raca_formatada)
+
+    image_path = os.path.join(base_path, nome_arquivo) if nome_arquivo else ""
+
+    print(f"Raça selecionada: {raca_original}")
+    print(f"Raça formatada: {raca_formatada}")
+    print(f"Caminho da imagem: {image_path}")
+
+    if not nome_arquivo or not os.path.exists(image_path):
+        label_imagem.config(text="Imagem da raça não encontrada", image="")
+        label_imagem.image = None
+        return
+
+    try:
+        img = Image.open(image_path).resize((180, 180))
+        img_tk = ImageTk.PhotoImage(img)
+        label_imagem.config(image=img_tk, text="")
+        label_imagem.image = img_tk
+    except Exception as e:
+        print(f"Erro ao carregar imagem: {e}")
+        label_imagem.config(text="Erro ao exibir imagem", image="")
+        label_imagem.image = None
+
+
+
+
+def update_raca_image(event=None):
+    # Obtém a raça selecionada e formata corretamente
+    raca_original = var_raca.get().strip()
+
+    # Normaliza: primeira letra de cada palavra maiúscula, outras minúsculas
+    raca_formatada = ' '.join([palavra.capitalize() for palavra in raca_original.split()])
+
+    # Faz a busca no dicionário de imagens com a raça formatada
+    nome_arquivo = imagens_racas.get(raca_formatada)
+
+    image_path = os.path.join(base_path, nome_arquivo) if nome_arquivo else ""
+
+    print(f"Raça selecionada: {raca_original}")
+    print(f"Raça formatada: {raca_formatada}")
+    print(f"Caminho da imagem: {image_path}")
+
+    if not nome_arquivo or not os.path.exists(image_path):
+        label_imagem.config(text="Imagem da raça não encontrada", image="")
+        label_imagem.image = None
+        return
+
+    try:
+        img = Image.open(image_path).resize((180, 180))
+        img_tk = ImageTk.PhotoImage(img)
+        label_imagem.config(image=img_tk, text="")
+        label_imagem.image = img_tk
+    except Exception as e:
+        print(f"Erro ao carregar imagem: {e}")
+        label_imagem.config(text="Erro ao exibir imagem", image="")
+        label_imagem.image = None
+
+
+
+
+
+
+
+
+
+
+Reinaldo, bora deixar esse layout com cara de projeto profissional? 🛠️ Aqui vão sugestões práticas de otimização para a interface do aba_cadastro:
+
+✅ Melhor organização dos Frames
+Atualmente você tem vários ttk.Frame(aba_cadastro) sobrescrevendo-se. O ideal é usar um único frame principal e organizar os subframes dentro dele. Por exemplo:
+aba_cadastro = ttk.Frame(notebook)
+aba_cadastro.pack(fill="both", expand=True)
+
+
+
+🧱 Usar grid com colunas mais estruturadas
+Divida sua interface em duas colunas principais:
+- Coluna 0: características, pelagem, tipo de pelo
+- Coluna 1: tempos de execução
+Assim você pode reposicionar:
+frame_descricao.grid(row=0, column=0, padx=10, pady=5, sticky="ew")
+frame_tipopelo.grid(row=1, column=0, padx=10, pady=5, sticky="ew")
+frame_tempo.grid(row=0, column=1, rowspan=3, padx=10, pady=5, sticky="nsew")
+
+
+Use rowspan para frame_tempo ocupar toda a altura.
+
+📏 Evitar repetição de Entry com mesmo nome
+Você está criando várias vezes entry_tutor_2. Isso sobrescreve o widget anterior e impede que você acesse os valores. Use nomes únicos como:
+entry_hidratacao = tk.Entry(frame_tempo)
+entry_desembolo = tk.Entry(frame_tempo)
+entry_tosa_higienica = tk.Entry(frame_tempo)
+...
+
+
+
+🌈 Adicione um estilo visual consistente
+Use ttk.Style para personalizar rótulos, botões e caixas de texto — isso dá um acabamento mais polido.
+
+🔄 Centralize os botões e labels
+Você pode agrupar botões de ação (ex: salvar, atualizar) no final da aba com sticky="e" ou sticky="we" para melhor alinhamento.
+
+Se quiser, posso reorganizar todo o trecho com essas melhorias na prática. Quer ver o exemplo reorganizado em código? 😄💻✨
+
+
+
+
+
+
+
+
+
+
+Claro, Reinaldo! A seguir, adaptei a estrutura da aba aba_cadastro para usar exclusivamente o .grid() — removendo o uso de .pack() e organizando o layout em uma grade com colunas bem definidas:
+# Criar a aba de cadastro com uso apenas de grid
+aba_cadastro = ttk.Frame(notebook)
+notebook.add(aba_cadastro, text="Cadastro")
+aba_cadastro.grid_rowconfigure(0, weight=1)
+aba_cadastro.grid_columnconfigure(0, weight=1)
+aba_cadastro.grid_columnconfigure(1, weight=1)
+
+
+Agora organizamos os frames internamente com .grid():
+# Frame de Descrição de Pelagem
+frame_descricao = tk.LabelFrame(aba_cadastro, text=" Tamanho e Características - Pelagem ", borderwidth=3, relief="groove")
+frame_descricao.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+
+# Radiobuttons de pelagem
+radiobutton_curta = tk.Radiobutton(frame_descricao, text="Curta", variable=var_descricao, value="Curta")
+radiobutton_curta.grid(row=0, column=0, sticky="w")
+
+radiobutton_mediana = tk.Radiobutton(frame_descricao, text="Mediana", variable=var_descricao, value="Mediana")
+radiobutton_mediana.grid(row=1, column=0, sticky="w")
+
+radiobutton_longa = tk.Radiobutton(frame_descricao, text="Longa", variable=var_descricao, value="Longa")
+radiobutton_longa.grid(row=2, column=0, sticky="w")
+
+
+# Frame de Tipo de Pelo
+frame_tipopelo = tk.LabelFrame(aba_cadastro, text="Tipo de Pelo", borderwidth=3, relief="groove")
+frame_tipopelo.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+
+# Radiobuttons de tipo de pelo
+radiobutton_grosso = tk.Radiobutton(frame_tipopelo, text="Grosso Espesso", variable=var_tipopelo, value="Grosso Espesso")
+radiobutton_grosso.grid(row=0, column=0, sticky="w")
+
+radiobutton_fino = tk.Radiobutton(frame_tipopelo, text="Fino Suave", variable=var_tipopelo, value="Fino Suave")
+radiobutton_fino.grid(row=1, column=0, sticky="w")
+
+
+# Frame de Tempo de Execução
+frame_tempo = tk.LabelFrame(aba_cadastro, text="Tempo de Execução", borderwidth=3, relief='groove')
+frame_tempo.grid(row=0, column=1, rowspan=3, padx=10, pady=10, sticky="nsew")
+
+# Ajustando colunas para melhor organização
+frame_tempo.grid_columnconfigure(0, weight=1)
+frame_tempo.grid_columnconfigure(1, weight=1)
+
+# Entradas e rótulos de tempo
+ttk.Label(frame_tempo, text="Duração do Serviço:").grid(row=0, column=0, sticky="w", padx=5, pady=2)
+entry_duracao = tk.Entry(frame_tempo)
+entry_duracao.grid(row=0, column=1, sticky="ew", padx=5, pady=2)
+
+ttk.Label(frame_tempo, text="Tempo Banho:").grid(row=1, column=0, sticky="w", padx=5, pady=2)
+entry_banho = tk.Entry(frame_tempo)
+entry_banho.grid(row=1, column=1, sticky="ew", padx=5, pady=2)
+
+ttk.Label(frame_tempo, text="Tempo Secagem:").grid(row=2, column=0, sticky="w", padx=5, pady=2)
+entry_secagem = tk.Entry(frame_tempo)
+entry_secagem.grid(row=2, column=1, sticky="ew", padx=5, pady=2)
+
+ttk.Label(frame_tempo, text="Tempo T. Hidratação:").grid(row=3, column=0, sticky="w", padx=5, pady=2)
+entry_hidratacao = tk.Entry(frame_tempo)
+entry_hidratacao.grid(row=3, column=1, sticky="ew", padx=5, pady=2)
+
+ttk.Label(frame_tempo, text="Tempo T. Desembolo:").grid(row=4, column=0, sticky="w", padx=5, pady=2)
+entry_desembolo = tk.Entry(frame_tempo)
+entry_desembolo.grid(row=4, column=1, sticky="ew", padx=5, pady=2)
+
+ttk.Label(frame_tempo, text="Tempo T. Higiênica:").grid(row=5, column=0, sticky="w", padx=5, pady=2)
+entry_higienica = tk.Entry(frame_tempo)
+entry_higienica.grid(row=5, column=1, sticky="ew", padx=5, pady=2)
+
+ttk.Label(frame_tempo, text="Tempo T. Máquina:").grid(row=6, column=0, sticky="w", padx=5, pady=2)
+entry_maquina = tk.Entry(frame_tempo)
+entry_maquina.grid(row=6, column=1, sticky="ew", padx=5, pady=2)
+
+ttk.Label(frame_tempo, text="Tempo T. Tesoura:").grid(row=7, column=0, sticky="w", padx=5, pady=2)
+entry_tesoura = tk.Entry(frame_tempo)
+entry_tesoura.grid(row=7, column=1, sticky="ew", padx=5, pady=2)
+
+
+
+
+
+
+
+
+
+
+Boa pergunta, Reinaldo! O desafio está em que o Canvas precisa ocupar toda a aba (ttk.Frame) para permitir que o conteúdo interno (como seus frames e widgets) seja rolável de verdade — e não apenas um pedaço dele.
+Aqui está como adaptar sua função para aplicar corretamente a rolagem em toda a aba:
+
+✅ Passo a passo para rolagem da aba inteira
+- Encaixar o Canvas dentro da aba (como aba_config)
+- Criar o inner_frame DENTRO do canvas
+- Colocar o conteúdo no inner_frame
+- Usar grid_rowconfigure e grid_columnconfigure para expansão
+
+🧩 Código atualizado da função:
+def criar_aba_com_rolagem(aba):
+    aba.grid_rowconfigure(0, weight=1)
+    aba.grid_columnconfigure(0, weight=1)
+
+    # Criar canvas e barras de rolagem
+    canvas = tk.Canvas(aba)
+    scrollbar_y = ttk.Scrollbar(aba, orient="vertical", command=canvas.yview)
+    scrollbar_x = ttk.Scrollbar(aba, orient="horizontal", command=canvas.xview)
+
+    canvas.configure(yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set)
+
+    canvas.grid(row=0, column=0, sticky="nsew")
+    scrollbar_y.grid(row=0, column=1, sticky="ns")
+    scrollbar_x.grid(row=1, column=0, sticky="ew")
+
+    # Frame interno onde você coloca o conteúdo
+    frame_conteudo = ttk.Frame(canvas)
+    canvas.create_window((0, 0), window=frame_conteudo, anchor="nw")
+
+    # Atualizar a área rolável sempre que o conteúdo for alterado
+    def on_configure(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+
+    frame_conteudo.bind("<Configure>", on_configure)
+
+    return frame_conteudo
+
+
+
+💡 Como usar:
+aba_config = ttk.Frame(notebook)
+notebook.add(aba_config, text="Configuração")
+frame_config = criar_aba_com_rolagem(aba_config)
+
+# Agora você pode adicionar widgets no frame_config!
+ttk.Label(frame_config, text="Olá, com rolagem!").grid(row=0, column=0)
+
+
+
+Com essa abordagem, todos os widgets colocados em frame_config ficarão roláveis e ocuparão corretamente a aba inteira. Se quiser, posso te mandar um exemplo completo com todos os widgets também convertidos — é só pedir 😄📜📐
+
+
+
+
+
+Se quiser, eu também posso agrupar os campos com botões de “Salvar” ou “Limpar”, e adicionar ícones ou validações. Vai ficando top! Quer esse bônus também? 😄🐕💡
+
+
+
+
+
+Por Favor, monte um exemplo 100% funcional com rolagem vertical/horizontal e seus widgets aplicados corretamente.  "BORA"
+
+BORA, Reinaldo! 💻🐾
+Aqui está um exemplo 100% funcional que mostra:
+✅ Scroll vertical e horizontal
+✅ Widgets organizados com .grid()
+✅ Frame interno rolável completo para você usar como base do seu projeto!
+
+🐍 Exemplo completo com Tkinter:
+import tkinter as tk
+from tkinter import ttk
+
+# Janela principal
+janela = tk.Tk()
+janela.title("Exemplo com Scroll e Widgets")
+janela.geometry("900x600")
+
+# Notebook com abas
+notebook = ttk.Notebook(janela)
+notebook.grid(row=0, column=0, sticky='nsew')
+janela.grid_rowconfigure(0, weight=1)
+janela.grid_columnconfigure(0, weight=1)
+
+# Função para criar uma aba com rolagem
+def criar_aba_com_rolagem(container):
+    aba = ttk.Frame(container)
+    container.add(aba, text="Aba com Rolagem")
+
+    # Grid para expansão total
+    aba.grid_rowconfigure(0, weight=1)
+    aba.grid_columnconfigure(0, weight=1)
+
+    # Canvas + Scrollbars
+    canvas = tk.Canvas(aba)
+    scrollbar_y = ttk.Scrollbar(aba, orient="vertical", command=canvas.yview)
+    scrollbar_x = ttk.Scrollbar(aba, orient="horizontal", command=canvas.xview)
+
+    canvas.configure(yscrollcommand=scrollbar_y.set, xscrollcommand=scrollbar_x.set)
+    canvas.grid(row=0, column=0, sticky="nsew")
+    scrollbar_y.grid(row=0, column=1, sticky="ns")
+    scrollbar_x.grid(row=1, column=0, sticky="ew")
+
+    # Frame interno que conterá todos os widgets
+    frame_conteudo = ttk.Frame(canvas)
+    canvas.create_window((0, 0), window=frame_conteudo, anchor="nw")
+
+    # Atualizar região rolável
+    def atualizar_scroll(event):
+        canvas.configure(scrollregion=canvas.bbox("all"))
+
+    frame_conteudo.bind("<Configure>", atualizar_scroll)
+
+    return frame_conteudo
+
+# Criar aba com rolagem e obter o frame interno
+frame_principal = criar_aba_com_rolagem(notebook)
+
+# 🔧 Exemplo de conteúdo: 3 seções organizadas
+# Seção 1 - Informações básicas
+frame_info = tk.LabelFrame(frame_principal, text="Informações Básicas", padx=10, pady=10)
+frame_info.grid(row=0, column=0, padx=10, pady=10, sticky="ew")
+
+ttk.Label(frame_info, text="Nome:").grid(row=0, column=0, sticky="w")
+ttk.Entry(frame_info).grid(row=0, column=1, sticky="ew")
+ttk.Label(frame_info, text="Telefone:").grid(row=1, column=0, sticky="w")
+ttk.Entry(frame_info).grid(row=1, column=1, sticky="ew")
+
+# Seção 2 - Tipo de Pelagem
+frame_pelo = tk.LabelFrame(frame_principal, text="Tipo de Pelagem", padx=10, pady=10)
+frame_pelo.grid(row=1, column=0, padx=10, pady=10, sticky="ew")
+
+var_pelo = tk.StringVar()
+tk.Radiobutton(frame_pelo, text="Curta", variable=var_pelo, value="Curta").grid(row=0, column=0, sticky="w")
+tk.Radiobutton(frame_pelo, text="Média", variable=var_pelo, value="Média").grid(row=1, column=0, sticky="w")
+tk.Radiobutton(frame_pelo, text="Longa", variable=var_pelo, value="Longa").grid(row=2, column=0, sticky="w")
+
+# Seção 3 - Tabela de tempos
+frame_tempo = tk.LabelFrame(frame_principal, text="Tempo de Execução", padx=10, pady=10)
+frame_tempo.grid(row=2, column=0, padx=10, pady=10, sticky="ew")
+
+tempos = ["Banho", "Secagem", "Hidratação", "Desembolo", "Tosa Máquina", "Tosa Tesoura", "Total Atendimento"]
+for i, label in enumerate(tempos):
+    ttk.Label(frame_tempo, text=f"Tempo {label}:").grid(row=i, column=0, sticky="w")
+    ttk.Entry(frame_tempo, width=30).grid(row=i, column=1, sticky="ew")
+
+# Permitir expansão horizontal no frame_principal
+frame_principal.grid_columnconfigure(0, weight=1)
+
+# Iniciar
+janela.mainloop()
+
+
+
+Se quiser, posso adicionar botões de salvar, ícones visuais, validação automática ou até deixar esse layout com cara de aplicativo! Quer o upgrade visual com tema escuro ou visual moderno usando ttk.Style? ✨😎🎛️
+Só dar o sinal!
+
+
+
+
+
+
+
+
+
+Perfeito, Reinaldo! O ttkbootstrap é como o toque de sofisticação que faltava no seu projeto com Tkinter: ele transforma o visual padrão em uma interface moderna e estilizada, inspirada no Bootstrap — com temas escuros, cantos arredondados, cores vibrantes e fontes mais elegantes.
+
+🚀 Como usar ttkbootstrap passo a passo
+1. Instalar o pacote
+No terminal ou prompt de comando:
+pip install ttkbootstrap
+
+
+
+2. Exemplo básico com tema escuro
+import ttkbootstrap as tb
+from ttkbootstrap.constants import *
+
+# Criar janela
+janela = tb.Window(themename="darkly")  # Experimente: 'darkly', 'cyborg', 'flatly', 'superhero'...
+
+janela.title("Exemplo com ttkbootstrap")
+janela.geometry("600x400")
+
+# Exemplo de botão moderno
+btn = tb.Button(janela, text="Clique aqui", bootstyle=SUCCESS)
+btn.pack(pady=20)
+
+# Combobox estilizado
+combo = tb.Combobox(janela, values=["Opção 1", "Opção 2", "Opção 3"])
+combo.pack(pady=10)
+
+# Entrada com estilo
+entrada = tb.Entry(janela)
+entrada.pack(pady=10)
+
+janela.mainloop()
+
+
+
+🎨 Temas disponíveis:
+Você pode ver todos os temas com:
+print(tb.Style().theme_names())
+
+
+Entre os preferidos:
+- "darkly" – escuro com verde vibrante
+- "flatly" – claro, moderno e minimalista
+- "superhero" – escuro vibrante com toques em azul
+- "morph" – visual mais futurista
+- "journal" – tipo papel/jornal
+
+💡 Dica extra:
+Você pode até usar bootstyle em widgets, como:
+tb.Button(..., bootstyle="info-outline")
+tb.Entry(..., bootstyle="danger")
+tb.Label(..., bootstyle="inverse-primary")
+
+
+
+Se quiser, eu posso adaptar toda sua interface com notebook, frames, scroll, radio buttons e bancos de dados para o ttkbootstrap. Quer que eu transforme seu projeto atual em versão Bootstrap dark mode? 😎🖤🧩
+É só dizer
+
+
+
+
+Você está certíssimo, Reinaldo! Migrar para ttkbootstrap pode dar um visual incrível, mas é importante entender o que muda para manter a estabilidade do seu projeto.
+Aqui vai um mapa da transição pra te guiar com segurança:
+
+🔁 O que continua igual (boa notícia!)
+- A estrutura do Tkinter (como Label, Entry, Button, Combobox, etc.)
+- A lógica do seu projeto, incluindo funções, eventos, banco de dados, etc.
+- O uso de .grid() ou .pack() — ambos seguem funcionando.
+
+⚠️ O que muda (e onde adaptar)
+| Área | Antes | Com ttkbootstrap | 
+| Criação da janela | janela = tk.Tk() | janela = tb.Window(themename="darkly") | 
+| Importações | from tkinter import ttk | import ttkbootstrap as tb e from ttkbootstrap.constants import * | 
+| Widgets ttk | ttk.Button(...) | tb.Button(..., bootstyle="success") | 
+| Estilos | ttk.Style() | tb.Style() com temas prontos | 
+| Cores e aparências | Estilização manual com .configure() | Temas modernos prontos no bootstyle | 
+
+
+
+🛠️ Como fazer a migração de forma segura
+- Crie um novo arquivo teste (main_bootstrap.py) com ttkbootstrap importado.
+- Copie e adapte uma aba ou frame do seu projeto original, e veja como ele se comporta no novo estilo.
+- Teste visualmente tema por tema até encontrar o ideal (ex: "flatly", "darkly", "cyborg").
+- Vá migrando aos poucos, uma aba de cada vez, sem mexer na estrutura principal.
+
+Se você quiser, posso preparar uma versão híbrida do seu projeto, com apenas uma aba convertida para ttkbootstrap, enquanto o resto continua em Tkinter puro. Assim você vê a diferença sem risco. Quer fazer esse experimento em uma aba sua, tipo a aba_cadastro? 😄🖤💻
+Posso montar pra você rapidinho. É só mandar o sinal!
+
+
+
+talvez ttk.Style seja menos invasivo nas funcionalidades, no momento
+
+
+Essa é uma ótima leitura, Reinaldo. O  realmente é mais suave de incorporar porque você pode aplicar melhorias visuais sem alterar a estrutura do seu código. Ele trabalha com os widgets que você já está usando, e você pode ir estilizando aos poucos — botão aqui, combobox ali — sem risco de quebrar funcionalidades.
+Aqui vai um exemplo básico de como você pode usar  agora mesmo no seu projeto existente:
+
+from tkinter import ttk
+
+style = ttk.Style()
+
+# Define o tema atual (opcional)
+style.theme_use("clam")  # Outros: 'alt', 'default', 'vista', 'classic'
+
+# Estilizando botões do tipo padrão (TButton)
+style.configure("TButton",
+    background="#e0f7fa",
+    foreground="#00796b",
+    font=("Segoe UI", 10, "bold"),
+    padding=6
+)
+
+# Personalizando uma variação, ex: Botão de Ação
+style.configure("Acao.TButton",
+    background="#aed581",
+    foreground="black",
+    font=("Arial", 11),
+    padding=(10, 5)
+)
+
+# E usar assim:
+ttk.Button(root, text="Salvar", style="Acao.TButton").grid(...)
+
+Você pode usar isso para personalizar TLabel, TEntry, TCombobox — sem precisar mexer em canvas, scroll ou estruturas de janela.
+Se quiser, posso montar um trechinho da aba com um estilo visual padronizado via ttk.Style, só pra você ver o impacto sem compromisso. Interessado em experimentar com os botões e comboboxes primeiro? 😄🎨🖼️
+
+
+
+Perfeito, Reinaldo! Aqui está um exemplo prático de como aplicar estilos personalizados com ttk.Style no seu projeto, sem precisar mexer em nada estrutural:
+
+🎨 Exemplo de personalização com ttk.Style
+import tkinter as tk
+from tkinter import ttk
+
+# Criando a janela
+janela = tk.Tk()
+janela.title("Exemplo com ttk.Style")
+janela.geometry("400x300")
+
+# Criando estilo
+style = ttk.Style()
+
+# Usar um tema leve e compatível
+style.theme_use("clam")  # Outros: 'alt', 'vista', 'default'
+
+# Estilizando todos os botões padrão
+style.configure("TButton",
+    background="#d0f0c0",
+    foreground="#2e7d32",
+    font=("Segoe UI", 10, "bold"),
+    padding=10
+)
+
+# Criando um estilo alternativo para destaque
+style.configure("Destaque.TButton",
+    background="#ffc107",
+    foreground="#212121",
+    font=("Segoe UI", 11),
+    padding=10
+)
+
+# Estilizando um combobox
+style.configure("TCombobox",
+    fieldbackground="#ffffff",
+    background="#dcedc8",
+    foreground="#33691e",
+    padding=5
+)
+
+# Criando widgets com os estilos
+ttk.Label(janela, text="Nome:").pack(pady=5)
+entrada = ttk.Entry(janela)
+entrada.pack(pady=5)
+
+ttk.Label(janela, text="Escolha uma opção:").pack(pady=5)
+combo = ttk.Combobox(janela, values=["A", "B", "C"])
+combo.pack(pady=5)
+
+ttk.Button(janela, text="Salvar", style="TButton").pack(pady=10)
+ttk.Button(janela, text="Ação Importante", style="Destaque.TButton").pack()
+
+janela.mainloop()
+
+
+
+Você pode copiar e colar esse trecho e ver como já muda bastante só com .configure. Aos poucos, dá pra criar uma paleta padronizada pro seu sistema, com botões de alerta, ações principais, caixas de entrada com foco visual e muito mais.
+Quer que eu te ajude a criar um painel de estilos para seu projeto inteiro, tipo um "guia de estilo" centralizado para manter tudo harmonioso? Seria um ótimo passo para profissionalizar ainda mais seu layout. 😄🎛️📐
+Só dizer que a gente começa!
+
+
+
+
+
+
+Perfeito, Reinaldo! Aqui está um exemplo prático de como aplicar estilos personalizados com ttk.Style no seu projeto, sem precisar mexer em nada estrutural:
+
+🎨 Exemplo de personalização com ttk.Style
+import tkinter as tk
+from tkinter import ttk
+
+# Criando a janela
+janela = tk.Tk()
+janela.title("Exemplo com ttk.Style")
+janela.geometry("400x300")
+
+# Criando estilo
+style = ttk.Style()
+
+# Usar um tema leve e compatível
+style.theme_use("clam")  # Outros: 'alt', 'vista', 'default'
+
+# Estilizando todos os botões padrão
+style.configure("TButton",
+    background="#d0f0c0",
+    foreground="#2e7d32",
+    font=("Segoe UI", 10, "bold"),
+    padding=10
+)
+
+# Criando um estilo alternativo para destaque
+style.configure("Destaque.TButton",
+    background="#ffc107",
+    foreground="#212121",
+    font=("Segoe UI", 11),
+    padding=10
+)
+
+# Estilizando um combobox
+style.configure("TCombobox",
+    fieldbackground="#ffffff",
+    background="#dcedc8",
+    foreground="#33691e",
+    padding=5
+)
+
+# Criando widgets com os estilos
+ttk.Label(janela, text="Nome:").pack(pady=5)
+entrada = ttk.Entry(janela)
+entrada.pack(pady=5)
+
+ttk.Label(janela, text="Escolha uma opção:").pack(pady=5)
+combo = ttk.Combobox(janela, values=["A", "B", "C"])
+combo.pack(pady=5)
+
+ttk.Button(janela, text="Salvar", style="TButton").pack(pady=10)
+ttk.Button(janela, text="Ação Importante", style="Destaque.TButton").pack()
+
+janela.mainloop()
+
+
+
+Você pode copiar e colar esse trecho e ver como já muda bastante só com .configure. Aos poucos, dá pra criar uma paleta padronizada pro seu sistema, com botões de alerta, ações principais, caixas de entrada com foco visual e muito mais.
+Quer que eu te ajude a criar um painel de estilos para seu projeto inteiro, tipo um "guia de estilo" centralizado para manter tudo harmonioso? Seria um ótimo passo para profissionalizar ainda mais seu layout. 😄🎛️📐
+Só dizer que a gente começa!
+
+
+
+Boa pergunta, Reinaldo — e excelente atenção aos detalhes! 🙌
+O exemplo que te mostrei com ttk.Style usava .pack() apenas por simplicidade visual, mas tudo aquilo pode ser aplicado com .grid() sem problema algum. O que muda é só a forma como os widgets são posicionados — o estilo em si continua funcionando normalmente.
+
+🧩 Onde alterar no seu projeto:
+Você não precisa mudar nada no .grid(). Basta aplicar os estilos com .configure() ou definindo um style="NomeDoEstilo" no seu widget.
+Por exemplo:
+style.configure("Destaque.TButton",
+    background="#ffc107",
+    foreground="black",
+    font=("Segoe UI", 11, "bold"),
+    padding=10
+)
+
+# Usar o botão com grid
+ttk.Button(meu_frame, text="Salvar", style="Destaque.TButton").grid(row=0, column=0, padx=10, pady=5)
+
+
+Ou estilizando uma Combobox:
+style.configure("TCombobox",
+    fieldbackground="#ffffff",
+    background="#e8f5e9",
+    foreground="#2e7d32"
+)
+
+ttk.Combobox(meu_frame, values=["Opção A", "Opção B"]).grid(row=1, column=0, padx=10, pady=5)
+
+
+
+✅ Em resumo:
+- Seus widgets continuam usando .grid() exatamente como estão.
+- O ttk.Style é aplicado declarando o nome do estilo no style="...".
+- Você pode até definir estilos globais (como "TButton") que afetam todos os botões automaticamente.
+Se quiser, posso te ajudar a montar um arquivo central de estilos (como um “guia de identidade visual” do seu sistema) e você só vai aplicando os nomes nos botões e comboboxes ao longo do projeto. Quer fazer isso juntos? 😄🎨📁
+
+
+pode me ajudar a montar um arquivo central de estilos (como um “guia de identidade visual” do seu sistema) e você só vai aplicando os nomes nos botões e comboboxes ao longo do projeto?
+
+
+
+Claro que sim, Reinaldo! Isso é uma maneira excelente de manter seu projeto mais padronizado, elegante e fácil de escalar. Vamos criar um módulo de estilo centralizado chamado, por exemplo, estilo_padrao.py, onde você define todos os estilos visuais que deseja aplicar ao seu sistema.
+
+📁 Estrutura proposta
+Seu projeto pode ter essa organização:
+meu_projeto/
+├── main.py
+├── estilo_padrao.py   ← aqui vai o guia de estilos
+├── banco.py
+├── modulos/
+│   ├── cadastro.py
+│   └── financeiro.py
+...
+
+
+
+🎨 Exemplo de estilo_padrao.py
+from tkinter import ttk
+
+def configurar_estilo():
+    style = ttk.Style()
+    style.theme_use("clam")  # Pode experimentar 'alt', 'default', 'vista', etc.
+
+    # Estilo padrão para todos os botões
+    style.configure("TButton",
+        background="#e1f5fe",
+        foreground="#0277bd",
+        font=("Segoe UI", 10, "bold"),
+        padding=6
+    )
+
+    # Botão de ação destacada
+    style.configure("Destaque.TButton",
+        background="#ffe082",
+        foreground="#bf360c",
+        font=("Segoe UI", 11, "bold"),
+        padding=(10, 6)
+    )
+
+    # Estilo para Combobox
+    style.configure("TCombobox",
+        fieldbackground="#ffffff",
+        background="#b2ebf2",
+        foreground="#004d40"
+    )
+
+    # Estilo para Labels
+    style.configure("TLabel",
+        foreground="#263238",
+        font=("Segoe UI", 10)
+    )
+
+    # Estilo para Labels de grupo
+    style.configure("Legend.TLabel",
+        font=("Segoe UI", 11, "bold"),
+        foreground="#37474f"
+    )
+
+
+
+✅ Como aplicar no seu main.py
+No início do seu script principal:
+import estilo_padrao
+
+# Antes de criar widgets
+estilo_padrao.configurar_estilo()
+
+
+
+🧪 E como usar nos widgets
+ttk.Button(aba_config, text="Salvar", style="Destaque.TButton").grid(...)
+ttk.Label(frame, text="Cliente:", style="Legend.TLabel").grid(...)
+ttk.Combobox(frame, values=["A", "B"], style="TCombobox").grid(...)
+
+
+
+
+
+def criar_frame_cadastro(parent, text="Dados Cadastrais"):
+    frame_cadastro = ttk.LabelFrame(parent, )
+    frame_cadastro.grid(row=1, column=0, padx=10, pady=10, sticky="nsew")
+
+    frame_cadastro = ttk.Label(aba_cadastro, "Dados Cadastrais").grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+
+    # nome Pet
+    ttk.Label(aba_cadastro, text="Nome do Pet", anchor='w').grid(row=1, column=0, padx=10, pady=5, sticky='ew')
+    entry_nome = tk.Entry(frame_cadastramento)
+    entry_nome.grid(row=0, column=1, padx=10, pady=10, sticky='ew')
+
+
+
+
+
+
+
+
+Se quiser, posso ajudar a montar esse arquivo estilo_padrao.py já com os estilos do seu projeto atual — baseando nas cores que você curte ou no tipo de visual que deseja (moderno, escuro, profissional, vibrante). Quer que eu comece com uma paleta pensada especialmente pra você? 😄🎨📋
+
+
+
+
+
+
+
+O erro "NameError: name 'frame_financeiro' is not defined" indica que a variável frame_financeiro não está acessível no ponto em que você está tentando usá-la. Isso geralmente ocorre porque a função que a define (criar_frame_financeiro) não foi chamada antes do ponto onde você está tentando usá-la.
+
+Além disso, seu código contém algumas funções que são chamadas antes de serem definidas. Para resolver esses problemas, siga estas diretrizes:
+
+Chame a função criar_frame_financeiro: Certifique-se de que a função criar_frame_financeiro seja chamada em algum lugar do seu código antes de tentar usar frame_financeiro.
+
+Reorganize as definições de funções: As funções devem ser definidas antes de serem chamadas. Para garantir isso, você pode definir todas as funções no início do seu script, antes de chamar qualquer uma delas.
+
+Aqui está uma sugestão de como reorganizar seu código:
+
+import tkinter as tk
+from tkinter import ttk
+from tkcalendar import DateEntry
+
+# Funções devem ser definidas antes de serem chamadas
+def atualizar_precos(event=None):
+    porte_selecionado = combobox_porte.get().strip()
+    total = 0
+    precos_selecionados = []
+
+    if porte_selecionado not in dados_pet:
+        label_resultado.config(text="Erro: Nenhum porte válido foi selecionado!")
+        return
+
+    for servico, var in variaveis_servicos.items():
+        if var.get():
+            preco = dados_pet[porte_selecionado]["preços"].get(servico, 0)
+            total += preco
+            precos_selecionados.append(f"{servico}: R$ {preco:.2f}")
+
+    label_resultado.config(text="\n".join(precos_selecionados) + f"\nTotal: R$ {total:.2f}")
+    return total
+
+def calcular_desconto(valor_total):
+    desconto_fixo = float(entry_desconto_fixo.get()) if var_desconto_fixo.get() else 0
+    desconto_percentual = float(entry_desconto_percentual.get()) if var_desconto_percentual.get() else 0
+    valor_com_desconto = valor_total - desconto_fixo
+    valor_com_desconto -= (valor_com_desconto * (desconto_percentual / 100))
+    return valor_com_desconto
+
+def calcular_total():
+    valor_total = atualizar_precos()  # Obter o valor total dos serviços
+    if valor_total is None:  # Se ocorrer erro no cálculo
+        return
+    valor_final = calcular_desconto(valor_total)
+    label_resultado.config(text=f"Total com desconto: R$ {valor_final:.2f}")
+
+def limpar_selecoes():
+    for var in variaveis_servicos.values():
+        var.set(False)  # Desmarca todos os Checkbuttons
+    entry_desconto_fixo.delete(0, tk.END)  # Limpa o campo de desconto fixo
+    entry_desconto_percentual.delete(0, tk.END)  # Limpa o campo de desconto percentual
+    label_resultado.config(text="Total com desconto: R$ 0.00")  # Reseta o resultado
+
+def criar_frame_financeiro(parent):
+    global frame_financeiro  # Declara a variável como global
+    frame_financeiro = ttk.LabelFrame(parent, text="Informações Financeiras")
+    frame_financeiro.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+    # Continue a definir os outros frames e widgets aqui...
+
+# Chamando a função para criar o frame financeiro
+root = tk.Tk()  # Exemplo, inicie sua janela Tkinter
+criar_frame_financeiro(root)  # Chame a função para criar o frame
+# Continue o restante da configuração da interface aqui...
+
+root.mainloop()
+Copy
+Observações:
+Utilize a palavra-chave global para declarar que frame_financeiro é uma variável global se você pretende acessá-la em outras funções.
+Certifique-se de que todos os widgets, como combobox_porte, variaveis_servicos, e dados_pet, estejam definidos e acessíveis onde necessário.
+Lembre-se de inicializar a janela Tkinter (como mostrado) e de chamar a função de criação da janela antes de tentar usar os frames ou widgets definidos.
+Essa reestruturação deve ajudar a resolver os erros que você está enfrentando.
+
+
+
+
+
+
+def atualizar_descricao():
+    global var_descricao  # Declare a variável como global
+    if var_descricao.get() in ["Curta", "Mediana", "Longa"]:
+        # Ativar botões de pagamento
+        radiobutton_curta.config(state="normal")
+        radiobutton_mediana.config(state="normal")
+        radiobutton_longa.config(state="normal")
+
+
+
+
+
+
+
+Para resolver o problema de declaração da variável frame_financeiro e o erro NameError: name 'frame_financeiro' is not defined, você deve garantir que a variável seja declarada como global e que a função criar_frame_financeiro seja chamada antes de qualquer referência a frame_financeiro.
+
+Aqui estão algumas orientações para corrigir seu código:
+
+Declare frame_financeiro como global no início da função criar_frame_financeiro, o que você já fez corretamente.
+
+Garanta que a função criar_frame_financeiro seja chamada antes de você usar frame_financeiro em outras partes do código.
+
+Reorganize o código para que a lógica siga uma ordem sequencial, garantindo que todas as funções que dependem de frame_financeiro sejam chamadas após a criação desse frame.
+
+Aqui está uma versão reorganizada do seu código:
+
+import tkinter as tk
+from tkinter import ttk
+from tkcalendar import DateEntry
+
+# Declarações globais
+frame_financeiro = None
+
+def criar_frame_financeiro(parent):
+    global frame_financeiro
+    frame_financeiro = ttk.LabelFrame(parent, text="Informações Financeiras")
+    frame_financeiro.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+    frame_condicoes_pagamento = ttk.LabelFrame(frame_financeiro, text="Condições de Pagamento")
+    frame_condicoes_pagamento.grid(row=0, column=0, padx=5, pady=5, sticky="nsew")
+    
+    # Criar outros componentes aqui...
+    criar_abatimentos(frame_financeiro)  # Função para criar abatimentos, exemplo
+
+
+
+
+    frame_abatimentos = ttk.LabelFrame(parent, text="Abatimentos")
+    frame_abatimentos.grid(row=2, column=0, padx=10, pady=10, sticky="nw")
+
+    check_fixo = ttk.Checkbutton(frame_abatimentos, text="Desconto Fixo (R$)", variable=var_desconto_fixo)
+    check_fixo.grid(row=0, column=0, sticky="w")
+
+    entry_desconto_fixo = ttk.Entry(frame_abatimentos)
+    entry_desconto_fixo.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+    check_percentual = ttk.Checkbutton(frame_abatimentos, text="Desconto Percentual (%)", variable=var_desconto_percentual)
+    check_percentual.grid(row=1, column=0, sticky="w")
+
+    entry_desconto_percentual = ttk.Entry(frame_abatimentos)
+    entry_desconto_percentual.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+    botao_calcular = ttk.Button(frame_abatimentos, text="Calcular Total", command=calcular_total)
+    botao_calcular.grid(row=2, column=0, pady=10)
+
+    botao_limpar = ttk.Button(frame_abatimentos, text="Limpar Seleções", command=limpar_selecoes)
+    botao_limpar.grid(row=2, column=1, padx=10)
+
+    label_resultado = ttk.Label(frame_abatimentos, text="Total com desconto: R$")
+    label_resultado.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+
+# Defina as outras funções, como atualizar_precos, calcular_desconto, calcular_total, e limpar_selecoes aqui...
+
+# Inicialização da janela principal
+root = tk.Tk()
+criar_frame_financeiro(root)  # Cria o frame financeiro
+# Chame aqui outras funções ou inicializações necessárias
+
+root.mainloop()
+Copy
+Observações:
+Criação de Componentes: Você pode criar uma função separada, como criar_abatimentos, para organizar melhor a criação de widgets relacionados ao frame de abatimentos.
+Chamada das Funções: Certifique-se de chamar criar_frame_financeiro(root) antes de tentar acessar frame_financeiro.
+Referências Globais: Você declarou frame_financeiro como global na função, o que é correto. Certifique-se de que todas as referências a frame_financeiro estejam em um contexto onde ele já tenha sido definido.
+Erro de Indentação: Corrija as identações onde necessário, especialmente dentro dos loops e condições, para evitar erros de execução.
+Esse ajuste deve ajudar a resolver os problemas que você está enfrentando e garantir que o código funcione corretamente.
+
+
+
+
+
+
+
+
+Boa leitura, Reinaldo — e esse erro realmente faz sentido. O que acontece é o seguinte:
+🧨 Problema principal:
+Você está tentando usar frame_abatimentos fora da função criar_abatimentos, mas ele só é definido dentro dela. Como o Python funciona de cima pra baixo, ele não conhece a variável frame_abatimentos quando chega nas linhas abaixo.
+
+✅ Como corrigir:
+Você pode resolver isso de duas formas:
+
+✔️ Opção 1: Fazer com que criar_abatimentos() retorne o frame
+def criar_abatimentos(parent):
+    frame = ttk.LabelFrame(parent, text="Abatimentos")
+    frame.grid(row=2, column=0, padx=10, pady=10, sticky="nw")
+    return frame
+
+
+Depois, guarde ele numa variável fora da função para usar nos widgets:
+frame_abatimentos = criar_abatimentos(aba_financeiro)
+
+
+
+✔️ Opção 2 (mais organizada): Criar uma função montar_aba_financeiro() que monta tudo de forma ordenada
+Assim você cria os frames, widgets e funções dentro de um mesmo escopo, evitando variáveis não definidas.
+
+💡 Dica extra:
+O erro também mostra que var_desconto_fixo e var_desconto_percentual devem ser criadas antes dos Checkbutton:
+var_desconto_fixo = tk.BooleanVar(value=False)
+var_desconto_percentual = tk.BooleanVar(value=False)
+
+
+
+Se quiser, posso reorganizar tudo num bloco funcional com def montar_aba_financeiro(parent):, que cria tudo limpo e na ordem certa. Facilita a leitura e evita esses bugs sorrateiros. Quer que eu monte pra você? 😄📐💰
+Fica tudo no lugar!
+
+
+
+
+Com certeza, Reinaldo! Aqui está uma reorganização clara, funcional e sem erros da sua aba financeira. Eu agrupei tudo dentro de uma função chamada montar_aba_financeiro(), que organiza:
+- Declarações das variáveis
+- Frames e subframes organizados com .grid()
+- Definição de funções depois da criação dos widgets
+- Separação lógica das seções
+
+✅ Código reorganizado para aba_financeiro
+def montar_aba_financeiro(aba_financeiro):
+    # ================================
+    # Variáveis globais da aba
+    # ================================
+    global combobox_porte, dados_pet, variaveis_servicos
+    global var_desconto_fixo, var_desconto_percentual
+    global
+
+def montar_aba_financeiro(aba_financeiro):
+    # ================================
+    # Variáveis globais da aba
+    # ================================
+    global combobox_porte, dados_pet, variaveis_servicos
+    global var_desconto_fixo, var_desconto_percentual
+    global entry_desconto_fixo, entry_desconto_percentual
+    global label_resultado
+
+    # ================================
+    # Frame principal
+    # ================================
+    frame_financeiro = ttk.LabelFrame(aba_financeiro, text="Informações Financeiras")
+    frame_financeiro.grid(row=0, column=0, padx=10, pady=10, sticky="nsew")
+
+    aba_financeiro.grid_rowconfigure(0, weight=1)
+    aba_financeiro.grid_columnconfigure(0, weight=1)
+
+    # ================================
+    # Frame Abatimentos
+    # ================================
+    frame_abatimentos = ttk.LabelFrame(frame_financeiro, text="Abatimentos")
+    frame_abatimentos.grid(row=0, column=0, padx=10, pady=10, sticky="w")
+
+    var_desconto_fixo = tk.BooleanVar(value=False)
+    var_desconto_percentual = tk.BooleanVar(value=False)
+
+    ttk.Checkbutton(frame_abatimentos, text="Desconto Fixo (R$)", variable=var_desconto_fixo).grid(row=0, column=0, sticky="w")
+    entry_desconto_fixo = ttk.Entry(frame_abatimentos)
+    entry_desconto_fixo.grid(row=0, column=1, padx=10, pady=5, sticky="w")
+
+    ttk.Checkbutton(frame_abatimentos, text="Desconto Percentual (%)", variable=var_desconto_percentual).grid(row=1, column=0, sticky="w")
+    entry_desconto_percentual = ttk.Entry(frame_abatimentos)
+    entry_desconto_percentual.grid(row=1, column=1, padx=10, pady=5, sticky="w")
+
+    botao_calcular = ttk.Button(frame_abatimentos, text="Calcular Total", command=calcular_total)
+    botao_calcular.grid(row=2, column=0, pady=10)
+
+    botao_limpar = ttk.Button(frame_abatimentos, text="Limpar Seleções", command=limpar_selecoes)
+    botao_limpar.grid(row=2, column=1, padx=10)
+
+    label_resultado = ttk.Label(frame_abatimentos, text="Total com desconto: R$ 0.00")
+    label_resultado.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+
+    # ================================
+    # Status do pagamento
+    # ================================
+    var_status_pagamento = tk.StringVar(value="Nenhuma Opção Marcada")
+
+    frame_aberto_pago = ttk.LabelFrame(frame_financeiro, text="Status Pagamento")
+    frame_aberto_pago.grid(row=1, column=0, padx=10, pady=10, sticky="w")
+
+    ttk.Label(frame_aberto_pago, text="Status:").grid(row=0, column=0, padx=5, pady=5, sticky="w")
+    tk.Radiobutton(frame_aberto_pago, text="Em Aberto", variable=var_status_pagamento, value="em_aberto").grid(row=0, column=1, sticky="w")
+    tk.Radiobutton(frame_aberto_pago, text="Pago", variable=var_status_pagamento, value="pago").grid(row=1, column=1, sticky="w")
+
+    # ================================
+    # Condição de pagamento
+    # ================================
+    var_condicao_pagamento = tk.StringVar(value="")
+
+    frame_condicoes = ttk.LabelFrame(frame_financeiro, text="Condições de Pagamento")
+    frame_condicoes.grid(row=2, column=0, padx=10, pady=10, sticky="w")
+
+    tk.Radiobutton(frame_condicoes, text="Individual (Na Data)", variable=var_condicao_pagamento, value="pago_individual").grid(row=0, column=0, sticky="w")
+    tk.Radiobutton(frame_condicoes, text="Pacote Quinzenal", variable=var_condicao_pagamento, value="pacote_quinzenal").grid(row=1, column=0, sticky="w")
+    tk.Radiobutton(frame_condicoes, text="Pacote Mensal", variable=var_condicao_pagamento, value="pacote_mensal").grid(row=2, column=0, sticky="w")
+
+    # ================================
+    # Frame de data de pagamento
+    # ================================
+    frame_data = ttk.LabelFrame(frame_financeiro, text="Data do Pagamento")
+    frame_data.grid(row=3, column=0, padx=10, pady=10, sticky="w")
+
+    try:
+        from tkcalendar import DateEntry
+        calendario_data_pagamento = DateEntry(frame_data, year=2025, locale='pt_BR')
+        calendario_data_pagamento.grid(row=0, column=0, padx=10, pady=10)
+    except ImportError:
+        ttk.Label(frame_data, text="tkcalendar não encontrado").grid(row=0, column=0)
+
+# ========================================
+# Funções auxiliares (fora da função main)
+# ========================================
+def atualizar_precos(event=None):
+    porte_selecionado = combobox_porte.get().strip()
+    total = 0
+    precos_selecionados = []
+
+    if porte_selecionado not in dados_pet:
+        label_resultado.config(text="Erro: Nenhum porte válido foi selecionado!")
+        return None
+
+    for servico, var in variaveis_servicos.items():
+        if var.get():
+            preco = dados_pet[porte_selecionado]["preços"].get(servico, 0)
+            total += preco
+            precos_selecionados.append(f"{servico}: R$ {preco:.2f}")
+
+    label_resultado.config(text="\n".join(precos_selecionados) + f"\nTotal: R$ {total:.2f}")
+    return total
+
+def calcular_desconto(valor_total):
+    desconto_fixo = float(entry_desconto_fixo.get() or 0) if var_desconto_fixo.get() else 0
+    desconto_percentual = float(entry_desconto_percentual.get() or 0) if var_desconto_percentual.get() else 0
+
+    valor_com_desconto = valor_total - desconto_fixo
+    valor_com_desconto -= (valor_com_desconto * (desconto_percentual / 100))
+    return valor_com_desconto
+
+def calcular_total():
+    valor_total = atualizar_precos()
+    if valor_total is None:
+        return
+    valor_final = calcular_desconto(valor_total)
+    label_resultado.config(text=f"Total com desconto: R$ {valor_final:.2f}")
+
+def limpar_selecoes():
+    for var in variaveis_servicos.values():
+        var.set(False)
+    entry_desconto_fixo.delete(0, tk.END)
+    entry_desconto_percentual.delete(0, tk.END)
+    label_resultado.config(text="Total com desconto: R$ 0.00")
+
+
+
+
+
+
+Se quiser, posso empacotar isso num arquivo separado tipo aba_financeiro.py com tudo modularizado — ou ainda integrar com o sistema de estilos do estilo_padrao.py.
+Quer dar esse passo e deixar tudo modular mesmo? 😄🐾🧱
+Fica show de manter!
+
+
+
+
+Boa, Reinaldo! Modularizar o projeto significa separar trechos do código em arquivos temáticos reutilizáveis, organizando por responsabilidade — e isso deixa tudo mais limpo, sustentável e profissional 💼🧩
+
+📦 Estrutura Modular Recomendada
+seu_projeto/
+├── main.py                         ← executa a janela principal
+├── estilo_padrao.py               ← define seus estilos visuais
+├── dados_iniciais.py              ← dicionários fixos, configurações
+├── modulos/
+│   ├── aba_cadastro.py            ← código relacionado à aba de cadastro
+│   ├── aba_financeiro.py         ← tudo da aba financeira
+│   └── outros_modulos.py         ← outras abas ou utilidades
+
+
+
+📁 Exemplo: modulos/aba_financeiro.py
+import tkinter as tk
+from tkinter import ttk
+from tkcalendar import DateEntry
+
+def montar_aba_financeiro(aba_financeiro, dados_pet, variaveis_servicos, combobox_porte):
+    # define variáveis e frames
+    # monta interface como fizemos na resposta anterior
+    # define funções internas se quiser manter tudo local
+    ...
+
+
+Você passa as variáveis compartilhadas (como dados_pet, combobox_porte) como argumentos da função — ou então declara essas variáveis em um arquivo dados_iniciais.py e importa onde precisar.
+
+🧠 Como usar no main.py
+from modulos.aba_financeiro import montar_aba_financeiro
+import estilo_padrao
+
+# aplica o estilo visual
+estilo_padrao.configurar_estilo()
+
+# cria janela, notebook e aba_financeiro
+aba_financeiro = ttk.Frame(notebook)
+notebook.add(aba_financeiro, text="Financeiro")
+
+# monta o conteúdo da aba, passando o que ela precisa
+montar_aba_financeiro(aba_financeiro, dados_pet, variaveis_servicos, combobox_porte)
+
+
+
+✅ Benefícios da modularização
+- Fica mais fácil achar erros e testar trechos isoladamente
+- Separação de responsabilidades: visual vs. lógica
+- Dá pra reutilizar módulos em outros sistemas
+- Fica mais intuitivo para trabalhar em equipe
+
+Se quiser, posso montar os arquivos estilo_padrao.py e aba_financeiro.py já no formato modular com import e tudo organizado. Quer que eu te entregue os dois prontos, em formato de projeto base? 😄📁✨
+Só dar o sinal!
+
+
+
+Boa, Reinaldo! Modularizar o projeto significa separar trechos do código em arquivos temáticos reutilizáveis, organizando por responsabilidade — e isso deixa tudo mais limpo, sustentável e profissional 💼🧩
+
+📦 Estrutura Modular Recomendada
+seu_projeto/
+├── main.py                         ← executa a janela principal
+├── estilo_padrao.py               ← define seus estilos visuais
+├── dados_iniciais.py              ← dicionários fixos, configurações
+├── modulos/
+│   ├── aba_cadastro.py            ← código relacionado à aba de cadastro
+│   ├── aba_financeiro.py         ← tudo da aba financeira
+│   └── outros_modulos.py         ← outras abas ou utilidades
+
+
+
+📁 Exemplo: modulos/aba_financeiro.py
+import tkinter as tk
+from tkinter import ttk
+from tkcalendar import DateEntry
+
+def montar_aba_financeiro(aba_financeiro, dados_pet, variaveis_servicos, combobox_porte):
+    # define variáveis e frames
+    # monta interface como fizemos na resposta anterior
+    # define funções internas se quiser manter tudo local
+    ...
+
+
+Você passa as variáveis compartilhadas (como dados_pet, combobox_porte) como argumentos da função — ou então declara essas variáveis em um arquivo dados_iniciais.py e importa onde precisar.
+
+🧠 Como usar no main.py
+from modulos.aba_financeiro import montar_aba_financeiro
+import estilo_padrao
+
+# aplica o estilo visual
+estilo_padrao.configurar_estilo()
+
+# cria janela, notebook e aba_financeiro
+aba_financeiro = ttk.Frame(notebook)
+notebook.add(aba_financeiro, text="Financeiro")
+
+# monta o conteúdo da aba, passando o que ela precisa
+montar_aba_financeiro(aba_financeiro, dados_pet, variaveis_servicos, combobox_porte)
+
+
+
+✅ Benefícios da modularização
+- Fica mais fácil achar erros e testar trechos isoladamente
+- Separação de responsabilidades: visual vs. lógica
+- Dá pra reutilizar módulos em outros sistemas
+- Fica mais intuitivo para trabalhar em equipe
+
+Se quiser, posso montar os arquivos estilo_padrao.py e aba_financeiro.py já no formato modular com import e tudo organizado. Quer que eu te entregue os dois prontos, em formato de projeto base? 😄📁✨
+Só dar o sinal!
+
+
+
+
+Maravilha, Reinaldo! Ter uma aba como a aba_config centralizando os Combobox e valores como faixas de preços é uma baita vantagem para modularidade e organização. Isso te dá flexibilidade para deixar todas as outras abas mais enxutas e reutilizáveis.
+Agora, como você já tem essa centralização, aqui vão algumas sugestões para integrar isso com sua aba_financeiro de forma limpa e modular:
+
+🔄 1. Importar valores da aba_config no aba_financeiro
+Se você tiver algo como:
+
+# Em aba_config.py
+faixas_precos = {
+    "Pequeno": {"Banho": 40, "Tosa": 50},
+    "Médio":   {"Banho": 60, "Tosa": 70},
+    "Grande":  {"Banho": 80, "Tosa": 90}
+}
+
+
+Você pode simplesmente importar onde precisar:
+
+from aba_config import faixas_precos as dados_pet
+
+🧩 2. Compartilhar o Combobox de porte
+Se o Combobox de porte do pet já existe na aba_config, a aba_financeiro pode recebê-lo como argumento, por exemplo:
+# No main.py
+from modulos.aba_config import combobox_porte
+from modulos.aba_financeiro import montar_aba_financeiro
+
+montar_aba_financeiro(aba_financeiro, dados_pet=faixas_precos, combobox_porte=combobox_porte, ...)
+
+
+
+# No main.py
+from modulos.aba_config import combobox_porte
+from modulos.aba_financeiro import montar_aba_financeiro
+
+montar_aba_financeiro(aba_financeiro, dados_pet=faixas_precos, combobox_porte=combobox_porte, ...)
+
+Assim, o  é o mesmo em todas as abas — selecione uma vez, e todas as outras refletem isso. 🧠
+
+
+🪝 3. Sincronizar serviços e variáveis com o financeiro
+No aba_config, se você define uma lista de serviços e vincula checkboxes a variáveis booleanas, o aba_financeiro pode apenas ler isso e calcular com base nos preços.
+Exemplo:
+
+# Em aba_config
+servicos_disponiveis = ["Banho", "Tosa", "Hidratação"]
+variaveis_servicos = {serv: tk.BooleanVar(value=False) for serv in servicos_disponiveis}
+
+E no financeiro:
+
+from aba_config import variaveis_servicos
+
+
+📎 Dica final: proteger com  se estiver importando direto entre módulos, ou usar um arquivo  com todas as variáveis visíveis e fáceis de manter!
+Se quiser, posso montar esse  como hub de variáveis, ou organizar  como fonte principal de dados para seu projeto modular. Quer que eu ajude a desenhar essa estrutura? 🧱🔗😄
+Vai ficar top e super fácil de escalar!
+
+
+
+
+
+import tkinter as tk
+
+# Lista de serviços oferecidos
+servicos_disponiveis = [
+    "Banho", "Tosa", "Hidratação", "Desembolo", "Higiênica", "Máquina", "Tesoura"
+]
+
+# Dicionário com preços por porte (vindo da aba_config)
+faixas_precos = {
+    "Pequeno":  {"Banho": 40, "Tosa": 50},
+    "Médio":    {"Banho": 60, "Tosa": 70},
+    "Grande":   {"Banho": 80, "Tosa": 90}
+}
+
+# Combobox de porte compartilhado
+porte_valores = ["Pequeno", "Médio", "Grande"]
+combobox_porte = None  # Este será criado na aba_config e atualizado aqui
+
+# Variáveis dos serviços (ligadas aos Checkbuttons)
+variaveis_servicos = {servico: tk.BooleanVar(value=False) for servico in servicos_disponiveis}
+
+
+
+✨ Em 
+Você cria o  e registra ele no módulo compartilhado:
+
+from tkinter import ttk
+import dados_compartilhados as dados
+
+def montar_aba_config(aba_config):
+    # Combobox de porte
+    dados.combobox_porte = ttk.Combobox(aba_config, values=dados.porte_valores)
+    dados.combobox_porte.grid(row=0, column=0, padx=10, pady=10)
+
+
+🧩 Em 
+Você importa diretamente:
+
+import dados_compartilhados as dados
+
+def montar_aba_financeiro(aba_financeiro):
+    porte_selecionado = dados.combobox_porte.get()
+    preco_servicos = dados.faixas_precos.get(porte_selecionado, {})
+    for servico, var in dados.variaveis_servicos.items():
+        if var.get():
+            preco = preco_servicos.get(servico, 0)
+            ...
+
+
+✅ Vantagens desse modelo:
+- Evita loops de importação (um módulo dependendo do outro circularmente)
+- Variáveis “vivas”: qualquer alteração reflete onde elas forem importadas
+- Total controle sobre seus dados e lógica
+- Super fácil de debugar
+
+
+Se quiser, posso montar todos esses arquivos com base no seu projeto real (já com nomes, checkbuttons e funções prontinhas pra importar). Quer que eu gere um template completo de  + amostra de uso em  e ? 😄📦📊
+Te entrego como se fosse um mini-framework visual!
+
+
+
+
+
+
+
+não esquecer da funcionalidade salvar dados 
+NO FRAME TEMPO DE DURAÇÃO DO SERVIÇO
+
+
+
+
+
+

@@ -1,0 +1,34 @@
+{
+  "admin@ipojucao.com": {
+    "senha": "1234",
+    "nome": "Admin",
+    "perfil": "Administrador"
+  },
+  "luna@ipojucao.com": {
+    "senha": "petpet",
+    "nome": "Luna",
+    "perfil": "Funcionário"
+  },
+  "araujolindi@yahoo.com.br": {
+    "senha": "lpa152829",
+    "nome": "Lindinalva",
+    "perfil": "Administrador"
+  },
+  "cebous@hotmail.com.br": {
+    "senha": "123",
+    "nome": "Raphael",
+    "perfil": "Administrador"
+  },
+  "marlene@ipojucao.com": {
+    "senha": "123456",
+    "nome": "Marlene",
+    "perfil": "Administrador"
+  },
+  "roquereinaldo@gmail.com": {
+    "senha": "975624asa",
+    "nome": "Reinaldo",
+    "perfil": "Administrador"
+  }
+}
+
+
