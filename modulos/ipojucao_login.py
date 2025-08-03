@@ -6,10 +6,10 @@ import os
 import pygame
 
 # 🐾 INICIALIZAÇÃO DO SOM
-pygame.mixer.init()
-pygame.mixer.music.load(r"C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\sons\bouncy_pet_intro.mp3")
+#pygame.mixer.init()
+#pygame.mixer.music.load(r"C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\sons\bouncy_pet_intro.mp3")
 #ygame.mixer.music.load("sons/bouncy_pet_intro.mp3")
-pygame.mixer.music.play(-1)
+#pygame.mixer.music.play(-1)
 
 # 📇 BASE DE USUÁRIOS SIMULADA (pode ser salva em JSON depois)
 usuarios = {
