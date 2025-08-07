@@ -4,40 +4,280 @@
 import tkinter as tk
 from tkinter import ttk
 from tkinter import filedialog
-import matplotlib.pyplot as plt
 from PIL import Image, ImageTk
-import shutil
-#from main import aba_cadastro, inner_frame
-from estrutura import inner_frame, titulo_aba
-from aba_som import tocar_som, alternar_som_estado
+#from modulos.main import aba_cadastro, inner_frame
 # import pygame
 # pygame.mixer.init()
 #from dados_compartilhados import var_raca, caracteristicas_racas
-import dados_compartilhados as dc
-
+from aba_som import som_cadastro
 # ABA CADASTRO REFORMULADA, PARTE 1
 
 import os
-import dados_compartilhados as dc
 # Imports locais e compartilhados
 import dados_compartilhados as dc
 from dados_compartilhados import caracteristicas_racas, imagens_portes, imagens_racas
-from estrutura import inner_frame, titulo_aba
-from aba_som import tocar_som, alternar_som_estado
+from estrutura import inner_frame
+from utilitarios import caminho_arquivo
+from aba_mascote import mostrar_mascote_expressivo
 
+logo_splash = caminho_arquivo("splash.png", subpasta=os.path.join("..", "..", "imagensipojucao"))
+som_relatorio = caminho_arquivo("relatorio_finalizado.mp3", subpasta="sons")
 
 # from dados_compartilhados import(
 #     var_porte, var_raca, var_tipopelo, var_descricao,
 #     caracteristicas_racas, imagens_portes, imagens_racas
 # )
 
-from dados_compartilhados import variaveis
+    # Botão imagem do PET
+    # btn_img_pet = ttk.Button(frame_pet, text="📷 Adicionar imagem do PET", command=lambda: selecionar_imagem_pet(frame_pet))
+    # btn_img_pet.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+
+    # 👥 Dados dos tutores
+def montar_aba_cadastro(frame_pai, inner_frame):
+    # aqui vai o frame_tutor e os widgets
+    frame_tutor = ttk.LabelFrame(inner_frame, text="👥 Dados dos Tutores", padding=10)
+    frame_tutor.grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+
+    tk.Label(frame_tutor, text="Tutor 1:").grid(row=0, column=0, sticky="w", padx=5)
+    entry_tutor1 = tk.Entry(frame_tutor)
+    entry_tutor1.grid(row=0, column=1, padx=5)
+
+    tk.Label(frame_tutor, text="Telefone:").grid(row=1, column=0, sticky="w", padx=5)
+    entry_tel1 = tk.Entry(frame_tutor)
+    entry_tel1.grid(row=1, column=1, padx=5)
+
+    tk.Label(frame_tutor, text="Email:").grid(row=2, column=0, sticky="w", padx=5)
+    entry_email1 = tk.Entry(frame_tutor)
+    entry_email1.grid(row=2, column=1, padx=5)
+
+    # Botão imagem Tutor 1
+    btn_img_tutor1 = ttk.Button(frame_tutor, text="📷 Imagem Tutor 1", command=lambda: selecionar_imagem_tutor(frame_tutor))
+    btn_img_tutor1.grid(row=3, column=0, columnspan=2, pady=5)
+
+    # Tutor 2
+    tk.Label(frame_tutor, text="Tutor 2:").grid(row=4, column=0, sticky="w", padx=5)
+    entry_tutor2 = tk.Entry(frame_tutor)
+    entry_tutor2.grid(row=4, column=1, padx=5)
+
+    tk.Label(frame_tutor, text="Telefone:").grid(row=5, column=0, sticky="w", padx=5)
+    entry_tel2 = tk.Entry(frame_tutor)
+    entry_tel2.grid(row=5, column=1, padx=5)
+
+    tk.Label(frame_tutor, text="Email:").grid(row=6, column=0, sticky="w", padx=5)
+    entry_email2 = tk.Entry(frame_tutor)
+    entry_email2.grid(row=6, column=1, padx=5)
+
+    # Botão imagem Tutor 2
+    btn_img_tutor2 = ttk.Button(frame_tutor, text="📷 Imagem Tutor 2", command=lambda: selecionar_imagem_tutor(frame_tutor))
+    btn_img_tutor2.grid(row=7, column=0, columnspan=2, pady=5)
+
+
+import os
+
+
+def salvar_imagem_com_id(tipo, id_unico, caminho_imagem):
+    """
+    tipo: 'pet' ou 'tutor'
+    id_unico: identificador numérico ou string do pet/tutor
+    caminho_imagem: caminho da imagem selecionada pelo usuário
+    """
+    # 🔁 Diretórios
+    diretorios = {
+        "pet": "imagensipojucao/pets",
+        "tutor": "imagensipojucao/tutores"
+    }
+
+    # 🧭 Destino
+    pasta_destino = diretorios.get(tipo)
+    if not pasta_destino:
+        print("Tipo inválido:", tipo)
+        return
+
+    if not os.path.exists(pasta_destino):
+        os.makedirs(pasta_destino)
+
+    destino = os.path.join(pasta_destino, f"{tipo}_{id_unico}.jpg")
+
+    # 🖼️ Redimensionamento
+    try:
+        img = Image.open(caminho_imagem).resize((160, 160))
+        img.save(destino)
+        print(f"Imagem {tipo} salva em:", destino)
+    except Exception as e:
+        print("Erro ao salvar imagem:", e)
+
+
+# ABA CADASTRO REFORMULADA, PARTE 3
+
+
+    # 🏠 Endereço
+    frame_endereco = ttk.LabelFrame(inner_frame, text="📍 Endereço do PET/Tutor", padding=10)
+    frame_endereco.grid(row=7, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+
+    tk.Label(frame_endereco, text="Logradouro:").grid(row=0, column=0, sticky="w", padx=5)
+    entry_logradouro = tk.Entry(frame_endereco, width=40)
+    entry_logradouro.grid(row=0, column=1, padx=5)
+
+    tk.Label(frame_endereco, text="Número:").grid(row=1, column=0, sticky="w", padx=5)
+    entry_numero = tk.Entry(frame_endereco, width=10)
+    entry_numero.grid(row=1, column=1, sticky="w", padx=5)
+
+    tk.Label(frame_endereco, text="Complemento:").grid(row=2, column=0, sticky="w", padx=5)
+    entry_complemento = tk.Entry(frame_endereco, width=30)
+    entry_complemento.grid(row=2, column=1, padx=5)
+
+    # 📝 Observações
+    frame_obs = ttk.LabelFrame(inner_frame, text="📘 Observações sobre o PET", padding=10)
+    frame_obs.grid(row=8, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+
+    campo_obs = tk.Text(frame_obs, width=80, height=6)
+    campo_obs.pack(padx=5, pady=5)
+
+
+# ACIMA ABA CADASTRO REFORMULADA PARTE 3
+
+#ABAIXO ABA CADASTRO REFORMULADA PARTE 4
+
+
+    # ⏱️ Tempo de atendimento
+    frame_tempo = ttk.LabelFrame(inner_frame, text="⏱️ Tempo de Atendimento", padding=10)
+    frame_tempo.grid(row=9, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
+
+    tempos = [
+        ("Banho", "entry_banho"),
+        ("Secagem", "entry_secagem"),
+        ("Hidratação", "entry_hidratacao"),
+        ("Desembolo", "entry_desembolo"),
+        ("Tosa Higiênica", "entry_higienica"),
+        ("Tosa Máquina", "entry_maquina"),
+        ("Tosa Tesoura", "entry_tesoura"),
+        ("Total Atendimento", "entry_total")
+    ]
+    entradas_tempo = {}
+
+    for i, (label, varname) in enumerate(tempos):
+        tk.Label(frame_tempo, text=label + ":").grid(row=i, column=0, sticky="w", padx=5)
+        entradas_tempo[varname] = tk.Entry(frame_tempo, width=10)
+        entradas_tempo[varname].grid(row=i, column=1, padx=5)
+
+    # 💾 Botão Salvar
+def salvar_dados_pet():
+    dados = {
+        "nome": dc.variaveis["var_nome"].get()
+,
+        "porte": dc.variaveis["var_porte"].get()
+,
+        "raca": dc.variaveis["var_raca"].get()
+,
+        "idade_anos": dc.variaveis["var_idade_anos"].get()
+,
+        "idade_meses": dc.variaveis["var_idade_meses"].get()
+,
+        "data_cadastro": dc.variaveis["var_data_cadastro"].get()
+,
+        "tutor1": dc.variaveis["var_tutor1"].get()
+,
+        "tutor2": dc.variaveis["var_tutor2"].get()
+,
+        "logradouro": dc.variaveis["var_logradouro"].get()
+,
+        "numero": dc.variaveis["var_numero"].get()
+,
+        "complemento": dc.variaveis["var_complemento"].get()
+,
+        "obs": campo_obs.get("1.0", "end").strip(),
+        "tipopelo": dc.variaveis["var_tipopelo"].get()
+,
+        "pelagem": dc.variaveis["var_pelagem"].get()
+,
+        "tempos": {et: entradas_tempo[et].get() for et in entradas_tempo}
+        }
+
+        def salvar_dados_pet():
+            dados = {
+                "nome": dc.variaveis["var_nome"].get(),
+                "porte": dc.variaveis["var_porte"].get(),
+                "raca": dc.variaveis["var_raca"].get(),
+                "idade_anos": dc.variaveis["var_idade_anos"].get(),
+                "idade_meses": dc.variaveis["var_idade_meses"].get(),
+                "tipopelo": dc.variaveis["var_tipopelo"].get(),
+                "pelagem": dc.variaveis["var_pelagem"].get(),
+                "caracteristicas": dc.variaveis["var_caracteristicas"].get(),
+                "data_cadastro": dc.variaveis["var_data_cadastro"].get(),
+
+                # Dados dos tutores
+                "tutor1": dc.variaveis["var_tutor1"].get(),
+                "tel1": dc.variaveis["var_tel1"].get(),
+                "email1": dc.variaveis["var_email1"].get(),
+                "tutor2": dc.variaveis["var_tutor2"].get(),
+                "tel2": dc.variaveis["var_tel2"].get(),
+                "email2": dc.variaveis["var_email2"].get(),
+
+                # Endereço
+                "logradouro": dc.variaveis["var_logradouro"].get(),
+                "numero": dc.variaveis["var_numero"].get(),
+                "complemento": dc.variaveis["var_complemento"].get(),
+
+                # Observações
+                "obs": campo_obs.get("1.0", "end").strip(),
+
+                # Tempo de atendimento
+                "tempos": {et: entradas_tempo[et].get() for et in entradas_tempo}
+            }
+
+            # Aqui você pode salvar em arquivo, banco de dados, ou apenas imprimir
+            print("🐾 Dados do PET cadastrados:")
+            for chave, valor in dados.items():
+                print(f"{chave}: {valor}")
+
+
+        btn_audio = tk.Button(inner_frame, text="🔊 Áudio")
+        btn_audio.grid(row=10, column=0, padx=10, pady=5)
+
+        som_cadastro("salvando.mp3")  # som personalizado
+        from aba_som import alternar_som_estado
+        btn_audio.config(command=lambda: alternar_som_estado(btn_audio))
+
+        #     "nome": entry_nome_pet.get(),
+        #     "porte": var_porte.get(),
+        #     "raca": var_raca.get(),
+        #     "idade_anos": entry_idade_anos.get(),
+        #     "idade_meses": entry_idade_meses.get(),
+        #     "data_cadastro": data_cadastro.get_date(),
+        #     "tutor1": entry_tutor1.get(),
+        #     "tutor2": entry_tutor2.get(),
+        #     "logradouro": entry_logradouro.get(),
+        #     "numero": entry_numero.get(),
+        #     "complemento": entry_complemento.get(),
+        #     "obs": campo_obs.get("1.0", "end").strip(),
+        #     "tipopelo": var_tipopelo.get(),
+        #     "pelagem": var_descricao.get(),
+        #     "tempos": {et: entradas_tempo[et].get() for et in entradas_tempo}
+        # }
+        print("📦 Dados do PET salvos:", dados)
+        tk.messagebox.showinfo("Cadastro", "Dados do PET salvos com sucesso!")
+
+    btn_salvar = ttk.Button(inner_frame, text="💾 Salvar Cadastro", command=salvar_dados_pet)
+    btn_salvar.grid(row=10, column=0, columnspan=2, pady=10)
+
+
 #from main_backup import var_descricao
+
+
+# (ABAIXO) VERIFICAR SE ESTE CÓDIGO ESTÁ NA ORDEM CORRETA
+    # Busca por CPF
+def buscar_por_cpf(cpf_digitado):
+    for pet in todos_os_pets_cadastrados:
+        if pet["cpf_tutor"] == cpf_digitado:
+            return pet["id_pet"]
+    return None
+# (ACIMA)  VERIFICAR SE ESTE CÓDIGO ESTÁ NA ORDEM CORRETA
+
 
 
 def montar_aba_cadastro(aba_cadastro, inner_frame):
     ttk.Label(aba_cadastro, text="Descrição:").grid(row=0, column=0, padx=10, pady=10)
-    entry_descricao = ttk.Entry(aba, textvariable=dc.variaveis["var_descricao"])
+    entry_descricao = ttk.Entry(aba_cadastro, textvariable=dc.variaveis["var_descricao"])
     entry_descricao.grid(row=0, column=1, padx=10, pady=10)
 
     # ✅ Agora é seguro usar o .set() aqui
@@ -55,14 +295,6 @@ def montar_aba_cadastro(aba_cadastro, inner_frame):
     inner_frame = ttk.Frame(canvas)
     canvas.create_window((0, 0), window=inner_frame, anchor="nw")
 
-# (ABAIXO) VERIFICAR SE ESTE CÓDIGO ESTÁ NA ORDEM CORRETA
-    # Busca por CPF
-def buscar_por_cpf(cpf_digitado):
-    for pet in todos_os_pets_cadastrados:
-        if pet["cpf_tutor"] == cpf_digitado:
-            return pet["id_pet"]
-    return None
-# (ACIMA)  VERIFICAR SE ESTE CÓDIGO ESTÁ NA ORDEM CORRETA
     def ajustar_scroll(event):
         canvas.configure(scrollregion=canvas.bbox("all"))
     inner_frame.bind("<Configure>", ajustar_scroll)
@@ -92,6 +324,10 @@ def buscar_por_cpf(cpf_digitado):
     )
     combo_raca.grid(row=2, column=1, padx=10)
     combo_raca.set("Selecione")
+
+
+
+
 
     # # Combobox Porte
     # ttk.Label(inner_frame, text="Porte:").grid(row=1, column=0, sticky="w", padx=10)
@@ -195,191 +431,23 @@ def buscar_por_cpf(cpf_digitado):
     data_cadastro = DateEntry(frame_pet, year=2025, locale='pt_BR')
     data_cadastro.grid(row=2, column=1, padx=5, pady=5)
 
-    # Botão imagem do PET
-    btn_img_pet = ttk.Button(frame_pet, text="📷 Adicionar imagem do PET", command=lambda: selecionar_imagem_pet(frame_pet))
-    btn_img_pet.grid(row=3, column=0, columnspan=2, padx=10, pady=5)
+def rodape_imagem(frame_pai):
+    caminho_img = os.path.join("imagensipojucao", "rodape", "footer.png")
+    if os.path.exists(caminho_img):
+        img = Image.open(caminho_img).resize((1000, 80))
+        img_tk = ImageTk.PhotoImage(img)
+        rodape = tk.Label(frame_pai, image=img_tk)
+        rodape.image = img_tk  # mantém referência da imagem
 
-    # 👥 Dados dos tutores
-    frame_tutor = ttk.LabelFrame(inner_frame, text="👥 Dados dos Tutores", padding=10)
-    frame_tutor.grid(row=6, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
-
-    tk.Label(frame_tutor, text="Tutor 1:").grid(row=0, column=0, sticky="w", padx=5)
-    entry_tutor1 = tk.Entry(frame_tutor)
-    entry_tutor1.grid(row=0, column=1, padx=5)
-
-    tk.Label(frame_tutor, text="Telefone:").grid(row=1, column=0, sticky="w", padx=5)
-    entry_tel1 = tk.Entry(frame_tutor)
-    entry_tel1.grid(row=1, column=1, padx=5)
-
-    tk.Label(frame_tutor, text="Email:").grid(row=2, column=0, sticky="w", padx=5)
-    entry_email1 = tk.Entry(frame_tutor)
-    entry_email1.grid(row=2, column=1, padx=5)
-
-    # Botão imagem Tutor 1
-    btn_img_tutor1 = ttk.Button(frame_tutor, text="📷 Imagem Tutor 1", command=lambda: selecionar_imagem_tutor(frame_tutor))
-    btn_img_tutor1.grid(row=3, column=0, columnspan=2, pady=5)
-
-    # Tutor 2
-    tk.Label(frame_tutor, text="Tutor 2:").grid(row=4, column=0, sticky="w", padx=5)
-    entry_tutor2 = tk.Entry(frame_tutor)
-    entry_tutor2.grid(row=4, column=1, padx=5)
-
-    tk.Label(frame_tutor, text="Telefone:").grid(row=5, column=0, sticky="w", padx=5)
-    entry_tel2 = tk.Entry(frame_tutor)
-    entry_tel2.grid(row=5, column=1, padx=5)
-
-    tk.Label(frame_tutor, text="Email:").grid(row=6, column=0, sticky="w", padx=5)
-    entry_email2 = tk.Entry(frame_tutor)
-    entry_email2.grid(row=6, column=1, padx=5)
-
-    # Botão imagem Tutor 2
-    btn_img_tutor2 = ttk.Button(frame_tutor, text="📷 Imagem Tutor 2", command=lambda: selecionar_imagem_tutor(frame_tutor))
-    btn_img_tutor2.grid(row=7, column=0, columnspan=2, pady=5)
+        # Posiciona no final da grid
+        rodape.grid(row=999, column=0, columnspan=999, sticky="ew")  # usa row "alta" para evitar conflito
+    else:
+        print("Imagem do rodapé não encontrada.")
 
 
-import os
-import shutil
-
-def salvar_imagem_com_id(tipo, id_unico, caminho_imagem):
-    """
-    tipo: 'pet' ou 'tutor'
-    id_unico: identificador numérico ou string do pet/tutor
-    caminho_imagem: caminho da imagem selecionada pelo usuário
-    """
-    # 🔁 Diretórios
-    diretorios = {
-        "pet": "imagensipojucao/pets",
-        "tutor": "imagensipojucao/tutores"
-    }
-
-    # 🧭 Destino
-    pasta_destino = diretorios.get(tipo)
-    if not pasta_destino:
-        print("Tipo inválido:", tipo)
-        return
-
-    if not os.path.exists(pasta_destino):
-        os.makedirs(pasta_destino)
-
-    destino = os.path.join(pasta_destino, f"{tipo}_{id_unico}.jpg")
-
-    # 🖼️ Redimensionamento
-    try:
-        img = Image.open(caminho_imagem).resize((160, 160))
-        img.save(destino)
-        print(f"Imagem {tipo} salva em:", destino)
-    except Exception as e:
-        print("Erro ao salvar imagem:", e)
+#barra_audio(frame_aba_cadastro)  # ou frame_aba_menu, frame_aba_config, etc.
 
 
-# ABA CADASTRO REFORMULADA, PARTE 3
-
-
-    # 🏠 Endereço
-    frame_endereco = ttk.LabelFrame(inner_frame, text="📍 Endereço do PET/Tutor", padding=10)
-    frame_endereco.grid(row=7, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
-
-    tk.Label(frame_endereco, text="Logradouro:").grid(row=0, column=0, sticky="w", padx=5)
-    entry_logradouro = tk.Entry(frame_endereco, width=40)
-    entry_logradouro.grid(row=0, column=1, padx=5)
-
-    tk.Label(frame_endereco, text="Número:").grid(row=1, column=0, sticky="w", padx=5)
-    entry_numero = tk.Entry(frame_endereco, width=10)
-    entry_numero.grid(row=1, column=1, sticky="w", padx=5)
-
-    tk.Label(frame_endereco, text="Complemento:").grid(row=2, column=0, sticky="w", padx=5)
-    entry_complemento = tk.Entry(frame_endereco, width=30)
-    entry_complemento.grid(row=2, column=1, padx=5)
-
-    # 📝 Observações
-    frame_obs = ttk.LabelFrame(inner_frame, text="📘 Observações sobre o PET", padding=10)
-    frame_obs.grid(row=8, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
-
-    campo_obs = tk.Text(frame_obs, width=80, height=6)
-    campo_obs.pack(padx=5, pady=5)
-
-
-# ACIMA ABA CADASTRO REFORMULADA PARTE 3
-
-#ABAIXO ABA CADASTRO REFORMULADA PARTE 4
-
-
-    # ⏱️ Tempo de atendimento
-    frame_tempo = ttk.LabelFrame(inner_frame, text="⏱️ Tempo de Atendimento", padding=10)
-    frame_tempo.grid(row=9, column=0, columnspan=2, padx=10, pady=5, sticky="ew")
-
-    tempos = [
-        ("Banho", "entry_banho"),
-        ("Secagem", "entry_secagem"),
-        ("Hidratação", "entry_hidratacao"),
-        ("Desembolo", "entry_desembolo"),
-        ("Tosa Higiênica", "entry_higienica"),
-        ("Tosa Máquina", "entry_maquina"),
-        ("Tosa Tesoura", "entry_tesoura"),
-        ("Total Atendimento", "entry_total")
-    ]
-    entradas_tempo = {}
-
-    for i, (label, varname) in enumerate(tempos):
-        tk.Label(frame_tempo, text=label + ":").grid(row=i, column=0, sticky="w", padx=5)
-        entradas_tempo[varname] = tk.Entry(frame_tempo, width=10)
-        entradas_tempo[varname].grid(row=i, column=1, padx=5)
-
-    # 💾 Botão Salvar
-    def salvar_dados_pet():
-        dados = {
-            "nome": dc.variaveis["var_nome"].get()
-,
-            "porte": dc.variaveis["var_porte"].get()
-,
-            "raca": dc.variaveis["var_raca"].get()
-,
-            "idade_anos": dc.variaveis["var_idade_anos"].get()
-,
-            "idade_meses": dc.variaveis["var_idade_meses"].get()
-,
-            "data_cadastro": dc.variaveis["var_data_cadastro"].get()
-,
-            "tutor1": dc.variaveis["var_tutor1"].get()
-,
-            "tutor2": dc.variaveis["var_tutor2"].get()
-,
-            "logradouro": dc.variaveis["var_logradouro"].get()
-,
-            "numero": dc.variaveis["var_numero"].get()
-,
-            "complemento": dc.variaveis["var_complemento"].get()
-,
-            "obs": campo_obs.get("1.0", "end").strip(),
-            "tipopelo": dc.variaveis["var_tipopelo"].get()
-,
-            "pelagem": dc.variaveis["var_pelagem"].get()
-,
-            "tempos": {et: entradas_tempo[et].get() for et in entradas_tempo}
-        }
-
-
-        #     "nome": entry_nome_pet.get(),
-        #     "porte": var_porte.get(),
-        #     "raca": var_raca.get(),
-        #     "idade_anos": entry_idade_anos.get(),
-        #     "idade_meses": entry_idade_meses.get(),
-        #     "data_cadastro": data_cadastro.get_date(),
-        #     "tutor1": entry_tutor1.get(),
-        #     "tutor2": entry_tutor2.get(),
-        #     "logradouro": entry_logradouro.get(),
-        #     "numero": entry_numero.get(),
-        #     "complemento": entry_complemento.get(),
-        #     "obs": campo_obs.get("1.0", "end").strip(),
-        #     "tipopelo": var_tipopelo.get(),
-        #     "pelagem": var_descricao.get(),
-        #     "tempos": {et: entradas_tempo[et].get() for et in entradas_tempo}
-        # }
-        print("📦 Dados do PET salvos:", dados)
-        tk.messagebox.showinfo("Cadastro", "Dados do PET salvos com sucesso!")
-
-    btn_salvar = ttk.Button(inner_frame, text="💾 Salvar Cadastro", command=salvar_dados_pet)
-    btn_salvar.grid(row=10, column=0, columnspan=2, pady=10)
 
 #((((((((((((((((((((((((((()))))))))))))))))))))))))))
 
