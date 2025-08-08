@@ -48,7 +48,7 @@ def mostrar_splash(janela):
         label.image = img_tk  # Manter uma referência da imagem
         #label.grid(row=0, column=0, sticky="nsew")
         #label.place(x=50, y=50)  # Muda o logo para as coordenadas desejadas
-        label.place(relx=0.5, rely=0.5, anchor="center")  # Centraliza a imagem
+   git     label.place(relx=0.5, rely=0.5, anchor="center")  # Centraliza a imagem
         # splash.grid_rowconfigure(0, weight=1) # Use Só com .grid
         # splash.grid_columnconfigure(0, weight=1)# Use Só com .grid
     else:
