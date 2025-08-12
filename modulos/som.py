@@ -4,6 +4,8 @@ import threading
 import os
 from tkinter import ttk
 som_ativo = True  # isso pode ser movido para o módulo som.py
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
 
 # ✅ Inicializa mixer uma única vez
 def inicializar_audio():

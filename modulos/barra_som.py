@@ -3,7 +3,10 @@ from tkinter import ttk
 from som import alternar_som, tocar_som
 import pygame
 som_ativo = True  # isso pode ser movido para o módulo som.py
+from modulos.utilitarios import caminho_arquivo
 
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
 
 def salvar_cliente():
     ...

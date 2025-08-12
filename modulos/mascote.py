@@ -5,6 +5,9 @@ import os
 from modulos.dados_compartilhados import usuarios
 from modulos.som_expressao import som_e_expressao_acao
 from tkinter import ttk
+from modulos.utilitarios import caminho_arquivo
+
+
 
 # mascote.py
 def animar_mascote_expressivo(label_mascote, janela):

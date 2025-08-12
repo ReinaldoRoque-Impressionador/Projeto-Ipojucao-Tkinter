@@ -3,7 +3,10 @@
 
 from pprint import pprint
 import requests
-from utilitarios import caminho_arquivo
+from modulos.utilitarios import caminho_arquivo
+
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
 
 logo_splash = caminho_arquivo("splash.png", subpasta=os.path.join("..", "..", "imagensipojucao"))
 som_relatorio = caminho_arquivo("relatorio_finalizado.mp3", subpasta="sons")
@@ -75,4 +78,4 @@ def rodape_imagem(frame_pai):
     else:
         print("Imagem do rodapé não encontrada.")
 
-barra_audio(frame_aba_clima)  # ou frame_aba_menu, frame_aba_config, etc.
+#barra_audio(frame_aba_clima)  # ou frame_aba_menu, frame_aba_config, etc.

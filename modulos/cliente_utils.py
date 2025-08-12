@@ -3,6 +3,7 @@
 from db_models import Tutor
 from database import database
 from modulos.dados_compartilhados import usuarios
+from modulos.utilitarios import caminho_arquivo
 
 def salvar_ou_atualizar_cliente(id_cliente, nome, cpf):
     if not nome or not cpf:

@@ -2,6 +2,10 @@ import requests
 import re
 from tkinter import ttk
 from pprint import  pprint
+from modulos.utilitarios import caminho_arquivo
+
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
 
 from aba_itau import api_key, link_api, parametros, descricao
 
@@ -165,4 +169,4 @@ def rodape_imagem(frame_pai):
     else:
         print("Imagem do rodapé não encontrada.")
 
-barra_audio(frame_aba_itau)  # ou frame_aba_menu, frame_aba_config, etc.
+#barra_audio(frame_aba_itau)  # ou frame_aba_menu, frame_aba_config, etc.

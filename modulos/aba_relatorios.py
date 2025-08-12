@@ -8,8 +8,12 @@ from tkinter import ttk
 from tkcalendar import DateEntry
 import os
 import pygame
-from utilitarios import caminho_arquivo
+from modulos.utilitarios import caminho_arquivo
 from aba_som import som_relatorio
+
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
+
 
 logo_splash = caminho_arquivo("splash.png", subpasta=os.path.join("..", "..", "imagensipojucao"))
 def som_relatorio():
@@ -167,7 +171,7 @@ def rodape_imagem(frame_pai):
         print("Imagem do rodapé não encontrada.")
 
 
-barra_audio(frame_aba_relatorios)  # ou frame_aba_menu, frame_aba_config, etc.
+#barra_audio(frame_aba_relatorios)  # ou frame_aba_menu, frame_aba_config, etc.
 
 
 

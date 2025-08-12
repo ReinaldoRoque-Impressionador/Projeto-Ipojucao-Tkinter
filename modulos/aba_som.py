@@ -3,8 +3,10 @@ pygame.mixer.init()
 import threading
 import os
 from tkinter import ttk
+from modulos.utilitarios import caminho_arquivo
 
-
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
 
 #✅ Etapa 1: Criar a  para centralizar os sons
 #Assim você evita repetir código nas abas. Aqui vai um modelo prático:E substituir linhas como:
@@ -19,6 +21,9 @@ from tkinter import ttk
 
 
 som_ativo = True  # Pode ser controlado por botão externo - # ⚙️ controle global de som
+
+def som_cadastro():
+    print("🔊 Som de cadastro executado!")
 
 def inicializar_audio():
     if not pygame.mixer.get_init():

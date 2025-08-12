@@ -18,7 +18,8 @@ import dados_compartilhados as dc
 from dados_compartilhados import caracteristicas_racas, imagens_portes, imagens_racas
 from estrutura import inner_frame
 from utilitarios import caminho_arquivo
-from aba_mascote import mostrar_mascote_expressivo
+from modulos.mascote import mostrar_mascote_expressivo
+from modulos.utilitarios import caminho_arquivo
 
 logo_splash = caminho_arquivo("splash.png", subpasta=os.path.join("..", "..", "imagensipojucao"))
 som_relatorio = caminho_arquivo("relatorio_finalizado.mp3", subpasta="sons")
@@ -193,42 +194,45 @@ def salvar_dados_pet():
         "tempos": {et: entradas_tempo[et].get() for et in entradas_tempo}
         }
 
-        def salvar_dados_pet():
-            dados = {
-                "nome": dc.variaveis["var_nome"].get(),
-                "porte": dc.variaveis["var_porte"].get(),
-                "raca": dc.variaveis["var_raca"].get(),
-                "idade_anos": dc.variaveis["var_idade_anos"].get(),
-                "idade_meses": dc.variaveis["var_idade_meses"].get(),
-                "tipopelo": dc.variaveis["var_tipopelo"].get(),
-                "pelagem": dc.variaveis["var_pelagem"].get(),
-                "caracteristicas": dc.variaveis["var_caracteristicas"].get(),
-                "data_cadastro": dc.variaveis["var_data_cadastro"].get(),
+def salvar_dados_pet():
+    dados = {
+            "nome": dc.variaveis["var_nome"].get(),
+            "porte": dc.variaveis["var_porte"].get(),
+            "raca": dc.variaveis["var_raca"].get(),
+            "idade_anos": dc.variaveis["var_idade_anos"].get(),
+            "idade_meses": dc.variaveis["var_idade_meses"].get(),
+            "tipopelo": dc.variaveis["var_tipopelo"].get(),
+            "pelagem": dc.variaveis["var_pelagem"].get(),
+            "caracteristicas": dc.variaveis["var_caracteristicas"].get(),
+            "data_cadastro": dc.variaveis["var_data_cadastro"].get(),
 
-                # Dados dos tutores
-                "tutor1": dc.variaveis["var_tutor1"].get(),
-                "tel1": dc.variaveis["var_tel1"].get(),
-                "email1": dc.variaveis["var_email1"].get(),
-                "tutor2": dc.variaveis["var_tutor2"].get(),
-                "tel2": dc.variaveis["var_tel2"].get(),
-                "email2": dc.variaveis["var_email2"].get(),
+            # Dados dos tutores
+            "tutor1": dc.variaveis["var_tutor1"].get(),
+            "tel1": dc.variaveis["var_tel1"].get(),
+            "email1": dc.variaveis["var_email1"].get(),
+            "tutor2": dc.variaveis["var_tutor2"].get(),
+            "tel2": dc.variaveis["var_tel2"].get(),
+            "email2": dc.variaveis["var_email2"].get(),
 
-                # Endereço
-                "logradouro": dc.variaveis["var_logradouro"].get(),
-                "numero": dc.variaveis["var_numero"].get(),
-                "complemento": dc.variaveis["var_complemento"].get(),
+            # Endereço
+            "logradouro": dc.variaveis["var_logradouro"].get(),
+            "numero": dc.variaveis["var_numero"].get(),
+            "complemento": dc.variaveis["var_complemento"].get(),
 
-                # Observações
-                "obs": campo_obs.get("1.0", "end").strip(),
+            # Observações
+            "obs": campo_obs.get("1.0", "end").strip(),
 
                 # Tempo de atendimento
                 "tempos": {et: entradas_tempo[et].get() for et in entradas_tempo}
             }
 
-            # Aqui você pode salvar em arquivo, banco de dados, ou apenas imprimir
-            print("🐾 Dados do PET cadastrados:")
-            for chave, valor in dados.items():
-                print(f"{chave}: {valor}")
+# Aqui você pode salvar em arquivo, banco de dados, ou apenas imprimir
+def salvar_dados_pet():
+    print("🐾 Dados do PET cadastrados:")
+    for chave, valor in dados.items():
+        print(f"{chave}: {valor}")
+
+
 
 
         btn_audio = tk.Button(inner_frame, text="🔊 Áudio")

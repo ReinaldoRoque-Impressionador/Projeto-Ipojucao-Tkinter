@@ -9,8 +9,8 @@ from cliente_utils import (
 from db_models import Tutor
 from database import database
 from modulos.aba_som import som_e_expressao_acao
-
-from utilitarios import caminho_arquivo
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
 
 logo_splash = caminho_arquivo("splash.png", subpasta=os.path.join("..", "..", "imagensipojucao"))
 som_relatorio = caminho_arquivo("relatorio_finalizado.mp3", subpasta="sons")
@@ -117,7 +117,7 @@ def rodape_imagem(frame_pai):
     else:
         print("Imagem do rodapé não encontrada.")
 
-barra_audio(frame_aba_clientes)  # ou frame_aba_menu, frame_aba_config, etc.
+#barra_audio(frame_aba_clientes)  # ou frame_aba_menu, frame_aba_config, etc.
 
 
 

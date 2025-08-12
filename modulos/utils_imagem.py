@@ -1,5 +1,9 @@
 from PIL import ImageTk, ImageEnhance
 import tkinter as tk
+from modulos.utilitarios import caminho_arquivo
+
+from modulos import dados_compartilhados as dc
+
 
 def fade_in_imagem(label, imagem_pil, duracao_ms=300, passos=10):
     """

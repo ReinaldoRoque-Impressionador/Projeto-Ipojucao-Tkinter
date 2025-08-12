@@ -3,7 +3,9 @@ from tkinter import ttk, messagebox, filedialog
 from datetime import datetime
 import sys
 import subprocess
-
+from modulos.utilitarios import caminho_arquivo
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
 
 from audio import tocar_musica, tocar_som_curto, parar_musica
 from aba_som import som_login, som_relatorio, tocar_trilha, alternar_som_estado
@@ -106,4 +108,4 @@ def montar_painel_diagnostico(parent):
     ttk.Button(frame_diag, text="🛠 AutoCorrigir", command=corrigir_automaticamente).grid(row=0, column=1, padx=10, pady=5)
     ttk.Button(frame_diag, text="💾 Exportar Log", command=exportar_log).grid(row=0, column=2, padx=10, pady=5)
 
-barra_audio(frame_aba_diagnostico)  # ou frame_aba_menu, frame_aba_config, etc.
+#barra_audio(frame_aba_diagnostico)  # ou frame_aba_menu, frame_aba_config, etc.

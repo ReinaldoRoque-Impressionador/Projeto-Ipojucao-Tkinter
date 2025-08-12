@@ -1,6 +1,9 @@
 # estrutura.py
 import tkinter as tk
 from tkinter import ttk
+from modulos.utilitarios import caminho_arquivo
+
+from modulos import dados_compartilhados as dc
 
 # 🧭 Frame principal para navegação
 frame_navegacao = None  # será inicializado no main.py

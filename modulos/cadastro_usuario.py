@@ -7,7 +7,7 @@
 #from audio import tocar_musica, tocar_som_curto, parar_musica
 #from aba_som import som_login, som_relatorio, tocar_trilha, alternar_som_estado
 #from tkinter import ttk
-
+from modulos.utilitarios import caminho_arquivo
 #
 #
 # usuario_atual = None
@@ -59,4 +59,4 @@
 #         tk.Button(janela_principal, text="Novo Usuário", command=lambda: cadastro_usuario(janela_principal)).pack()
 #         tk.Button(janela_principal, text="Excluir Usuário", command=lambda: excluir_usuario(janela_principal)).pack()
 
-barra_audio(frame_aba_cadastro_usuario)  # ou frame_aba_menu, frame_aba_config, etc.
+#barra_audio(frame_aba_cadastro_usuario)  # ou frame_aba_menu, frame_aba_config, etc.

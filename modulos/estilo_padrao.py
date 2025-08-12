@@ -1,4 +1,8 @@
 from tkinter import ttk
+from modulos.utilitarios import caminho_arquivo
+
+from modulos import dados_compartilhados as dc
+
 
 def configurar_estilo():
     style = ttk.Style()

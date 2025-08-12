@@ -4,7 +4,7 @@
 # # Se 'usuarios' estiver definido em outro arquivo:
 # from aba_login import usuarios  # ou o arquivo correto
 #
-#
+from modulos.utilitarios import caminho_arquivo
 # usuario_atual = None
 #
 #

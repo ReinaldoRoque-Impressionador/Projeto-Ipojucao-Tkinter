@@ -3,9 +3,18 @@ import tkinter as tk
 import os
 from modulos.aba_som import tocar_som
 
+from tkinter import ttk, messagebox
+from PIL import Image, ImageTk
+
+
+#from PIL import Image
+#import dados_compartilhados as dc
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
+
 #import dados_compartilhados as dc # var_porte, var_raca, dados_pet, imagens_racas, imagens_portes
 #from main import inner_frame
-from utilitarios import caminho_arquivo
+from modulos.utilitarios import caminho_arquivo
 
 logo_splash = caminho_arquivo("splash.png", subpasta=os.path.join("..", "..", "imagensipojucao"))
 som_relatorio = caminho_arquivo("relatorio_finalizado.mp3", subpasta="sons")
@@ -171,9 +180,6 @@ def atualizar_imagem_porte(porte):
         dc.label_imagem.image = None
 
 
-import os
-from PIL import Image
-import dados_compartilhados as dc
 
 def tocar_som_transicao():
     caminho = os.path.join("../Planilha Controle Ipojucão/sons", "woof.wav")  # substitua pelo nome do seu som
@@ -210,7 +216,7 @@ def atualizar_caracteristicas(event=None):
     else:
         dc.label_imagem.config(image="", text="Imagem não encontrada")
 
-barra_audio(frame_aba_config)  # ou frame_aba_menu, frame_aba_config, etc.
+#barra_audio(frame_aba_config)  # ou frame_aba_menu, frame_aba_config, etc.
 
 # def atualizar_caracteristicas(event=None):
 #     raca = dc.var_raca.get()

@@ -1,77 +1,205 @@
 import tkinter as tk
-from tkinter import ttk
+from tkinter import ttk, messagebox
 from PIL import Image, ImageTk
 import os
 import pygame
-from tkinter import messagebox
 
 from modulos.aba_login_fusion import criar_login
-
 from modulos.aba_consulta import montar_aba_consulta
 from modulos.aba_financeiro import criar_aba_financeiro
-from modulos import dados_compartilhados as dc
-
-print("Executando o main.py DENTRO da pasta modulos")
-
-#🎵 Inicialização de sprint("Executando o main.py DENTRO da pasta modulos")om
-pygame.init()
-pygame.mixer.init()
-
-# 🧩 Importações do projeto
-# from modulos.aba_cadastro import montar_aba_cadastro  # ✅ certo
-
+from modulos.aba_cadastro import montar_aba_cadastro
 from modulos.audio import som_evento
-from utilitarios import caminho_arquivo
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
+from modulos.tela_principal import abrir_janela_principal
 
+
+from aba_cadastro import logo_splash
+from aba_login_fusion import abrir_boas_vindas
+from funcoes_auxiliares import mostrar_splash
+
+def centralizar_janela(janela, largura, altura):
+    x = (janela.winfo_screenwidth() - largura) // 2
+    y = (janela.winfo_screenheight() - altura) // 2
+    janela.geometry(f"{largura}x{altura}+{x}+{y}")
 
 
 
 def caminho_splash(nome):
-    base = os.path.dirname(__file__)  # Agora que o main está na raiz, basta um nível
+    base = os.path.dirname(__file__)  # sobe apenas uma pasta
     return os.path.join(base, "imagensipojucao", "imagens", nome)
-# 🖼️ Splash com logo
-def mostrar_splash(janela):
-    splash = tk.Toplevel(janela)
+
+
+# def mostrar_splash(callback):
+#     splash = tk.Toplevel()
+#     centralizar_janela(splash, 1000, 600)
+#     splash.geometry("1000x500")
+#     splash.overrideredirect(True)
+#
+#     # Carregar imagem após criar a janela
+#     imagem = Image.open(r"C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\imagensipojucao\logo_ipojucao.png")
+#     splash.img_tk = ImageTk.PhotoImage(imagem)  # Associar à janela para manter referência
+#     label = tk.Label(splash, image=splash.img_tk)
+#     label.place(relx=0.5, rely=0.5, anchor="center")
+#
+#     # Fechar splash após 3 segundos e chamar callback
+#     splash.after(9000, lambda: [splash.destroy(), criar_login(janela_principal, ao_logar)])
+
+def mostrar_splash(callback):
+    splash = tk.Toplevel()
+    centralizar_janela(splash, 1000, 600)
+    splash.geometry("1000x500")
     splash.overrideredirect(True)
-    largura, altura = 1000, 500
-    x = (splash.winfo_screenwidth() - largura) // 2
-    y = (splash.winfo_screenheight() - altura) // 2
-    splash.geometry(f"{largura}x{altura}+{x}+{y}")
 
-    # Obtendo o caminho da imagem através da função
-    logo_splash = caminho_splash("logo_ipojucao.png")  # Passando o nome da imagem para a função
+    imagem = Image.open(caminho_splash("logo_ipojucao.png"))
+    splash.img_tk = ImageTk.PhotoImage(imagem)
+    label = tk.Label(splash, image=splash.img_tk)
+    label.place(relx=0.5, rely=0.5, anchor="center")
 
-    if os.path.exists(logo_splash):
-        img = Image.open(logo_splash).resize((largura, altura))
-        img_tk = ImageTk.PhotoImage(img)
-        label = tk.Label(splash, image=img_tk)
-        label.image = img_tk  # Manter uma referência da imagem
-        #label.grid(row=0, column=0, sticky="nsew")
-        #label.place(x=50, y=50)  # Muda o logo para as coordenadas desejadas
-   git     label.place(relx=0.5, rely=0.5, anchor="center")  # Centraliza a imagem
-        # splash.grid_rowconfigure(0, weight=1) # Use Só com .grid
-        # splash.grid_columnconfigure(0, weight=1)# Use Só com .grid
+    splash.after(6000, lambda: [splash.destroy(), callback()])
+
+# pasta_sons = r"C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\sons"
+# def caminho_arquivo_sons(nome_arquivo):
+#     base = os.path.dirname(__file__)  # pasta do main.py
+#     return os.path.join(base, "imagensipojucao", "sons", nome_arquivo)
+#
+# estado_musica = {"tocando": False}
+# # 🎵 Inicialização de som
+# pygame.init()
+# pygame.mixer.init()
+#
+# musica = caminho_arquivo_sons("musica_abertura.mp3")
+# if os.path.exists(musica):
+#     pygame.mixer.music.load(musica)
+#     pygame.mixer.music.play(-1)  # -1 para repetir
+# else:
+#     print("Arquivo de música não encontrado:", musica)
+# #musica = caminho_arquivo_sons("musica_abertura.mp3")
+
+# aqui inicio do o código original com abertura de música sem transição para telas
+
+pasta_sons = r"C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\sons"
+
+def caminho_arquivo_sons(nome_arquivo):
+    base = os.path.dirname(__file__)
+    return os.path.join(base, "sons", nome_arquivo)
+
+estado_musica = {"tocando": False}
+
+# Inicialização
+pygame.init()
+pygame.mixer.init()
+
+musica = caminho_arquivo_sons("musica_abertura.mp3")
+if os.path.exists(musica):
+    pygame.mixer.music.load(musica)
+    pygame.mixer.music.play(-1)
+else:
+    print("Arquivo de música não encontrado:", musica)
+
+def tocar_musica(nome_arquivo):
+    caminho_musica = os.path.join(pasta_sons, nome_arquivo)
+    if os.path.exists(caminho_musica):
+        pygame.mixer.music.load(caminho_musica)
+        pygame.mixer.music.play()
+        estado_musica["tocando"] = True
+        print(f"Tocando: {nome_arquivo}")
     else:
-        print("Imagem não encontrada:", logo_splash)  # Mensagem de erro
-        tk.Label(splash, text="Ipojucão", font=("Segoe UI", 48), fg="green").grid(row=0, column=0)
+        print("Arquivo não encontrado:", caminho_musica)
 
-        logo_splash = "caminho_invalido.png"  # Força o texto "Ipojucão" aparecer
-    splash.after(5500, lambda: [splash.destroy(), iniciar_login(janela)])
+# 🎵 Funções do player
+def tocar_musica(nome_arquivo):
+    caminho_musica = os.path.join(pasta_sons, nome_arquivo)
+    pygame.mixer.music.load(caminho_musica)
+    pygame.mixer.music.play()
+    estado_musica["tocando"] = True
+    print(f"Tocando: {nome_arquivo}")
 
-    splash.after(5500, lambda: tentar_iniciar_login(janela))
+def pausar_musica():
+    if estado_musica["tocando"]:
+        pygame.mixer.music.pause()
+        estado_musica["tocando"] = False
+        print("Pausar/Retomar")
 
-    def tentar_iniciar_login(janela):
-        try:
-            iniciar_login(janela)
-        except Exception as e:
-            print("Erro ao iniciar login:", e)
+    else:
+        pygame.mixer.music.unpause()
+        estado_musica["tocando"] = True
+        print("Pausar/Retomar")
 
-def iniciar_sistema():
-    janela_inicial = tk.Tk()
-    janela_inicial.withdraw()
-    abrir_janela_principal("Reinaldo", "Administrador")
-    janela_inicial.mainloop()
+def parar_musica():
+    pygame.mixer.music.stop()
+    estado_musica["tocando"] = False
+    print("Parar")
 
+def ajustar_volume(valor):
+    volume = float(valor)
+    pygame.mixer.music.set_volume(volume)
+    print(f"Volume ajustado para: {valor}")
+
+def criar_player_som(pai):
+    frame = tk.Frame(pai)
+
+    # 🔘 Botões de músicas
+    arquivos = [f for f in os.listdir(pasta_sons) if f.endswith(".mp3")]
+
+    for idx, nome in enumerate(arquivos):
+        botao = tk.Button(frame, text=nome, width=30,
+                          command=lambda n=nome: tocar_musica(n))
+        botao.grid(row=idx, column=0, padx=10, pady=5)
+
+    botao_pausar = tk.Button(frame, text="⏸️ Pausar/Retomar", command=pausar_musica)
+    botao_pausar.grid(row=0, column=1, padx=10)
+
+    botao_parar = tk.Button(frame, text="⏹️ Parar", command=parar_musica)
+    botao_parar.grid(row=1, column=1, padx=10)
+
+    volume_label = tk.Label(frame, text="🔊 Volume")
+    volume_label.grid(row=2, column=1, padx=10)
+
+    volume_slider = tk.Scale(frame, from_=0, to=1, resolution=0.1,
+                             orient=tk.HORIZONTAL, command=ajustar_volume)
+    volume_slider.set(0.5)
+    volume_slider.grid(row=3, column=1, padx=10)
+
+    return frame
+
+# aqui fim do código original com trilha sem transição de telas
+
+janela_principal = tk.Toplevel()
+janela_principal.title("Janela Principal")
+janela_principal.geometry("600x400")
+
+def ao_logar(nome, perfil):
+    abrir_janela_principal(nome, perfil)  # ou abrir_janela_principal(nome, perfil)
+
+player = criar_player_som(janela_principal)
+player.grid(row=0, column=0, pady=10, padx=10)
+
+print(caminho_arquivo("teste.txt"))
+print("Importação funcionou!")
+
+# Agora você pode usar a função:
+musica = caminho_arquivo_sons("musica_abertura.mp3")
+
+def caminho_pasta_sons():
+    return os.path.join(os.path.dirname(__file__), "sons")
+
+print("Mascote:", caminho_arquivo("mascote_feliz.png"))
+print("Logo:", caminho_arquivo("logo_ipojucao.png"))
+print("Som:", caminho_arquivo("musica_abertura.mp3", "sons"))
+print(os.path.exists("caminho/para/musica_abertura.mp3"))
+caminho_musica = r"C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\sons\musica_abertura.mp3"
+print(os.path.exists(caminho_musica))
+
+# 🔼 Importações no topo
+
+# 🔧 Inicializações e variáveis globais
+pygame.mixer.init()
+base_dir = os.path.dirname(os.path.abspath(__file__))
+caminho_sons = os.path.join(base_dir, "sons")
+estado_musica = {"tocando": False}
+
+caminho_sons = r"C:\Users\VEIRANO\PycharmProjects\ModuloTkinter\Planilha Controle Ipojucão\sons"
 
 # 🔐 Callback após login
 def abrir_janela_principal(nome, perfil):
@@ -79,134 +207,100 @@ def abrir_janela_principal(nome, perfil):
     janela.title(f"Ipojucão • Bem-vindo {nome}")
     janela.geometry("900x600")
 
-    # ✅ Inicializa variáveis globais com referência à janela
     dc.inicializar_variaveis(janela)
 
     notebook = ttk.Notebook(janela)
     notebook.grid(padx=10, pady=10)
 
-    # 🧩 Aba 1 – Dados gerais
+    # 📋 Aba Dados Gerais
     aba_geral = tk.Frame(notebook, bg="white")
     notebook.add(aba_geral, text="📋 Dados Gerais")
-
     tk.Label(aba_geral, text=f"Bem-vindo, {nome}!", font=("Segoe UI", 16), bg="white").grid(pady=20)
     tk.Label(aba_geral, text=f"Perfil: {perfil}", font=("Segoe UI", 14), bg="white").grid()
 
-    # 🧩 Aba 2 – Formulários
+    # 🧪 Aba Formulários
     aba_form = tk.Frame(notebook, bg="white")
     notebook.add(aba_form, text="🧪 Formulários")
-
     tk.Label(aba_form, text="Selecione uma opção:", bg="white").grid(row=0, column=0, padx=10, pady=10, sticky="w")
-
     combo = ttk.Combobox(aba_form, values=["Item 1", "Item 2", "Item 3"], state="readonly")
     combo.grid(row=0, column=1, padx=10)
-
     chk_var = tk.BooleanVar(value=True)
     chk = tk.Checkbutton(aba_form, text="Ativar opção avançada", variable=chk_var, bg="white")
     chk.grid(row=1, column=0, columnspan=2, pady=10)
-
     btn = tk.Button(aba_form, text="Confirmar", bg="#2196F3", fg="white",
                     command=lambda: messagebox.showinfo("Confirmado", "Tudo funcionando!"))
     btn.grid(row=2, column=0, columnspan=2, pady=20)
 
-    aba_form = tk.Frame(notebook, bg="white")
-
-
-    # 🧩 Aba 3 – Sobre
+    # ℹ️ Aba Sobre
     aba_sobre = tk.Frame(notebook, bg="white")
     notebook.add(aba_sobre, text="ℹ️ Sobre")
-
     tk.Label(aba_sobre, text="Sistema Ipojucão v1.0", font=("Segoe UI", 14), bg="white").grid(pady=20)
     tk.Label(aba_sobre, text="Feito com carinho por Reinaldo 🧠", bg="white").grid()
-    # Aqui você pode adicionar suas abas e funcionalidades
-    # Exemplo: notebook = ttk.Notebook(janela_principal)
 
+    # 💰 Aba Financeiro
+    aba_financeiro = criar_aba_financeiro()
+    notebook.add(aba_financeiro, text="💰 Financeiro")
 
-
-    # 🧮 Aba Financeiro
-    aba_financeiro = tk.Frame(notebook, bg="white")
-    notebook.add(aba_financeiro, text="🧮 Financeiro")
-
-    tk.Label(aba_financeiro, text="Resumo financeiro:", bg="white", font=("Segoe UI", 12)).grid(pady=10)
-    tk.Entry(aba_financeiro, width=30).grid()
-    tk.Button(aba_financeiro, text="💾 Salvar", bg="#4CAF50", fg="white").grid(pady=10)
-
-    # 🧑‍💼 Aba Cadastro
-    # aba_cadastro = tk.Frame(notebook, bg="white")
-    # notebook.add(aba_cadastro, text="👤 Cadastro")
-    aba_cadastro_frame = tk.Frame(notebook, bg="white")
-    inner_frame = tk.Frame(aba_cadastro_frame, bg="white")
-    inner_frame.grid(padx=10, pady=10)
-
-
-
-
-
-    # tk.Label(aba_cadastro, text="Nome do usuário:", bg="white").grid(row=0, column=0, padx=10, pady=10)
-    # tk.Entry(aba_cadastro, width=30).grid(row=0, column=1, padx=10)
-    #
-    # tk.Label(aba_cadastro, text="Perfil:", bg="white").grid(row=1, column=0, padx=10)
-    # perfil_combo = ttk.Combobox(aba_cadastro, values=["Funcionário", "Administrador"])
-    # perfil_combo.grid(row=1, column=1, padx=10)
-    #
-    # tk.Button(aba_cadastro, text="Cadastrar", bg="#4CAF50", fg="white").grid(row=2, column=0, columnspan=2, pady=15)
-
-    from modulos.aba_cadastro import montar_aba_cadastro
-
+    # 🐾 Aba Cadastro com scroll
     aba_cadastro = ttk.Frame(notebook)
-    notebook.add(aba_cadastro, text="Cadastro")
-
+    notebook.add(aba_cadastro, text="🐾 Cadastro")
     canvas = tk.Canvas(aba_cadastro)
     scrollbar = ttk.Scrollbar(aba_cadastro, orient="vertical", command=canvas.yview)
     canvas.configure(yscrollcommand=scrollbar.set)
-    canvas.pack(side="left", fill="both", expand=True)
-    scrollbar.pack(side="right", fill="y")
-
+    canvas.grid(side="left", fill="both", expand=True)
+    scrollbar.grid(side="right", fill="y")
     inner_frame = ttk.Frame(canvas)
     canvas.create_window((0, 0), window=inner_frame, anchor="nw")
+
+    # Criar o notebook e posicionar
+    notebook = ttk.Notebook(janela)
+    notebook.grid(row=0, column=0, sticky="nsew")
+
+    # Criar o player e posicionar abaixo
+    player = criar_player_som(janela)
+    player.grid(row=1, column=0, sticky="ew", pady=5)
 
     def ajustar_scroll(event):
         canvas.configure(scrollregion=canvas.bbox("all"))
 
     inner_frame.bind("<Configure>", ajustar_scroll)
-
-    # Chamada da função principal
     montar_aba_cadastro(aba_cadastro, inner_frame)
+
+    # 🔍 Aba Consulta
+    aba_consulta = montar_aba_consulta()
+    notebook.add(aba_consulta, text="🔍 Consulta")
 
     # 📑 Aba Relatórios
     aba_relatorios = tk.Frame(notebook, bg="white")
     notebook.add(aba_relatorios, text="📑 Relatórios")
-
     tk.Label(aba_relatorios, text="Escolha tipo de relatório:", bg="white").grid(pady=10)
     relatorio_combo = ttk.Combobox(aba_relatorios, values=["Relatório Geral", "Relatório por Data", "Relatório Financeiro"])
     relatorio_combo.grid()
-
     tk.Button(aba_relatorios, text="🕵️ Visualizar", bg="#2196F3", fg="white").grid(pady=15)
-
-    notebook.add(montar_aba_cadastro(), text="🐾 Cadastro")
-    notebook.add(montar_aba_consulta(), text="🔍 Consulta")
-    notebook.add(criar_aba_financeiro(), text="💰 Financeiro")
-
-#    entry_descricao = ttk.Entry(inner_frame, textvariable=dc.variaveis["var_descricao"])
 
     janela.mainloop()
 
-#🚀 Início do sistema
-def iniciar_login(janela):
-    criar_login(janela, ao_logar_callback=abrir_janela_principal)
+def iniciar_login():
+    janela_login = tk.Toplevel()
+    centralizar_janela(janela_login, 600, 400)
+    criar_login(janela_login, ao_logar_callback=abrir_janela_principal)
+mostrar_splash(iniciar_login)
 
 def iniciar_sistema():
-    janela_inicial = tk.Tk()
-    janela_inicial.withdraw()
-    som_evento(caminho_arquivo("abertura.mp3", subpasta="sons"))
-    #som_evento("abertura")
-    mostrar_splash(janela_inicial)
-    janela_inicial.mainloop()
+    #mostrar_splash(iniciar_login)
+
 
 # 🧭 Ponto de entrada
-if __name__ == "__main__":
-    print("✅ Executando main.py com aba_login_fusion")
-    iniciar_sistema()
+    if __name__ == "__main__":
+        root = tk.Tk()
+        root.withdraw()  # ✅ oculta a janela principal
+
+        print("✅ Executando main.py com aba_login_fusion")
+
+        iniciar_sistema()
+        root.mainloop()
+
+janela_principal.mainloop()
 
 
 
@@ -223,73 +317,3 @@ if __name__ == "__main__":
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-#import tkinter as tk
-# from modulos.aba_login_fusion import criar_login
-# from modulos.funcoes_auxiliares import som_evento, mostrar_splash, caminho_arquivo
-# from tkinter import ttk
-#
-# def abrir_janela_principal(nome, perfil):
-#     print(f"🔓 Logado como {nome} ({perfil})")
-#     janela = tk.Toplevel()
-#
-#     from tkinter import ttk
-#     notebook = ttk.Notebook(janela)
-#     notebook.pack(fill="both", expand=True)
-#
-
-
-#     aba = tk.Frame(notebook)
-#     tk.Label(aba, text=f"Bem-vindo, {nome}! Seu perfil é: {perfil}").pack(padx=20, pady=20)
-#     notebook.add(aba, text="Principal")
-#
-#
-# def iniciar_login(janela):
-#     criar_login(janela, ao_logar_callback=abrir_janela_principal)
-#
-#
-# def iniciar_sistema():
-#     janela_inicial = tk.Tk()
-#     janela_inicial.withdraw()
-#
-#     # janela.deiconify()
-#     # janela.lift()
-#     # janela.focus_force()
-#
-#     som_evento(caminho_arquivo("abertura.mp3", subpasta="sons"))
-#     mostrar_splash(janela_inicial)
-#     iniciar_login(janela_inicial)
-#     janela_inicial.mainloop()
-#
-#
-# if __name__ == "__main__":
-#     print("✅ Sistema inicializado com aba_login_fusion")
-#     iniciar_sistema()
-#
-#

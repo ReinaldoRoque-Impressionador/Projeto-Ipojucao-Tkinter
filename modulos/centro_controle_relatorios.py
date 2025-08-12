@@ -1,6 +1,10 @@
 # centro_controle_relatorios
-
+from modulos.utilitarios import caminho_arquivo
 from tkcalendar import DateEntry
+
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
+
 
 # Seleção de período
 ttk.Label(frame_controle, text="De:").grid(row=4, column=0)

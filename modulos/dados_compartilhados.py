@@ -1,5 +1,6 @@
 import tkinter as tk
 from tkinter import ttk
+from modulos.utilitarios import caminho_arquivo
 
 som_global_ativo = True  # ou False, dependendo da lógica
 usuario_atual = None

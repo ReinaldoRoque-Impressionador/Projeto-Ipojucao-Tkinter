@@ -3,6 +3,11 @@ from tkinter import ttk, messagebox, filedialog
 from datetime import datetime
 import sys
 import subprocess
+from modulos.utilitarios import caminho_arquivo
+
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
+
 
 janela = tk.Tk()
 janela.title("Sistema Petshop")

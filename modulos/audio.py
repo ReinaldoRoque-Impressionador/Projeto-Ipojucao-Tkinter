@@ -2,6 +2,11 @@ import pygame
 import os
 from tkinter import ttk
 
+from modulos.utilitarios import caminho_arquivo
+
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
+
 # 🔧 Inicializa o mixer apenas uma vez
 pygame.mixer.init()
 

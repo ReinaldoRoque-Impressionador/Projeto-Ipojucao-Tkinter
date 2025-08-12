@@ -5,7 +5,7 @@ from tkinter import ttk
 from modulos.dados_compartilhados import variaveis
 import pygame
 pygame.mixer.init()
-from utilitarios import caminho_arquivo
+from modulos.utilitarios import caminho_arquivo
 import os
 logo_splash = caminho_arquivo("splash.png", subpasta=os.path.join("..", "..", "imagensipojucao"))
 som_relatorio = caminho_arquivo("relatorio_finalizado.mp3", subpasta="sons")
@@ -13,6 +13,7 @@ from PIL import Image, ImageTk
 import os
 import dados_compartilhados as dc  # Importe o que precisar de forma compartilhada
 from mascote import mostrar_mascote_expressivo
+from modulos import dados_compartilhados as dc
 
 
 # def montar_aba_financeiro(aba_financeiro):
@@ -522,7 +523,7 @@ def rodape_imagem(frame_pai):
     else:
         print("Imagem do rodapé não encontrada.")
 
-barra_audio(frame_aba_financeiro)  # ou frame_aba_menu, frame_aba_config, etc.
+#barra_audio(frame_aba_financeiro)  # ou frame_aba_menu, frame_aba_config, etc.
 
 
             # Verifica se tem desconto por serviço específico

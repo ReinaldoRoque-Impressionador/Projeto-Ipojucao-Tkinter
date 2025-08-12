@@ -2,7 +2,10 @@ from tkinter import messagebox
 from PIL import Image, ImageTk
 import os
 
-from utilitarios import caminho_arquivo
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
+
+from modulos.utilitarios import caminho_arquivo
 from dados_compartilhados import usuarios, som_global_ativo
 
 try:
@@ -47,8 +50,8 @@ def criar_login(janela_principal, ao_logar_callback):
     # 🔊 Som de fundo
     intro_path = caminho_arquivo("bouncy_pet_intro.mp3", subpasta="sons")
     if som_global_ativo and os.path.exists(intro_path):
-        tocar_musica("sons/intro.mp3")
-        tocar_som_curto("sons/clique.mp3")
+        tocar_musica("sons/intro_path")
+        tocar_som_curto(caminho_arquivo("clique.mp3", subpasta="sons"))
 
     # 🖼️ Fundo com imagem
     fundo_path = caminho_arquivo("login_fundo.png", subpasta="imagens")
@@ -238,7 +241,7 @@ def barra_audio(frame_pai):
     btn_parar = ttk.Button(barra, text="🛑 Parar Música", command=parar_musica)
     btn_parar.grid(row=0, column=2, padx=5)
 
-barra_audio(frame_aba_login_fusion)  # ou frame_aba_menu, frame_aba_config, etc.
+#barra_audio(frame_aba_login_fusion)  # ou frame_aba_menu, frame_aba_config, etc.
 
 
 

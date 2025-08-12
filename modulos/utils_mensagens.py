@@ -1,5 +1,10 @@
 from datetime import datetime, timedelta
 
+
+from modulos import dados_compartilhados as dc
+from modulos.utilitarios import caminho_arquivo
+
+
 def gerar_msg_servico(cliente, texto_relatorio):
     return f"Olá, {cliente['nome']}! 🐾 Aqui está o resumo dos serviços prestados:\n{texto_relatorio}"
 
